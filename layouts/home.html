@@ -1,0 +1,20 @@
+{{ define "main" }}
+  <h1>{{ .Title }}</h1>
+  {{ .Content }}
+  <h2>Collections</h2>
+  <ul id="collections">
+    {{ range (where site.Pages "Kind" "section").ByTitle }}
+      {{ if .Params.collection }}
+        <li><a href="{{ .RelPermalink }}">{{ .Title }}</a> — {{ .Params.collection }}</li>
+      {{ end }}
+    {{ end }}
+  </ul>
+  <h2>Standalone pages</h2>
+  <ul id="standalone">
+    {{ range site.RegularPages.ByTitle }}
+      {{ if not (partial "collection-owner.html" .) }}
+        <li><a href="{{ .RelPermalink }}">{{ .Title }}</a></li>
+      {{ end }}
+    {{ end }}
+  </ul>
+{{ end }}

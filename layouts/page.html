@@ -1,0 +1,17 @@
+{{ define "main" }}
+  {{ $owner := partial "collection-owner.html" . }}
+  <article data-renderer="shared-article" data-collection="{{ with $owner }}{{ .RelPermalink }}{{ end }}">
+    <h1>{{ .Title }}</h1>
+    {{ with $owner }}
+      <nav aria-label="Collection"><a href="{{ .RelPermalink }}">{{ .Title }}</a> — {{ .Params.collection }}</nav>
+    {{ end }}
+    {{ with .Params.byline }}<p class="byline">{{ . }}</p>{{ end }}
+    {{ if not .Date.IsZero }}
+      <p>Published <time class="published" datetime="{{ .Date.Format "2006-01-02T15:04:05Z07:00" }}">{{ .Date.Format "2006-01-02" }}</time></p>
+    {{ end }}
+    {{ if and .Params.show_updated (not .Lastmod.IsZero) }}
+      <p>Updated <time class="updated" datetime="{{ .Lastmod.Format "2006-01-02T15:04:05Z07:00" }}">{{ .Lastmod.Format "2006-01-02" }}</time></p>
+    {{ end }}
+    {{ .Content }}
+  </article>
+{{ end }}

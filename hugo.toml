@@ -1,4 +1,6 @@
 baseURL = 'https://example.org/'
-locale = 'en-us'
-title = 'My New Hugo Project'
-theme = 'skeleton'
+locale = 'en-US'
+title = 'Collection organization showcase'
+timeZone = 'Asia/Shanghai'
+# The generated skeleton is retained, but inactive. No theme decision is implied.
+disableKinds = ['taxonomy', 'term', 'RSS']

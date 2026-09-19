@@ -1,0 +1,16 @@
+{{ define "main" }}
+  {{ $owner := partial "collection-owner.html" . }}
+  <h1>{{ .Title }}</h1>
+  {{ with $owner }}
+    <nav aria-label="Collection"><a href="{{ .RelPermalink }}">{{ .Title }}</a> — {{ .Params.collection }}</nav>
+  {{ end }}
+  {{ .Content }}
+  <p>Alphabetical fixture view only; collection ordering, pinning, tags, and pagination are not implemented.</p>
+  <ul id="articles">
+    {{ range .RegularPagesRecursive.ByTitle }}
+      {{ if eq (partial "collection-owner.html" .) $owner }}
+        <li><a href="{{ .RelPermalink }}">{{ .Title }}</a></li>
+      {{ end }}
+    {{ end }}
+  </ul>
+{{ end }}

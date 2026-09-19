@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="160" height="80" viewBox="0 0 160 80">
+<title>Two connected sample nodes</title>
+<path d="M40 40H120" stroke="black"/>
+<circle cx="40" cy="40" r="16" fill="#38745b"/>
+<circle cx="120" cy="40" r="16" fill="#24629a"/>
+</svg>
