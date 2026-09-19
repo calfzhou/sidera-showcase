@@ -17,7 +17,7 @@ from urllib.parse import unquote, urljoin, urlparse
 
 sys.dont_write_bytecode = True
 
-from check_p1a import ROOT, POC, Page, check_baseline, same_links, snapshot, pagers, all_articles
+from check_p1a import ROOT, THEME, Page, check_baseline, same_links, snapshot, pagers, all_articles
 
 
 class View(HTMLParser):
@@ -84,7 +84,7 @@ def copy_site(run, label):
     dest.mkdir()
     shutil.copy2(ROOT / 'hugo.toml', dest / 'hugo.toml')
     for directory in ('content', 'themes'):
-        shutil.copytree(ROOT / directory, dest / directory)
+        shutil.copytree(ROOT / directory, dest / directory, ignore=shutil.ignore_patterns(".git"))
     return dest
 
 
@@ -276,7 +276,7 @@ def main():
     tag_checks(positive, 'lab-notes/annex', annex, ['storage/probe'])
     local_links(positive)
     assert not (positive / 'field-notes/tags/resource').exists()
-    assert snapshot(source / POC / 'layouts') == snapshot(ROOT / POC / 'layouts')
+    assert snapshot(source / THEME / 'layouts') == snapshot(ROOT / THEME / 'layouts')
     assert (source / 'hugo.toml').read_bytes() == (ROOT / 'hugo.toml').read_bytes()
 
     # Document, rather than hide, the route-inventory/publication boundary.

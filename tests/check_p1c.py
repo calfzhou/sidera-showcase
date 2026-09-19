@@ -6,7 +6,7 @@ import sys
 import tempfile
 
 sys.dont_write_bytecode = True
-from check_p1a import ROOT, POC, Page, article_route, all_articles, pagers, snapshot
+from check_p1a import ROOT, THEME, Page, article_route, all_articles, pagers, snapshot
 from check_p1b import (FIELD, LAB, View, build, copy_site, html, local_links,
                        tag_checks, write_note, http_smoke)
 
@@ -107,7 +107,7 @@ def date_probe(source):
     f = source / 'content/dates/e.md'
     f.write_text(f.read_text().replace('[params]', '[params]\nlist_order = "title"\npage_size = 99\npinned = false'))
     # Observe all three native Page values without changing production markup.
-    template = source / POC / 'layouts/page.html'
+    template = source / THEME / 'layouts/page.html'
     template.write_text(template.read_text().replace('    <h1>', '''    <p data-date="{{ .Date.Format "2006-01-02" }}" data-publication="{{ .PublishDate.Format "2006-01-02" }}" data-modification="{{ .Lastmod.Format "2006-01-02" }}"></p>
     <h1>'''))
 
@@ -246,7 +246,7 @@ def main():
     # Architectural guard: only one actual pagination call; widgets/nav never
     # accidentally seed Hugo's cached first call with a different collection.
     calls = [(p.relative_to(ROOT).as_posix(), line.strip())
-             for p in (ROOT/POC/'layouts').rglob('*.html') for line in p.read_text().splitlines()
+             for p in (ROOT/THEME/'layouts').rglob('*.html') for line in p.read_text().splitlines()
              if '{{' in line and '/*' not in line and ('.Paginate ' in line or '.Paginator' in line)]
     assert len(calls) == 1 and calls[0][0].endswith('lists/render.html'), calls
     summary = ('PASS P1-C: explicit sequences, native date fallback/aliases/offsets, ties, pins once/overflow, '

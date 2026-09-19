@@ -2,8 +2,8 @@ baseURL = 'https://example.org/'
 locale = 'en-US'
 title = 'Collection organization showcase'
 timeZone = 'Asia/Shanghai'
-# Temporary PoC packaging, not the final theme selection. Skeleton is retained.
-theme = 'poc'
+# Active development checkout is a pinned Git submodule. PoC/skeleton remain fixtures.
+theme = 'sidera'
 disableKinds = ['taxonomy', 'term', 'RSS']
 
 # Explicit metadata-only fallback chains: no Git, file mtime or build clock.

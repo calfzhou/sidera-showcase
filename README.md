@@ -1,8 +1,45 @@
-# Hugo collection organization showcase
+# Sidera showcase
 
-P1-A/P1-B/P1-C form an intentionally unstyled, synthetic organizational proof, not a final theme choice or a Stellar port. The proof is now packaged in **`themes/poc`**, enabled by `theme = 'poc'`; no site-local templates or adapter are required. The generated `themes/skeleton` files remain intact but are **inactive** by default. No dependencies, external services, JavaScript, preprocessing, series, or wiki implementation are required.
+This repository is `calfzhou/sidera-showcase`; its local folder is still named
+`hugo-showcase`. The active theme is **Sidera**, a Git submodule at
+`themes/sidera`. That nested checkout is also the main theme-development checkout.
+The former sibling clone was moved here, not deleted or recreated. The retained
+`themes/poc` and `themes/skeleton` are inactive reference/comparison fixtures.
 
-The durable plan, fixture matrix, decisions, results and phase gates live in [migration-project](../migration-project/README.md), especially [P1-A evidence](../migration-project/P1-A.md) and [P1-B evidence](../migration-project/P1-B.md) and [P1-C evidence](../migration-project/P1-C.md). Do not infer completion of Phase 1 from this slice.
+The initial Sidera templates/adapter are byte-identical to the closed P1 proof;
+this wiring step adds no visual changes or production-compatibility claims.
+The durable plan, decisions and evidence live in
+[migration-project](../migration-project/README.md).
+
+## Clone, build and develop
+
+```sh
+git clone --recurse-submodules git@github.com:calfzhou/sidera-showcase.git
+# Existing clone:
+git submodule update --init --recursive
+# Before making theme commits (updates commonly detach HEAD):
+git -C themes/sidera switch main
+# Or create a feature branch at the intended starting commit.
+```
+
+Edit `themes/sidera` directly and run the normal showcase build below. Hugo sees
+uncommitted theme edits; no push, module download, symlink or sibling checkout is
+needed. Theme and showcase histories remain separate:
+
+1. Commit theme changes inside `themes/sidera` (on the intended branch).
+2. Review/stage `themes/sidera` in the showcase to record the exact theme commit.
+3. Push the theme branch first, then push the showcase commit referencing it.
+
+The submodule's `branch = main` is only a branch hint for optional remote-update
+commands. Ordinary `git submodule update --init --recursive` checks out the commit
+pinned by the showcase, not the latest remote branch. Do not use `--remote` for
+reproducible builds. Before updates, check for local changes in both repositories.
+Switching to `main` may move away from the pinned revision, so make that an
+intentional development choice; a feature branch at the pin also works.
+
+A plain `git archive` of the showcase does **not** include submodule contents.
+Use a recursive clone for reproducibility checks. Local unpushed theme commits
+must be published before another machine can resolve their showcase pointers.
 
 ## Run
 
@@ -42,10 +79,10 @@ content/
 ```
 
 - Mark a collection root's `_index.md` with `[params] collection = 'blog'` or `'notebook'`. Its Page object/logical location supplies identity and its title supplies the label. Do **not** cascade the collection marker or repeat membership IDs on articles.
-- `themes/poc/layouts/_partials/collection-owner.html` selects the page itself if it is a marked section, otherwise its closest marked ancestor. `.Section` is only the top-level section name; `.CurrentSection` can be an unmarked storage subsection. Neither alone is the owner contract.
+- `themes/sidera/layouts/_partials/collection-owner.html` selects the page itself if it is a marked section, otherwise its closest marked ancestor. `.Section` is only the top-level section name; `.CurrentSection` can be an unmarked storage subsection. Neither alone is the owner contract.
 - Native `cascade`, targeted to `kind = 'page'`, supplies `params.byline` and `params.show_updated`. Articles can override either, including explicit `false`. Templates read the resolved `.Params` directly; they do not use a truthy fallback that would discard `false`.
 - Identity/classification are read from the owner, not copied into article defaults. List policies below belong on the collection root, not on every article; read them from the owner, never article params.
-- All regular pages use one `themes/poc/layouts/page.html`, regardless of blog/notebook/standalone identity. Content uses ordinary `.Content`; relative image/source links remain within the article leaf bundle.
+- All regular pages use one `themes/sidera/layouts/page.html`, regardless of blog/notebook/standalone identity. Content uses ordinary `.Content`; relative image/source links remain within the article leaf bundle.
 - A collection lists `.RegularPagesRecursive`, **filtered by nearest owner**. This reaches storage subsections but excludes articles of any nested marked collection. The homepage discovers marked sections at any depth, with no collection-name map or singleton blog.
 - Native cascade follows ancestry independently of collection ownership: an inner collection overrides outer defaults it sets, but unspecified defaults still inherit. A collection marker is not a cascade firewall.
 - Collection roots/ordinary sections use `_index.md`; individual article bundles use `index.md`. `journal/2024` intentionally has no `_index.md`, so it is a storage directory, not a section. `resource-note.md` inside `field-notes/alpha` is intentionally a leaf resource, not a second article.
@@ -106,7 +143,7 @@ The automated extension test copies `tests/fixtures/annex` into **an isolated si
 
 The script checks every baseline article's owner, shared-renderer marker, resolved byline, update-date visibility and collection backlink; exact collection/homepage membership with no duplicates; the standalone page; storage-section traversal; local asset byte equality and all rendered local link/image targets; and exclusion of the Markdown leaf resource from rendered articles. It repeats baseline assertions after the fifth collection is added and verifies the nested collection's behavior.
 
-Pass: **P1-01–P1-08** for the supported public synthetic showcase contract. P1-B and P1-C have dedicated targeted checks; earlier membership assertions now traverse complete pager chains, not only page 1. The Phase 1 readiness gate remains pending. P1-D now records the bounded source inventory and observed watcher/publication gaps; user discussion and the production discovery limitations below remain. No full Phase 1 gate, visual styling, real-content compatibility, original-site edits or deployment are implied.
+Pass: **P1-01–P1-08** for the supported public synthetic showcase contract. P1-B and P1-C have dedicated targeted checks; earlier membership assertions now traverse complete pager chains, not only page 1. P1 is closed as the organizational proof. P1-D records the bounded inventory and remaining production limits. Closure does not imply final styling, real-content parity or deployment approval.
 
 ## P1-C collection list policy
 
@@ -208,7 +245,7 @@ Always build with **both** `--panicOnWarning --printPathWarnings` to detect Hugo
 
 ### Implementation and limits
 
-`themes/poc/content/_content.gotmpl` creates real Hugo **section Pages** for hubs, tags and their ancestors. A small recursive partial reads local front matter with Hugo's `os.ReadDir`/`ReadFile` and `transform.Unmarshal`. It recognizes marked owners and leaf bundles, skipping Markdown leaf resources. This is **route discovery**, not a replacement for Hugo's page parsing. No `Site.Pages` access occurs in the adapter: installed Hugo 0.166 errors at that build stage, as the test reproduces.
+`themes/sidera/content/_content.gotmpl` creates real Hugo **section Pages** for hubs, tags and their ancestors. A small recursive partial reads local front matter with Hugo's `os.ReadDir`/`ReadFile` and `transform.Unmarshal`. It recognizes marked owners and leaf bundles, skipping Markdown leaf resources. This is **route discovery**, not a replacement for Hugo's page parsing. No `Site.Pages` access occurs in the adapter: installed Hugo 0.166 errors at that build stage, as the test reproduces.
 
 At render time, `tags/model.html` computes membership from the owner's actual `.RegularPagesRecursive`, filtered through the same nearest-owner helper used in P1-A. One normalizer serves discovery and membership. Counts and lists come from the same deduplicated Page slices. P1-C passes the full selected union through ordering/pins and then native `.Paginate`; the tag model and tree counts never use the current pager subset.
 
@@ -270,11 +307,9 @@ deferred wiki from article counts. It stores no note bodies.
 Unpublished-only vocabulary remains exposed by generated tag pages. Native
 build options are not synonymous with public Page membership: `render = 'never'`
 and `render = 'link'` probes produce unsuitable list links. The user tolerates harmless empty tags during migration, but requires fresh-build
-success and intact published rendering. This is not approval of invalid links,
-colliding draft metadata failing the build, or public disclosure of private data.
+success and intact published rendering. This is not approval of invalid links for supported valid content or public disclosure of private data. Invalid or colliding draft metadata is correctly rejected; drafts are not exempt from structural validation (D-013).
 Final publication semantics remain for later review; passing P1-A/B/C does not
-prove complete eligibility parity. P1 remains open for direct user experiments and
-explanations in task `260919-bright-galaxy`; P2 requires explicit authorization.
+prove complete eligibility parity. P1 is closed; only the Sidera submodule setup is currently authorized, not visual implementation.
 
 
 ### P1-D follow-up: migration tolerance and quick investigation
@@ -292,22 +327,20 @@ A normal fresh build with valid excluded draft/future/expired/headless notes kee
 17 existing articles and existing list/tag outputs byte-identical. Empty routes are
 added; homepage changes only in whitespace and sitemap gains those routes. However,
 a draft's malformed tags or slug collision with a public tag still fails a fresh build.
-These expected diagnostic probes **characterize a limitation**, not acceptance of that
-failure. See [P1-D follow-up](../migration-project/P1-D.md#follow-up--migration-tolerance-and-quick-investigation)
+These diagnostic probes are expected invalid-input rejections under D-013; no draft-validation bypass is required. See [P1-D follow-up](../migration-project/P1-D.md#follow-up--migration-tolerance-and-quick-investigation)
 for the user's clarified scope, evidence and future investigation leads.
 
 
-## Temporary theme packaging and skeleton comparison
+## Historical PoC packaging and current regression comparison
 
-The user authorized this small P1-D packaging experiment, **not final theme
-selection or P2 execution**. [PoC theme guide](themes/poc/README.md) and
+The original P1-D experiment is retained for reference. Sidera now supplies the same implementation through a submodule. [PoC theme guide](themes/poc/README.md) and
 [comparison report](../migration-project/P1-D-THEME.md) explain the boundary.
 All 18 templates and the tag adapter moved unchanged into the theme. Native Hugo
 theme lookup/content mounting supplies them; site content and policies remain
 here. Moving the adapter too prevents a switch to skeleton from leaving behind a
 site adapter calling unavailable PoC helpers. No custom mount setup was added.
 
-`check_poc_theme.py` runs six strict isolated builds: active PoC, reconstructed
+`check_poc_theme.py` now runs eight strict isolated builds: active Sidera, retained PoC equivalence, uncommitted local theme edit, reconstructed
 former in-place layout, optional site-template override, untouched skeleton,
 skeleton with its demo content parked outside a scratch copy, and a native-global-
 taxonomy contrast. It asserts whole-output byte equivalence for the move, then

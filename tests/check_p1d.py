@@ -15,7 +15,7 @@ from urllib.error import HTTPError
 
 sys.dont_write_bytecode = True
 from check_p1b import ROOT, View, html, build, copy_site, write_note
-from check_p1a import POC, Page, all_articles, snapshot
+from check_p1a import THEME, Page, all_articles, snapshot
 
 
 def wait_until(predicate, seconds=15):
@@ -107,7 +107,7 @@ def watcher(run, operation, fast=False):
             (case / 'served-status.json').write_text(json.dumps(served, indent=2))
             if operation == 'change-tag' and not fast:
                 start = len(log.read_text())
-                adapter = source / POC / 'content/_content.gotmpl'
+                adapter = source / THEME / 'content/_content.gotmpl'
                 adapter.write_text(adapter.read_text() + '\n{{/* synthetic invalidation control */}}\n')
                 wait_until(lambda: 'Total in' in log.read_text()[start:])
                 time.sleep(1)

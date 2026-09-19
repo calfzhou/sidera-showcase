@@ -10,7 +10,7 @@ from unittest.mock import patch
 
 sys.dont_write_bytecode = True
 import check_p1d
-from check_p1a import POC, Page, check_baseline, snapshot
+from check_p1a import THEME, Page, check_baseline, snapshot
 from check_p1b import ROOT, build, copy_site, write_note, html, View
 
 
@@ -25,11 +25,11 @@ target = 'content'
 source = 'content'
 target = 'assets/p1d-content'
 ''')
-    fm = source / POC / 'layouts/_partials/tags/frontmatter.html'
+    fm = source / THEME / 'layouts/_partials/tags/frontmatter.html'
     fm.write_text(fm.read_text().replace('os.ReadFile .',
         '(resources.Get (replaceRE "^content/" "p1d-content/" .)).Content'))
     if match:
-        adapter = source / POC / 'content/_content.gotmpl'
+        adapter = source / THEME / 'content/_content.gotmpl'
         adapter.write_text('{{ range resources.Match "p1d-content/**.md" }}{{ $read := .Content }}{{ end }}\n' + adapter.read_text())
     return source
 

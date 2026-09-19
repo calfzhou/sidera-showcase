@@ -8,7 +8,7 @@ import tempfile
 from urllib.parse import unquote, urljoin, urlparse
 
 ROOT = Path(__file__).resolve().parents[1]
-POC = Path("themes/poc")
+THEME = Path("themes/sidera")
 
 
 class Page(HTMLParser):
@@ -195,7 +195,7 @@ def check_baseline(output, extra=False):
 
 def snapshot(root):
     return {p.relative_to(root).as_posix(): hashlib.sha256(p.read_bytes()).hexdigest()
-            for p in root.rglob("*") if p.is_file()}
+            for p in root.rglob("*") if p.is_file() and ".git" not in p.relative_to(root).parts}
 
 
 def build(source, output, run, label):
@@ -217,9 +217,9 @@ def main():
     version = subprocess.check_output(["hugo", "version"], text=True, timeout=10).strip()
     (run / "version.txt").write_text(version + "\n")
     print(version)
-    original_templates = snapshot(ROOT / POC / "layouts")
-    assert original_templates, "PoC theme templates missing"
-    original_adapter = (ROOT / POC / "content/_content.gotmpl").read_bytes()
+    original_templates = snapshot(ROOT / THEME / "layouts")
+    assert original_templates, "Sidera theme templates missing"
+    original_adapter = (ROOT / THEME / "content/_content.gotmpl").read_bytes()
     for source in (ROOT / "content").rglob("*.md"):
         if source.name not in ("_index.md", "resource-note.md"):
             assert "collection =" not in source.read_text(), source
@@ -232,14 +232,14 @@ def main():
     variant.mkdir()
     shutil.copy2(ROOT / "hugo.toml", variant / "hugo.toml")
     for directory in ["content", "themes"]:
-        shutil.copytree(ROOT / directory, variant / directory)
+        shutil.copytree(ROOT / directory, variant / directory, ignore=shutil.ignore_patterns(".git"))
     shutil.copytree(ROOT / "tests/fixtures/annex", variant / "content/lab-notes/annex")
-    assert snapshot(variant / POC / "layouts") == original_templates
+    assert snapshot(variant / THEME / "layouts") == original_templates
     assert (variant / "hugo.toml").read_bytes() == (ROOT / "hugo.toml").read_bytes()
     build(variant, run / "extended", run, "extended")
     check_baseline(run / "extended", extra=True)
-    assert snapshot(variant / POC / "layouts") == original_templates == snapshot(ROOT / POC / "layouts")
-    assert (variant / POC / "content/_content.gotmpl").read_bytes() == original_adapter
+    assert snapshot(variant / THEME / "layouts") == original_templates == snapshot(ROOT / THEME / "layouts")
+    assert (variant / THEME / "content/_content.gotmpl").read_bytes() == original_adapter
     print("PASS content-only extension: 5 collections, nearest nested owner/cascade, no parent-list leakage, unchanged templates/config")
     summary = "PASS P1-A targeted checks (P1-01, P1-02, P1-07, P1-08). P1-03/04 are checked separately by check_p1c.py; P1-05/06 are checked separately by check_p1b.py.\n"
     (run / "result.txt").write_text(summary)

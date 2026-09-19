@@ -1,5 +1,6 @@
 """P1-D packaging equivalence and bounded bundled-skeleton comparison.
-No downloads; only synthetic .checks copies are modified. Not a theme selection.
+Also verifies the Sidera submodule handoff and local theme edits.
+No downloads; only synthetic .checks copies are modified.
 """
 from html.parser import HTMLParser
 from pathlib import Path
@@ -10,7 +11,7 @@ import tempfile
 from urllib.parse import unquote, urljoin, urlparse
 
 sys.dont_write_bytecode = True
-from check_p1a import ROOT, POC, COLLECTIONS, article_route, check_baseline, snapshot
+from check_p1a import ROOT, THEME, COLLECTIONS, article_route, check_baseline, snapshot
 from check_p1b import build, copy_site, html, http_smoke
 
 
@@ -108,27 +109,41 @@ def main():
     baseline = build(ROOT, run, 'poc')
     check_baseline(baseline)
 
+    # Retained PoC is an immutable baseline for the initial Sidera handoff.
+    legacy = build(ROOT, run, 'legacy-poc', flags=('--theme', 'poc'))
+    assert snapshot(baseline) == snapshot(legacy), 'Sidera changed PoC output'
+
+    # A theme working-tree edit must affect output without Git commit/push.
+    edited = copy_site(run, 'local-theme-edit')
+    template = edited / THEME / 'layouts/page.html'
+    template.write_text(template.read_text().replace('data-renderer="shared-article"',
+                                                    'data-renderer="local-theme-edit"'))
+    edited_out = build(edited, run, 'local-theme-edit')
+    assert 'data-renderer="local-theme-edit"' in html(edited_out, '/about/').read_text()
+    assert 'data-renderer="shared-article"' in html(baseline, '/about/').read_text()
+
     # Reconstruct the previous in-place layout in a COPY, retaining all files.
     inline = copy_site(run, 'in-place')
-    (inline / POC / 'layouts').rename(inline / 'layouts')
-    (inline / POC / 'content/_content.gotmpl').rename(inline / 'content/_content.gotmpl')
+    (inline / THEME / 'layouts').rename(inline / 'layouts')
+    (inline / THEME / 'content/_content.gotmpl').rename(inline / 'content/_content.gotmpl')
     config = inline / 'hugo.toml'
-    config.write_text(config.read_text().replace("theme = 'poc'\n", ''))
+    config.write_text(config.read_text().replace("theme = 'sidera'\n", ''))
     previous = build(inline, run, 'in-place')
     assert snapshot(baseline) == snapshot(previous), 'Packaging changed published bytes'
 
     # An optional site template overrides the corresponding theme template.
     override = copy_site(run, 'override')
     (override / 'layouts').mkdir()
-    template = (override / POC / 'layouts/page.html').read_text()
+    template = (override / THEME / 'layouts/page.html').read_text()
     (override / 'layouts/page.html').write_text(template.replace('data-renderer="shared-article"', 'data-renderer="site-override"'))
     custom = build(override, run, 'override')
     assert 'data-renderer="site-override"' in html(custom, '/field-notes/alpha/').read_text()
-    assert snapshot(override / POC) == snapshot(ROOT / POC)
+    assert snapshot(override / THEME) == snapshot(ROOT / THEME)
 
     stock = copy_site(run, 'skeleton-stock')
     stock_out = build(stock, run, 'skeleton-stock', flags=('--theme', 'skeleton'))
-    results = {'packaging_byte_identical': True, 'optional_site_override': True,
+    results = {'packaging_byte_identical': True, 'sidera_matches_retained_poc': True,
+               'local_theme_edits_effective': True, 'optional_site_override': True,
                'skeleton_stock': skeleton_checks(stock_out, samples=True)}
 
     # Park starter demo content outside this scratch source; never delete it or edit the original theme.
@@ -149,7 +164,7 @@ def main():
     http_smoke(clean_out, run, routes=['/', '/about/', '/field-notes/alpha/', '/lab-notes/storage/epsilon/'])
     assert snapshot(ROOT / 'themes/skeleton') == skeleton_before
     (run / 'results.json').write_text(json.dumps(results, indent=2, ensure_ascii=False))
-    print('PASS PoC packaging equivalence, optional override, and measured skeleton gaps; not feature parity.')
+    print('PASS Sidera/PoC equivalence, local theme edits, packaging, optional override and measured skeleton gaps.')
 
 
 if __name__ == '__main__':
