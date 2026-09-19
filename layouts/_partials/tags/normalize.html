@@ -19,6 +19,11 @@
         {{- if or (eq $slug "") (eq $slug "page") -}}
           {{- errorf "P1B empty or reserved tag slug %q: %s" $slug $.source -}}
         {{- end -}}
+        {{- /* ASCII publication paths avoid filesystem Unicode normalization
+               collisions (e.g. composed/decomposed accents on macOS). */ -}}
+        {{- if findRE `[^\x00-\x7F]` $slug -}}
+          {{- $slug = printf "u-%x" $slug -}}
+        {{- end -}}
         {{- $keys = $keys | append $key -}}
         {{- $slugs = $slugs | append $slug -}}
       {{- end -}}

@@ -101,7 +101,7 @@ FIELD = {
     'science/quantum/basics': ['alpha', 'beta'],
     'science/quantum/experiments': ['alpha'],
     'shared': ['gamma'], 'math': ['epsilon'], 'math/graphs': ['epsilon'],
-    '量子': ['epsilon'], '量子/基础': ['epsilon'],
+    'u-e9878fe5ad90': ['epsilon'], 'u-e9878fe5ad90/u-e59fbae7a180': ['epsilon'],
     'field-work': ['epsilon'], 'field-work/lab': ['epsilon'],
 }
 LAB = {
@@ -117,7 +117,10 @@ def tag_checks(out, owner, expected, all_notes):
     hub = root + 'tags/'
     tree = View(html(out, hub))
     assert hub in View(html(out, root)).nav['Notebook tags']
-    labels = {s: s.replace('field-work', 'field work') for s in expected}
+    segment_labels = {'field-work': 'field work', 'u-e9878fe5ad90': '量子',
+                      'u-e59fbae7a180': '基础', 'u-636166c3a9': 'café',
+                      'u-63616665cc81': 'cafe\u0301'}
+    labels = {s: '/'.join(segment_labels.get(p, p) for p in s.split('/')) for s in expected}
     assert tree.tree == {labels[s]: len(notes) for s, notes in expected.items()}, tree.tree
     for slug, notes in {'': all_notes, **expected}.items():
         route = hub + (slug + '/' if slug else '')
@@ -182,7 +185,7 @@ def http_smoke(out, run):
     try:
         for route in ['/', '/field-notes/', '/field-notes/tags/',
                       '/field-notes/tags/science/quantum/basics/',
-                      '/field-notes/tags/量子/基础/', '/field-notes/alpha/',
+                      '/field-notes/tags/u-e9878fe5ad90/u-e59fbae7a180/', '/field-notes/alpha/',
                       '/lab-notes/alpha/', '/lab-notes/tags/science/quantum/basics/']:
             with urlopen(f'http://127.0.0.1:{port}' + quote(route), timeout=5) as response:
                 assert response.status == 200
@@ -210,7 +213,7 @@ def main():
         'field-notes': {'alpha': ['science/quantum/basics', 'science/quantum/experiments'],
                         'beta': ['science/quantum', 'science/quantum/basics'],
                         'gamma': ['shared'], 'delta': [],
-                        'epsilon': ['math/graphs', '量子/基础', 'field-work/lab']},
+                        'epsilon': ['math/graphs', 'u-e9878fe5ad90/u-e59fbae7a180', 'field-work/lab']},
         'lab-notes': {'alpha': ['science/quantum/basics', 'shared'],
                       'beta': ['science/quantum/experiments'], 'gamma': ['shared'],
                       'delta': [], 'storage/epsilon': ['math/graphs']},
@@ -252,14 +255,16 @@ def main():
     (source / 'content/field-notes/alpha/resource-note.md').write_text('+++\n[params]\ntags = ["resource/only"]\n+++\nLeaf resource, not a note.\n')
     # A YAML note exercises the other native metadata syntax, including whitespace normalization.
     (source / 'content/field-notes/yaml.md').write_text('---\ntitle: YAML edge\nparams:\n  tags: [" FIELD WORK / lab "]\n---\nSynthetic.\n')
+    write_note(source, 'field-notes/unicode.md', ['café', 'cafe\u0301'])
     positive = build(source, run, 'positive')
     ext = {k: list(v) for k, v in FIELD.items()}
     ext['science'].append('science')
+    ext.update({'u-636166c3a9': ['unicode'], 'u-63616665cc81': ['unicode']})
     ext.update({'tags': ['science'], 'shared/basics': ['science', 'storage/tags']})
     ext['shared'] += ['science', 'storage/tags']
     ext['field-work'].append('yaml'); ext['field-work/lab'].append('yaml')
     tag_checks(positive, 'field-notes', ext,
-               ['alpha', 'beta', 'gamma', 'delta', 'epsilon', 'science', 'storage/tags', 'yaml'])
+               ['alpha', 'beta', 'gamma', 'delta', 'epsilon', 'science', 'storage/tags', 'yaml', 'unicode'])
     tag_checks(positive, 'lab-notes', LAB, ['alpha', 'beta', 'gamma', 'delta', 'storage/epsilon'])
     annex = {k: ['storage/probe'] for k in ['science', 'science/quantum', 'science/quantum/basics', 'shared']}
     tag_checks(positive, 'lab-notes/annex', annex, ['storage/probe'])
@@ -290,6 +295,7 @@ def main():
         'punctuation-only': (['!!!'], 'empty or reserved tag slug'),
         'reserved-pagination': (['science/page'], 'empty or reserved tag slug'),
         'space-hyphen-collision': (['a b', 'a-b'], 'tag slug collision'),
+        'unicode-encoding-collision': (['量子', 'u-e9878fe5ad90'], 'tag slug collision'),
         'punctuation-collision': (['C++', 'C#'], 'tag slug collision'),
         'ancestor-collision': (['a b/one', 'a-b/two'], 'tag slug collision'),
         'wrong-type': ('science', 'tags must be an array'),
