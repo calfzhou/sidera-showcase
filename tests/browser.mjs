@@ -21,8 +21,8 @@ const server = createServer(async (req, res) => {
   try {
     if (req.url === '/__p2a') { res.end(run); return; }
     let path = decodeURIComponent(new URL(req.url, origin).pathname);
-    const source = path.startsWith('/_stress/') ? 'stress-public' : path.startsWith('/preview/') ? 'subpath-public' : 'baseline-public';
-    path = path.replace(/^\/(?:_stress|preview)(?=\/)/, '');
+    const source = path.startsWith('/_chinese/') ? 'chinese-preview-public' : path.startsWith('/_stress/') ? 'stress-public' : path.startsWith('/preview/') ? 'subpath-public' : 'baseline-public';
+    path = path.replace(/^\/(?:_chinese|_stress|preview)(?=\/)/, '');
     const root = resolve(run, source);
     const file = resolve(root, '.' + path + (path.endsWith('/') ? 'index.html' : ''));
     assert(file.startsWith(root + sep));

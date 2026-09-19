@@ -210,7 +210,7 @@ Two notebooks remain peers despite different sort orders; the content-only Annex
 
 ## P1-B notebook tags and routes
 
-Write tags **once**, as literal `params.tags` arrays on ordinary Markdown notes. No notebook ID, term registry, explicit ancestor assignments, hand-authored tag pages, or build preprocessor is needed. TOML and YAML front matter are supported in this single-language, local `content/` showcase. An empty/missing array means untagged. Tags classify notes; neither the storage sections nor the tag tree prescribe a reading sequence.
+Write tags **once**, as literal `params.tags` arrays on ordinary Markdown notes. No notebook ID, term registry, explicit ancestor assignments, hand-authored tag pages, or build preprocessor is needed. TOML and YAML front matter are supported in local `content/`; P2-C adds the native filename-translation convention documented below. An empty/missing array means untagged. Tags classify notes; neither the storage sections nor the tag tree prescribe a reading sequence.
 
 ```toml
 [params]
@@ -252,7 +252,7 @@ At render time, `tags/model.html` computes membership from the owner's actual `.
 
 `notebook-tags.html` supplies the minimal tree, ancestor links and note lists. Collection/ordinary storage views link to the owning notebook's tag hub. Every notebook note links to its owner, hub and direct normalized tags. Cross-notebook Alpha links intentionally adopt the destination notebook's context; context is page ownership, not referrer state.
 
-**Proof boundaries (see P1-D findings below):** discovery is intentionally limited to the existing local Markdown layout and TOML/YAML metadata, not module/content mounts, multilingual files, JSON/Org front matter, generated notes from other adapters, or cascaded/computed tags. Unknown runtime tags without discovered pages fail rather than producing broken links. These are not accepted restrictions on the later real-site migration.
+**Proof boundaries (see P1-D findings below):** discovery is intentionally limited to the existing local Markdown layout and TOML/YAML metadata, not module/content mounts, separate language contentDir trees, JSON/Org front matter, generated notes from other adapters, or cascaded/computed tags. Unknown runtime tags without discovered pages fail rather than producing broken links. These are not accepted restrictions on the later real-site migration.
 
 The route inventory reads all local note metadata, while list membership uses Hugo's published pages. Consequently **unpublished-only tags can have empty generated routes and exposed labels**. Tags must be public vocabulary in this showcase. P1-D now observes draft/future/expiry vocabulary exposure, build-option list gaps and incremental watcher failures. Harmless empty tags and watcher inconvenience are now tolerated during migration; build/rendering failures are not waived. Production semantics and sensitive vocabulary still require an explicit review before publication. This does not expose unpublished article bodies through the list model. Full fresh builds are the verified workflow.
 
@@ -462,3 +462,70 @@ classes; it does not implement P3 code-file tools or special shortcodes. The fix
 uses Hugo's existing `figure` shortcode, not a new component. The ordinary showcase
 content and P1 assertions remain unchanged. P1 stays closed; whole-P2/license and
 future presentation coverage still need a separate disposition.
+
+## P2-C English/Chinese localization
+
+Sidera now ships native English and Simplified Chinese UI catalogs. All theme-owned
+visible/accessibility labels—including appearance options, generated tag hub titles,
+full count/pager/date messages and empty states—are translated. Content, titles,
+authors and tag identities stay authored. No framework or language switcher is added.
+See [theme localization guide and 51-key inventory](themes/sidera/I18N.md).
+
+### Your own preview (no task-owned server is retained)
+
+From this checkout, with the pinned submodule initialized, run **one** foreground
+server on an available explicit port:
+
+```sh
+# English UI (existing default):
+hugo server --bind 127.0.0.1 --port 14420 --disableFastRender
+
+# Or Chinese UI around the same unchanged content:
+hugo server --config hugo.toml,tests/fixtures/i18n/chinese.toml \
+  --bind 127.0.0.1 --port 14420 --disableFastRender
+```
+
+Stop your server with Ctrl-C. If occupied, choose another port; do not terminate
+someone else's process. `--disableFastRender` does not fix the known adapter watcher
+limitations; fresh successful strict builds are the verification authority:
+
+```sh
+mkdir -p .checks
+run=$(mktemp -d "$PWD/.checks/manual-i18n-XXXXXX")
+hugo --config hugo.toml,tests/fixtures/i18n/chinese.toml \
+  --destination "$run/public" --cacheDir "$run/cache" \
+  --panicOnWarning --printPathWarnings --printI18nWarnings
+```
+
+For bilingual authoring, the guide shows native `languages.en` / `languages.zh`
+configuration and optional `*.zh.md` translations under shared `content/`. The
+configuration example is also in `tests/fixtures/i18n/bilingual.toml`; the checker
+adds its small asymmetric content fixture in scratch, **not** to the base showcase.
+Missing article translations need not be created. Separate language contentDir
+layouts/arbitrary mounts are not claimed supported by this bounded adapter.
+
+### Reproduce localization checks
+
+```sh
+nvm use
+NODE_BIN="$(command -v node)" uv run --no-project --no-managed-python python3 tests/check_p2c.py
+# Build/semantic checks only, explicitly skipping browser verification:
+SIDERA_SKIP_BROWSER=1 uv run --no-project --no-managed-python python3 tests/check_p2c.py
+```
+
+Same `SIDERA_CHECK_DIR` (must be new), installed Chrome/Node and explicit available
+HTTP/CDP port controls as P2-A/B. No installs. All own processes stop in `finally`;
+there is no detached review preview. Outputs/screenshots stay in the timestamped
+`.checks` folder. Tests exercise 11 successful strict builds, six intentional
+rejections (missing key + Chinese structural errors), full original baseline
+assertions in both UIs, filename bilingual membership/cache isolation, native
+language prefixes/subpaths, all 51 keys/plural counts, escaped interpolation,
+native default fallback/site override, and 72 localized browser matrix cases plus
+four bilingual cases. Styling no longer depends on English ARIA names.
+
+Existing P1-A/B/C/packaging/Journal/publication and P2-A/B suites remain separate
+regressions. Only presentation-label expectations in the shared parsers changed;
+no ownership/date/count/route/pin/pager/asset assertion was removed. Packaging's
+active/in-place byte comparison now includes native i18n catalogs. Historical
+PoC/skeleton fixtures remain immutable and English-only. Browser checks are local
+Chromium spot checks, not full cross-browser/screen-reader/WCAG certification.

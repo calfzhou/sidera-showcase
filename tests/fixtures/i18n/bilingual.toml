@@ -1,0 +1,9 @@
+# Translation by filename in the existing shared content/ directory.
+# Unsuffixed Markdown belongs to English; *.zh.md belongs to Chinese.
+defaultContentLanguage = 'en'
+[languages.en]
+locale = 'en-US'
+weight = 1
+[languages.zh]
+locale = 'zh-CN'
+weight = 2

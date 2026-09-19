@@ -1,0 +1,3 @@
+# Apply after hugo.toml; all existing authored content stays unchanged.
+defaultContentLanguage = 'zh'
+locale = 'zh-CN'

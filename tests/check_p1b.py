@@ -31,10 +31,13 @@ class View(HTMLParser):
         self.pending_tag = None
         self.nav = {}
         self.current_nav = None
+        self.chinese = False
         self.feed(file.read_text())
 
     def handle_starttag(self, tag, attrs):
         a = dict(attrs)
+        if tag == "html":
+            self.chinese = a.get("lang") == "zh-CN"
         if tag == 'section' and 'data-tag-view' in a:
             self.key, self.owner = a['data-tag-view'], a['data-collection']
         if 'data-note-count' in a:
@@ -45,6 +48,10 @@ class View(HTMLParser):
             self.pending_tag = a['data-tag']
         if tag == 'nav':
             self.current_nav = a.get('aria-label')
+            if self.chinese:
+                # Presentation-only mapping; full existing link/count assertions remain.
+                self.current_nav = {'所属合集': 'Collection', '笔记本标签': 'Notebook tags',
+                                    '标签层级路径': 'Tag ancestors'}.get(self.current_nav, self.current_nav)
             self.nav[self.current_nav] = []
         if tag == 'a' and self.pending_tag:
             self.tree_links[self.pending_tag] = unquote(a['href'])

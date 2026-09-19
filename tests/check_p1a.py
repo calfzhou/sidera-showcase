@@ -27,12 +27,15 @@ class Page(HTMLParser):
         self.byline = ""
         self.collection_links = []
         self.in_collection_nav = False
+        self.collection_label = "Collection"
         self.list_id = None
         self.in_byline = False
         self.feed(path.read_text())
 
     def handle_starttag(self, tag, attrs):
         attrs = dict(attrs)
+        if tag == "html" and attrs.get("lang") == "zh-CN":
+            self.collection_label = "所属合集"
         if "data-total" in attrs:
             self.total = int(attrs["data-total"])
         if "data-list-order" in attrs:
@@ -51,7 +54,7 @@ class Page(HTMLParser):
             self.list_id = attrs.get("id")
             self.links[self.list_id] = []
         if tag == "nav":
-            self.in_collection_nav = attrs.get("aria-label") == "Collection"
+            self.in_collection_nav = attrs.get("aria-label") == self.collection_label
         if tag == "a":
             if self.list_id:
                 self.links[self.list_id].append(attrs["href"])

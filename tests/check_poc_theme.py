@@ -137,6 +137,7 @@ def main():
     (inline / THEME / 'content/_content.gotmpl').rename(inline / 'content/_content.gotmpl')
     # Active theme assets now participate in the packaging equivalence check too.
     (inline / THEME / 'assets').rename(inline / 'assets')
+    (inline / THEME / 'i18n').rename(inline / 'i18n')
     config = inline / 'hugo.toml'
     config.write_text(config.read_text().replace("theme = 'sidera'\n", ''))
     previous = build(inline, run, 'in-place')
