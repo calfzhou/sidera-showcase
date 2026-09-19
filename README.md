@@ -200,3 +200,46 @@ hugo --destination "$run/public" --cacheDir "$run/cache" --panicOnWarning --prin
 ```
 
 Port 14237 was available for the automated HTTP smoke tests, which stopped its server afterward. If occupied when you try, choose another explicit free port; do not stop the existing service. Visit `http://127.0.0.1:14237/field-notes/tags/`, then Science → Quantum → Basics (2 notes); compare Lab notes' Basics (1 note). Follow a note's owner/tag links and the Alpha cross-notebook link. Unicode and space-normalized examples live under Field notes. Then check Journal page 2, Field root/hub pages 1–3, and Lab pages 1–2 against the sequences below. The recent-update list stays unchanged across a collection’s pagers. For multi-page ancestor/leaf results and pin overflow, run P1-C and serve its printed run directory’s `edges-public` instead; visit `/field-notes/tags/science/quantum/basics/page/2/`. Stop this foreground preview with Ctrl-C. No live server is left by the automated checks.
+
+
+## P1-D readiness observations (not production approval)
+
+[P1-D review](../migration-project/P1-D.md) inventories the real-site structure and
+records bounded experiments. The runtime templates/configuration remain at the
+P1-C behavior; this slice adds observation helpers, not a loader replacement.
+
+```sh
+uv run --no-project --no-managed-python python3 tests/check_p1d.py
+uv run --no-project --no-managed-python python3 tests/inventory_p1d.py
+```
+
+`check_p1d.py` uses synthetic copies only; all logs, output, snapshots and JSON
+remain in a fresh ignored `.checks/p1d-*`. It starts its own identifiable Hugo
+servers on an available explicit loopback port in 14347–14362, verifies HTTP
+readiness, and stops each process in `finally`. “Removal” moves only a newly
+created synthetic fixture outside its scratch content tree; no original is
+deleted. Fresh builds use the existing strict build helper. Watcher comparisons
+are observations, **not a green acceptance result**: inspect `results.json` and
+per-case `comparison.json` for failures. It also probes native eligibility and
+an isolated `updated` date alias; the real configuration is unchanged.
+
+**Observed:** adding/changing tag vocabulary can fail incremental rebuilds with
+missing generated Pages even with `--disableFastRender`; removing vocabulary can
+leave stale routes. Native article rename/removal also leaves old disk output.
+Do not trust watcher output for validation/publication. Use fresh destinations
+and successful full builds; the existing separate static-preview workflow remains
+verified. A decision on the theme-development workflow is pending user discussion.
+
+`inventory_p1d.py` reads tracked reference Markdown from sibling `gocalf.com-hugo`
+without writes there. It reports aggregate front-matter shapes and lexical
+capability candidates (ignoring fenced/inline examples), not a full YAML/Hexo
+parser or a conversion plan. It excludes templates, the consistency report and
+deferred wiki from article counts. It stores no note bodies.
+
+Unpublished-only vocabulary remains exposed by generated tag pages. Native
+build options are not synonymous with public Page membership: `render = 'never'`
+and `render = 'link'` probes produce unsuitable list links. Required publication
+eligibility/privacy resolution and any accepted bounded authoring contract must
+be reviewed before real unpublished inputs/publication; passing P1-A/B/C does not
+approve these limitations. P1 remains open for direct user experiments and
+explanations in task `260919-bright-galaxy`; P2 requires explicit authorization.
