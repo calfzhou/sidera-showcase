@@ -6,9 +6,9 @@ This repository is `calfzhou/sidera-showcase`; its local folder is still named
 The former sibling clone was moved here, not deleted or recreated. The retained
 `themes/poc` and `themes/skeleton` are inactive reference/comparison fixtures.
 
-The P2-A Sidera visual foundation now styles the closed P1 proof without changing
-its organization/metadata/route contract. User visual acceptance and later P2 work
-remain pending; no production-compatibility claim is implied.
+The accepted P2-A foundation and implemented P2-B reading/appearance slice style
+the closed P1 proof without changing its organization/metadata/route contract.
+Whole-P2 acceptance remains pending; no production-compatibility claim is implied.
 The durable plan, decisions and evidence live in
 [migration-project](../migration-project/README.md).
 
@@ -415,10 +415,50 @@ Coverage: six routes at 1440/900/768/390/320 CSS px; 18px long-title/mixed-langu
 table/image/TOC stress page at three widths; overflow, context, loaded images, styles,
 landmarks, keyboard skip/focus/Enter/Space disclosure, pager click, no-JS fallback,
 subpath assets and foreground-token contrast. Not a full accessibility audit, real
-device check, Safari/Firefox test, light theme, rich-content or production acceptance.
+device check, Safari/Firefox test, rich-content or production acceptance. The separate P2-B suite below covers appearance.
 
 For manual review use the **fresh build + static server** recipe above. Start at `/`,
 then `/field-notes/`, `/field-notes/alpha/`, `/field-notes/tags/science/`, `/journal/`
 and `/about/`. Compare `/lab-notes/` and paginate the lists. Below 900px open “Browse
 collections & tags”; use Tab, Enter/Space, and the skip link. Comment on reading width,
 font feel, contrast, card density and the rail before the next visual slice.
+
+
+## P2-B reading and appearance checks
+
+Dark is the fresh default, not automatic OS following. The native Appearance
+select offers Dark/Light/System at the top of collection navigation; on mobile,
+open the native disclosure. A valid choice survives navigation/reload when storage
+works. System follows OS changes. Blocked storage leaves a per-document choice;
+no scripting leaves readable dark and no dead control. See the theme README for
+the early inline script/CSP boundary and local-font/provenance policy.
+
+```sh
+nvm use
+NODE_BIN="$(command -v node)" uv run --no-project --no-managed-python python3 tests/check_p2b.py
+```
+
+Uses the same isolated Python builds and extracted shared native CDP driver
+(`tests/browser.mjs`) as P2-A, with the same explicit port/environment options.
+The original P2-A scenarios still run separately. P2-B adds three strict builds,
+an ordinary synthetic Markdown reading fixture (test-only), eight-level tag
+counts/ancestry, 80 route/palette/width cases, six long-reading cases, actual native
+select keyboard interaction, persistence/system transitions, early initialization,
+invalid preference, denied read/write and no-JS fallbacks. It checks foreground
+contrast including the composited rail and rendered code tokens, native TOC and
+keyboard scrolling, owner context/pager links, subpaths, 200% root-text enlargement
+and 640 CSS-pixel reflow (not browser UI zoom certification).
+
+To test optional font absence on a machine that has WenKai installed, the browser
+fixture removes only WenKai and Source Code Pro from the production fallback stacks
+at runtime, then inspects Chromium's actual platform fonts for English/CJK/code.
+HTTPS resources are blocked and all observed page requests must stay on the own
+loopback server. Screenshots and JSON are retained in the timestamped run, not
+committed. No font/tool/package downloads. Chromium spot checks are not a complete
+WCAG, screen-reader, real-device or cross-browser audit.
+
+The native code hook only replaces fixed highlighting colors with theme token
+classes; it does not implement P3 code-file tools or special shortcodes. The fixture
+uses Hugo's existing `figure` shortcode, not a new component. The ordinary showcase
+content and P1 assertions remain unchanged. P1 stays closed; whole-P2/license and
+future presentation coverage still need a separate disposition.
