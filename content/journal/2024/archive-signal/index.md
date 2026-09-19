@@ -7,4 +7,4 @@ tags = ["shared"]
 +++
 This is the synthetic **Archive signal** article in `journal`.
 
-Tags and pins are raw fixtures for later checks; this slice does not render their organization.
+Pins appear once before ordinary articles in each selected list. Blog tags do not create notebook tag views.

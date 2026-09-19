@@ -9,4 +9,4 @@ show_updated = true
 +++
 This is the synthetic **Beta note** article in `lab-notes`.
 
-Notebook tags classify notes independently of storage folders. Pinning remains a later-phase fixture.
+Notebook tags classify notes independently of storage folders. A pinned note appears once, before the other notes in its selected list.

@@ -7,6 +7,6 @@ tags = ["science/quantum/basics", "shared"]
 +++
 This is the synthetic **Alpha note** article in `lab-notes`.
 
-Notebook tags classify notes independently of storage folders. Pinning remains a later-phase fixture.
+Notebook tags classify notes independently of storage folders. A pinned note appears once, before the other notes in its selected list.
 
 [Compare Alpha in the other notebook](../../field-notes/alpha/). The destination belongs to its own notebook.
