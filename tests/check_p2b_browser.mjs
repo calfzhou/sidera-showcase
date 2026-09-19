@@ -135,6 +135,8 @@ await runBrowser(async ({ run, port, debugPort, profile, origin, version, errors
       assert(metrics.minCodeContrast>=4.5, JSON.stringify(metrics));
       reading.push({mode,width,scrolling,metrics});
     }
+    await evaluate(`document.querySelector('#appearance').focus()`);
+    assert(await evaluate(`document.activeElement.labels[0].textContent === 'Appearance' && getComputedStyle(document.activeElement).outlineWidth === '3px'`));
     // Eight-level tag ancestry/full count; open disclosure must not overflow.
     await viewport(320,844);
     await navigate('/_stress/field-notes/tags/');
