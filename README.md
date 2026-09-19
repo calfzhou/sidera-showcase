@@ -184,7 +184,7 @@ At render time, `tags/model.html` computes membership from the owner's actual `.
 
 **Proof boundaries (see P1-D findings below):** discovery is intentionally limited to the existing local Markdown layout and TOML/YAML metadata, not module/content mounts, multilingual files, JSON/Org front matter, generated notes from other adapters, or cascaded/computed tags. Unknown runtime tags without discovered pages fail rather than producing broken links. These are not accepted restrictions on the later real-site migration.
 
-The route inventory reads all local note metadata, while list membership uses Hugo's published pages. Consequently **unpublished-only tags can have empty generated routes and exposed labels**. Tags must be public vocabulary in this showcase. P1-D now observes draft/future/expiry vocabulary exposure, build-option list gaps and incremental watcher failures. These are **not accepted as production behavior**; resolve the relevant eligibility/privacy gate before using this strategy on private/unpublished real content. This does not expose unpublished article bodies through the list model. Full fresh builds are the verified workflow.
+The route inventory reads all local note metadata, while list membership uses Hugo's published pages. Consequently **unpublished-only tags can have empty generated routes and exposed labels**. Tags must be public vocabulary in this showcase. P1-D now observes draft/future/expiry vocabulary exposure, build-option list gaps and incremental watcher failures. Harmless empty tags and watcher inconvenience are now tolerated during migration; build/rendering failures are not waived. Production semantics and sensitive vocabulary still require an explicit review before publication. This does not expose unpublished article bodies through the list model. Full fresh builds are the verified workflow.
 
 P1-B checks cover exact routes, tree links/counts, direct tags, ancestor unions, isolation, source and URL/alias namespace failures, deterministic fresh outputs, subpath hosting, and HTTP responses. Invalid-input probes deliberately fail and assert their diagnostics. No browser/visual review, final styling, global taxonomy behavior, feeds, or real-content compatibility is claimed.
 
@@ -228,7 +228,7 @@ missing generated Pages even with `--disableFastRender`; removing vocabulary can
 leave stale routes. Native article rename/removal also leaves old disk output.
 Do not trust watcher output for validation/publication. Use fresh destinations
 and successful full builds; the existing separate static-preview workflow remains
-verified. A decision on the theme-development workflow is pending user discussion.
+verified. The user accepts unreliable live preview as non-blocking during migration; use this fresh-build workflow for validation. A quick resource-dependency probe is retained for later investigation, not adopted as a fix.
 
 `inventory_p1d.py` reads tracked reference Markdown from sibling `gocalf.com-hugo`
 without writes there. It reports aggregate front-matter shapes and lexical
@@ -238,8 +238,29 @@ deferred wiki from article counts. It stores no note bodies.
 
 Unpublished-only vocabulary remains exposed by generated tag pages. Native
 build options are not synonymous with public Page membership: `render = 'never'`
-and `render = 'link'` probes produce unsuitable list links. Required publication
-eligibility/privacy resolution and any accepted bounded authoring contract must
-be reviewed before real unpublished inputs/publication; passing P1-A/B/C does not
-approve these limitations. P1 remains open for direct user experiments and
+and `render = 'link'` probes produce unsuitable list links. The user tolerates harmless empty tags during migration, but requires fresh-build
+success and intact published rendering. This is not approval of invalid links,
+colliding draft metadata failing the build, or public disclosure of private data.
+Final publication semantics remain for later review; passing P1-A/B/C does not
+prove complete eligibility parity. P1 remains open for direct user experiments and
 explanations in task `260919-bright-galaxy`; P2 requires explicit authorization.
+
+
+### P1-D follow-up: migration tolerance and quick investigation
+
+```sh
+uv run --no-project --no-managed-python python3 tests/probe_p1d_followup.py
+```
+
+Reuses the existing isolated watcher/build helpers and retains `.checks/p1d-followup-*`.
+Scratch copies only: content-as-assets mount + `resources.Get` improves existing-note
+invalidation; new-note discovery still fails even with an added `resources.Match` read,
+and obsolete disk files remain. No runtime/configuration patch is adopted.
+
+A normal fresh build with valid excluded draft/future/expired/headless notes keeps all
+17 existing articles and existing list/tag outputs byte-identical. Empty routes are
+added; homepage changes only in whitespace and sitemap gains those routes. However,
+a draft's malformed tags or slug collision with a public tag still fails a fresh build.
+These expected diagnostic probes **characterize a limitation**, not acceptance of that
+failure. See [P1-D follow-up](../migration-project/P1-D.md#follow-up--migration-tolerance-and-quick-investigation)
+for the user's clarified scope, evidence and future investigation leads.
