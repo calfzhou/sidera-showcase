@@ -100,6 +100,13 @@ await runBrowser(async ({ run, port, debugPort, profile, origin, version, errors
     await choose(mode);
     for(const width of [1440,320]) {
       await viewport(width,width<900?844:960);
+      await navigate('/preview/zh/field-notes/alpha/');
+      assert.equal(await evaluate(`document.querySelector('#toc-heading').textContent`),'本页目录');
+      const ax = await call('Accessibility.getFullAXTree');
+      assert(ax.nodes.some(n=>n.role?.value==='navigation' && n.name?.value==='本页目录'));
+      await evaluate(`document.querySelector('#TableOfContents a').focus()`); await key('Enter','Enter',13);
+      assert.equal(await evaluate('location.hash'),'#reading');
+      await screenshot(`bilingual-article-${mode}-${width}`);
       await navigate('/preview/zh/field-notes/tags/');
       assert.equal(await evaluate(`document.querySelector('h1').textContent`),'标签');
       assert.equal(await evaluate(`document.querySelector('[data-note-count]').dataset.noteCount`),'2');
