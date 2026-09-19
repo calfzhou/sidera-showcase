@@ -10,7 +10,7 @@ import tempfile
 from urllib.parse import unquote, urljoin, urlparse
 
 sys.dont_write_bytecode = True
-from check_p1a import ROOT, POC, COLLECTIONS, check_baseline, snapshot
+from check_p1a import ROOT, POC, COLLECTIONS, article_route, check_baseline, snapshot
 from check_p1b import build, copy_site, html, http_smoke
 
 
@@ -65,7 +65,7 @@ def missing_targets(out):
 
 
 def skeleton_checks(out, samples):
-    article_routes = ['/about/'] + ['/' + owner + '/' + name + '/'
+    article_routes = ['/about/'] + [article_route(owner, name)
         for owner, (_, _, names) in COLLECTIONS.items() for name in names]
     for route in article_routes:
         file = html(out, route)

@@ -6,7 +6,7 @@ import sys
 import tempfile
 
 sys.dont_write_bytecode = True
-from check_p1a import ROOT, POC, Page, all_articles, pagers, snapshot
+from check_p1a import ROOT, POC, Page, article_route, all_articles, pagers, snapshot
 from check_p1b import (FIELD, LAB, View, build, copy_site, html, local_links,
                        tag_checks, write_note, http_smoke)
 
@@ -58,7 +58,7 @@ def check_list(out, route, expected, order, size, prefix='', recent=None):
 
 
 def routes(owner, notes):
-    return [f'/{owner}/{n}/' for n in notes]
+    return [article_route(owner, n) for n in notes]
 
 
 def baseline_checks(out, prefix=''):
@@ -228,7 +228,8 @@ def main():
     replace(source, 'content/journal/second-signal/index.md', 'pinned = true', 'pinned = "true"')
     build(source, run, 'pin-type', 'P1C pinned must be boolean')
     for label, path, extra, diagnostic in [
-        ('blog-page', 'journal/page/2.md', '', 'reserved pagination route'),
+        # Journal's dated permalink otherwise moves this source away from /page/2/.
+        ('blog-page', 'journal/page/2.md', 'url = "/journal/page/2/"', 'reserved pagination route'),
         ('storage-page', 'lab-notes/storage/page/2.md', '', 'reserved pagination route'),
         ('blog-url', 'journal/conflict.md', 'url = "/dispatches/page/2/"', 'reserved pagination route'),
         ('blog-alias', 'journal/conflict.md', 'aliases = ["/dispatches/page/2/"]', 'alias in reserved pagination route'),

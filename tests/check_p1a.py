@@ -93,6 +93,18 @@ OVERRIDES = {
 }
 
 
+# Source paths remain unchanged; URL expectations are explicit, not parsed from metadata.
+JOURNAL_ROUTES = {
+    "first-signal": "/journal/2024/01/01/first-signal/",
+    "second-signal": "/journal/2024/01/02/second-signal/",
+    "2024/archive-signal": "/journal/2024/01/02/archive-signal/",
+}
+
+
+def article_route(owner, source_path):
+    return JOURNAL_ROUTES[source_path] if owner == "journal" else f"/{owner}/{source_path}/"
+
+
 def page(output, route):
     return Page(output / route.strip("/") / "index.html")
 
@@ -138,7 +150,7 @@ def check_baseline(output, extra=False):
     expected_articles = {"/about/"}
     for slug, (byline, updated, paths) in COLLECTIONS.items():
         owner = f"/{slug}/"
-        routes = [f"{owner}{path}/" for path in paths]
+        routes = [article_route(slug, path) for path in paths]
         same_links(all_articles(output, owner), routes)
         same_links(page(output, owner).collection_links, [owner])
         for path, route in zip(paths, routes):

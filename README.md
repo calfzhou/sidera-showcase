@@ -16,6 +16,7 @@ uv run --no-project --no-managed-python python3 tests/check_p1a.py
 uv run --no-project --no-managed-python python3 tests/check_p1b.py
 uv run --no-project --no-managed-python python3 tests/check_p1c.py
 uv run --no-project --no-managed-python python3 tests/check_poc_theme.py
+uv run --no-project --no-managed-python python3 tests/check_journal_urls.py
 
 # Standalone build, isolated from any pre-existing public/ output:
 run=$(mktemp -d "$PWD/.checks/manual-XXXXXX") # .checks exists after running the checks
@@ -50,6 +51,36 @@ content/
 - Collection roots/ordinary sections use `_index.md`; individual article bundles use `index.md`. `journal/2024` intentionally has no `_index.md`, so it is a storage directory, not a section. `resource-note.md` inside `field-notes/alpha` is intentionally a leaf resource, not a second article.
 
 The two notebooks intentionally differ in byline and update-date visibility. These presentation settings do **not** define what a notebook is; tag organization is proven by P1-B; a generalized reference/backlink system remains out of scope. `Date`/`PublishDate`/`Lastmod`, ordering, pins and native pagination follow the P1-C contract below. All fixtures use explicit historical timestamps, never Git or build time. `params.tags` follows the P1-B contract below for notebooks; blog tags remain raw fixtures. Global taxonomy/term/RSS outputs remain disabled; custom notebook tag sections are not native taxonomy pages, and no feed support is claimed.
+
+
+## Journal publication-date URLs
+
+For Journal, **`date` is the publication date**, as confirmed by the user. The site
+configuration—not the reusable theme—sets:
+
+```toml
+[permalinks.page]
+journal = '/journal/:year/:month/:day/:slugorcontentbasename/'
+```
+
+Examples: `/journal/2024/01/01/first-signal/`,
+`/journal/2024/01/02/second-signal/`, and
+`/journal/2024/01/02/archive-signal/`. Source directories are unchanged, including
+the archive fixture's storage folder. Journal root and pagination remain
+`/journal/` and `/journal/page/2/`; other collection URLs are unchanged.
+
+An explicit `slug` wins; otherwise the Markdown filename or leaf bundle basename
+is used. Editing the title or `lastmod` does not change the URL. Hugo's native date
+tokens use `.Date`; do not provide a conflicting `publishDate` for this Journal
+authoring convention. The shared date fallback configuration and distinct-date
+capability tests remain unchanged for other requirements. This adds no validator
+or custom URL-building code. Explicit per-page `url` still overrides native rules.
+
+No aliases for old synthetic URLs are generated. Use fresh build destinations to
+avoid stale output from previous routes. The dedicated check covers the three
+baseline posts, nested storage, explicit slug and plain-file fallback, bundle
+assets, local-time timestamps, title/update stability, subpath hosting and HTTP;
+unrelated collection output is compared byte-for-byte with a rule-free build.
 
 ## Add a collection
 

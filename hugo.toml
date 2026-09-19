@@ -15,3 +15,7 @@ lastmod = ['lastmod', 'modified', 'publishDate', 'pubdate', 'published', 'date']
 [pagination]
 path = 'page'
 disableAliases = true
+
+# Journal date is its publication date; preserve explicit slugs or bundle basenames.
+[permalinks.page]
+journal = '/journal/:year/:month/:day/:slugorcontentbasename/'
