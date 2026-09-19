@@ -7,4 +7,6 @@ tags = ["science/quantum/basics", "shared"]
 +++
 This is the synthetic **Alpha note** article in `lab-notes`.
 
-Tags and pins are raw fixtures for later checks; this slice does not render their organization.
+Notebook tags classify notes independently of storage folders. Pinning remains a later-phase fixture.
+
+[Compare Alpha in the other notebook](../../field-notes/alpha/). The destination belongs to its own notebook.

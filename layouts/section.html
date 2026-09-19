@@ -4,8 +4,12 @@
   {{ with $owner }}
     <nav aria-label="Collection"><a href="{{ .RelPermalink }}">{{ .Title }}</a> — {{ .Params.collection }}</nav>
   {{ end }}
+  {{ if and $owner (eq $owner.Params.collection "notebook") }}
+    {{ $hub := partial "tags/page.html" (dict "owner" $owner "slug" "") }}
+    <nav aria-label="Notebook tags"><a href="{{ $hub.RelPermalink }}">Browse tags</a></nav>
+  {{ end }}
   {{ .Content }}
-  <p>Alphabetical fixture view only; collection ordering, pinning, tags, and pagination are not implemented.</p>
+  <p>Alphabetical fixture view only; collection ordering, pinning, and pagination are not implemented.</p>
   <ul id="articles">
     {{ range .RegularPagesRecursive.ByTitle }}
       {{ if eq (partial "collection-owner.html" .) $owner }}

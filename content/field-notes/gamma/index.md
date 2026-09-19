@@ -7,4 +7,4 @@ tags = ["shared"]
 +++
 This is the synthetic **Gamma note** article in `field-notes`.
 
-Tags and pins are raw fixtures for later checks; this slice does not render their organization.
+Notebook tags classify notes independently of storage folders. Pinning remains a later-phase fixture.

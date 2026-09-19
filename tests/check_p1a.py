@@ -5,7 +5,7 @@ import hashlib
 import shutil
 import subprocess
 import tempfile
-from urllib.parse import urljoin, urlparse
+from urllib.parse import unquote, urljoin, urlparse
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -133,7 +133,7 @@ def check_baseline(output, extra=False):
             target = urlparse(urljoin("https://example.org" + route, link))
             if target.netloc != "example.org":
                 continue
-            local = output / target.path.lstrip("/")
+            local = output / unquote(target.path).lstrip("/")
             if target.path.endswith("/"):
                 local /= "index.html"
             assert local.is_file(), (path, link, local)
@@ -153,7 +153,7 @@ def snapshot(root):
 
 def build(source, output, run, label):
     command = ["hugo", "--source", str(source), "--destination", str(output),
-               "--cacheDir", str(run / "cache"), "--panicOnWarning"]
+               "--cacheDir", str(run / "cache"), "--panicOnWarning", "--printPathWarnings"]
     result = subprocess.run(command, text=True, stdout=subprocess.PIPE,
                             stderr=subprocess.STDOUT, timeout=60)
     (run / f"{label}.log").write_text(result.stdout)
@@ -191,7 +191,7 @@ def main():
     check_baseline(run / "extended", extra=True)
     assert snapshot(variant / "layouts") == original_templates == snapshot(ROOT / "layouts")
     print("PASS content-only extension: 5 collections, nearest nested owner/cascade, no parent-list leakage, unchanged templates/config")
-    summary = "PASS P1-A targeted checks (P1-01, P1-02, P1-07, P1-08). P1-03 through P1-06 remain pending.\n"
+    summary = "PASS P1-A targeted checks (P1-01, P1-02, P1-07, P1-08). P1-03/04 are pending; P1-05/06 are checked separately by check_p1b.py.\n"
     (run / "result.txt").write_text(summary)
     print(summary, end="")
 

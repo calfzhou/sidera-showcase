@@ -12,6 +12,17 @@
     {{ if and .Params.show_updated (not .Lastmod.IsZero) }}
       <p>Updated <time class="updated" datetime="{{ .Lastmod.Format "2006-01-02T15:04:05Z07:00" }}">{{ .Lastmod.Format "2006-01-02" }}</time></p>
     {{ end }}
+    {{ if and $owner (eq $owner.Params.collection "notebook") }}
+      {{ $model := partialCached "tags/model.html" $owner $owner.Path }}
+      {{ $hub := partial "tags/page.html" (dict "owner" $owner "slug" "") }}
+      <nav aria-label="Notebook tags"><a href="{{ $hub.RelPermalink }}">All tags in {{ $owner.Title }}</a></nav>
+      <ul id="assigned-tags">
+        {{ range index $model.assigned .Path }}
+          {{ $tag := partial "tags/page.html" (dict "owner" $owner "slug" .slug) }}
+          <li><a href="{{ $tag.RelPermalink }}">{{ .key }}</a></li>
+        {{ end }}
+      </ul>
+    {{ end }}
     {{ .Content }}
   </article>
 {{ end }}

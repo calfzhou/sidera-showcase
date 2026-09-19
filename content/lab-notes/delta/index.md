@@ -7,4 +7,4 @@ tags = []
 +++
 This is the synthetic **Delta note** article in `lab-notes`.
 
-Tags and pins are raw fixtures for later checks; this slice does not render their organization.
+Notebook tags classify notes independently of storage folders. Pinning remains a later-phase fixture.

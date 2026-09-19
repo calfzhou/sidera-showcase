@@ -14,3 +14,10 @@ hugo.linux
 
 # Isolated, retained P1 check runs (build output and test copies)
 /.checks/
+
+# Python integration-check bytecode (checks themselves disable new writes)
+/tests/__pycache__/
+
+# These are source templates, not a globally ignored ctags file.
+!/layouts/_partials/tags/
+!/layouts/_partials/tags/**

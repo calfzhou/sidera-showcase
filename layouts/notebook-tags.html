@@ -1,0 +1,31 @@
+{{ define "main" }}
+  {{ $owner := partial "collection-owner.html" . }}
+  {{ $model := partialCached "tags/model.html" $owner $owner.Path }}
+  {{ $hub := partial "tags/page.html" (dict "owner" $owner "slug" "") }}
+  <section data-tag-view="{{ .Params.tag_key }}" data-collection="{{ $owner.RelPermalink }}">
+    <h1>{{ $owner.Title }}: {{ .Title }}</h1>
+    <nav aria-label="Collection"><a href="{{ $owner.RelPermalink }}">{{ $owner.Title }}</a> — notebook</nav>
+    <nav aria-label="Tag ancestors">
+      <a href="{{ $hub.RelPermalink }}">All tags</a>
+      {{ $keys := split .Params.tag_key "/" }}
+      {{ $slugs := split .Params.tag_slug "/" }}
+      {{ if .Params.tag_key }}
+        {{ range seq (len $keys) }}
+          {{ $ancestor := partial "tags/page.html" (dict "owner" $owner "slug" (delimit (first . $slugs) "/")) }}
+          / <a href="{{ $ancestor.RelPermalink }}">{{ index $keys (sub . 1) }}</a>
+        {{ end }}
+      {{ end }}
+    </nav>
+    {{ partial "tags/tree.html" (dict "owner" $owner "model" $model "parent" .Params.tag_key) }}
+    {{ $notes := $model.notes }}
+    {{ with .Params.tag_key }}
+      {{ $notes = slice }}
+      {{ with index $model.nodes . }}{{ $notes = .notes }}{{ end }}
+    {{ end }}
+    <p data-note-count="{{ len $notes }}">{{ len $notes }} notes{{ if not .Params.tag_key }} (including untagged notes){{ end }}.</p>
+    <p>Alphabetical fixture view only; ordering, pinning and pagination remain pending.</p>
+    <ul id="articles">
+      {{ range sort $notes "Title" }}<li><a href="{{ .RelPermalink }}">{{ .Title }}</a></li>{{ end }}
+    </ul>
+  </section>
+{{ end }}

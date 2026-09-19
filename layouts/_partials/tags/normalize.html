@@ -1,0 +1,29 @@
+{{- /* A single normalization contract for discovery and rendered membership. */ -}}
+{{- $result := slice -}}
+{{- $tags := .tags -}}
+{{- if not (reflect.IsSlice $tags) -}}
+  {{- errorf "P1B tags must be an array of strings: %s" .source -}}
+{{- else -}}
+  {{- range $tags -}}
+    {{- if ne (printf "%T" .) "string" -}}
+      {{- errorf "P1B tag must be a string: %s (%v)" $.source . -}}
+    {{- else -}}
+      {{- $keys := slice -}}
+      {{- $slugs := slice -}}
+      {{- range split . "/" -}}
+        {{- $key := lower (trim (replaceRE `[\s\p{Z}]+` " " .) " ") -}}
+        {{- if or (in . "\\") (gt (len (findRE `[\p{Cc}]` .)) 0) (in (slice "" "." "..") $key) -}}
+          {{- errorf "P1B malformed tag segment %q: %s" . $.source -}}
+        {{- end -}}
+        {{- $slug := trim (replaceRE `[^\p{L}\p{N}\p{M}]+` "-" $key) "-" -}}
+        {{- if or (eq $slug "") (eq $slug "page") -}}
+          {{- errorf "P1B empty or reserved tag slug %q: %s" $slug $.source -}}
+        {{- end -}}
+        {{- $keys = $keys | append $key -}}
+        {{- $slugs = $slugs | append $slug -}}
+      {{- end -}}
+      {{- $result = $result | append (dict "key" (delimit $keys "/") "slug" (delimit $slugs "/")) -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
+{{- return (uniq $result) -}}

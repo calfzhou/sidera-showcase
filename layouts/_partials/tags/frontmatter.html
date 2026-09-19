@@ -1,0 +1,18 @@
+{{- /* Discovery only: Hugo still parses/renders the actual Markdown pages.
+       The current local content contract supports TOML and YAML front matter. */ -}}
+{{- $text := os.ReadFile . -}}
+{{- $data := dict -}}
+{{- $match := findRE `(?s)\A\+\+\+\r?\n.*?\r?\n\+\+\+(?:\r?\n|\z)` $text 1 -}}
+{{- if $match -}}
+  {{- $body := replaceRE `\A\+\+\+\r?\n|\r?\n\+\+\+(?:\r?\n|\z)$` "" (index $match 0) -}}
+  {{- $data = transform.Unmarshal (dict "format" "toml") $body -}}
+{{- else -}}
+  {{- $match = findRE `(?s)\A---\r?\n.*?\r?\n---(?:\r?\n|\z)` $text 1 -}}
+  {{- if $match -}}
+    {{- $body := replaceRE `\A---\r?\n|\r?\n---(?:\r?\n|\z)$` "" (index $match 0) -}}
+    {{- $data = transform.Unmarshal (dict "format" "yaml") $body -}}
+  {{- else if findRE `\A\s*(\{|\+\+\+|---)` $text -}}
+    {{- errorf "P1B discovery requires TOML or YAML front matter: %s" . -}}
+  {{- end -}}
+{{- end -}}
+{{- return $data -}}
