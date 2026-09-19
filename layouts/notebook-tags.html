@@ -23,9 +23,6 @@
       {{ with index $model.nodes . }}{{ $notes = .notes }}{{ end }}
     {{ end }}
     <p data-note-count="{{ len $notes }}">{{ len $notes }} notes{{ if not .Params.tag_key }} (including untagged notes){{ end }}.</p>
-    <p>Alphabetical fixture view only; ordering, pinning and pagination remain pending.</p>
-    <ul id="articles">
-      {{ range sort $notes "Title" }}<li><a href="{{ .RelPermalink }}">{{ .Title }}</a></li>{{ end }}
-    </ul>
+    {{ partial "lists/render.html" (dict "page" . "owner" $owner "pages" $notes) }}
   </section>
 {{ end }}

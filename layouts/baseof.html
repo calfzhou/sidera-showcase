@@ -1,3 +1,4 @@
+{{- $listsValid := partialCached "lists/validate.html" . "site" -}}
 {{- $valid := partialCached "tags/validate.html" . "site" -}}
 <!doctype html>
 <html lang="{{ site.Language.Locale }}">

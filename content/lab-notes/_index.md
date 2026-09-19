@@ -2,6 +2,8 @@
 title = 'Lab notes'
 [params]
 collection = 'notebook'
+list_order = 'title'
+page_size = 3
 [cascade]
 [cascade.target]
 kind = 'page'

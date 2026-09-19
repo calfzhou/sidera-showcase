@@ -1,5 +1,5 @@
 {{- /* Called only at render time; membership uses real Hugo Pages, not raw files.
-       Keep page collections so a later slice can pass them to Paginate. */ -}}
+       Keep full membership/counts here, never the current pager subset. */ -}}
 {{- $owner := . -}}
 {{- $nodes := dict -}}
 {{- $assigned := dict -}}

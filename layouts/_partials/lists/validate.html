@@ -1,0 +1,30 @@
+{{- /* Render-time validation only; no loader or paginator work here. */ -}}
+{{- range where site.Pages "Kind" "section" -}}
+  {{- if .Params.collection -}}
+    {{- $policy := partial "lists/policy.html" . -}}
+  {{- end -}}
+  {{- /* Every section is a list, including ordinary storage and tag views.
+         Reserve page/ even when today's result fits one pager. */ -}}
+  {{- $section := . -}}
+  {{- $namespace := printf "%spage/" .RelPermalink -}}
+  {{- range site.Pages -}}
+    {{- if or (eq (strings.TrimSuffix "/" .RelPermalink) (strings.TrimSuffix "/" $namespace)) (strings.HasPrefix .RelPermalink $namespace) -}}
+      {{- errorf "P1C reserved pagination route: %s (list %s)" .RelPermalink $section.Path -}}
+    {{- end -}}
+    {{- range .Aliases -}}
+      {{- if or (eq (strings.TrimSuffix "/" .) (strings.TrimSuffix "/" $namespace)) (strings.HasPrefix . $namespace) -}}
+        {{- errorf "P1C alias in reserved pagination route: %s (list %s)" . $section.Path -}}
+      {{- end -}}
+    {{- end -}}
+  {{- end -}}
+  {{- $relative := strings.TrimPrefix site.Home.RelPermalink $namespace -}}
+  {{- if os.FileExists (path.Join "static" $relative) -}}
+    {{- errorf "P1C static file in reserved pagination route: %s" $relative -}}
+  {{- end -}}
+{{- end -}}
+{{- range site.RegularPages -}}
+  {{- if and (isset .Params "pinned") (ne (printf "%T" .Params.pinned) "bool") -}}
+    {{- errorf "P1C pinned must be boolean: %s" .Path -}}
+  {{- end -}}
+{{- end -}}
+{{- return true -}}

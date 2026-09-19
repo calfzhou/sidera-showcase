@@ -4,3 +4,13 @@ title = 'Collection organization showcase'
 timeZone = 'Asia/Shanghai'
 # The generated skeleton is retained, but inactive. No theme decision is implied.
 disableKinds = ['taxonomy', 'term', 'RSS']
+
+# Explicit metadata-only fallback chains: no Git, file mtime or build clock.
+[frontmatter]
+date = ['date', 'publishDate', 'pubdate', 'published']
+publishDate = ['publishDate', 'pubdate', 'published', 'date']
+lastmod = ['lastmod', 'modified', 'publishDate', 'pubdate', 'published', 'date']
+
+[pagination]
+path = 'page'
+disableAliases = true

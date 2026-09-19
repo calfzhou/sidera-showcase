@@ -9,12 +9,22 @@
     <nav aria-label="Notebook tags"><a href="{{ $hub.RelPermalink }}">Browse tags</a></nav>
   {{ end }}
   {{ .Content }}
-  <p>Alphabetical fixture view only; collection ordering, pinning, and pagination are not implemented.</p>
-  <ul id="articles">
-    {{ range .RegularPagesRecursive.ByTitle }}
-      {{ if eq (partial "collection-owner.html" .) $owner }}
-        <li><a href="{{ .RelPermalink }}">{{ .Title }}</a></li>
-      {{ end }}
+  {{ $pages := slice }}
+  {{ range .RegularPagesRecursive }}
+    {{ if eq (partial "collection-owner.html" .) $owner }}
+      {{ $pages = $pages | append . }}
     {{ end }}
-  </ul>
+  {{ end }}
+  {{ partial "lists/render.html" (dict "page" . "owner" $owner "pages" $pages) }}
+  {{ if eq . $owner }}
+    <aside aria-label="Recent updates">
+      <h2>Recent updates</h2>
+      <p>Up to five articles from the whole collection, by last modification; pins ignored.</p>
+      <ul id="recent-updates">
+        {{ range first 5 (partial "lists/order.html" (dict "pages" $pages "order" "modification" "pins" false)) }}
+          <li><a href="{{ .RelPermalink }}">{{ .Title }}</a> — {{ if .Lastmod.IsZero }}undated{{ else }}{{ .Lastmod.Format "2006-01-02" }}{{ end }}</li>
+        {{ end }}
+      </ul>
+    </aside>
+  {{ end }}
 {{ end }}

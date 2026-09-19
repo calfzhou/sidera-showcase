@@ -2,6 +2,8 @@
 title = 'Field notes'
 [params]
 collection = 'notebook'
+list_order = 'modification'
+page_size = 2
 [cascade]
 [cascade.target]
 kind = 'page'

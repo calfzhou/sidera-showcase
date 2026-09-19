@@ -17,6 +17,12 @@ class Page(HTMLParser):
         self.links = {}
         self.assets = []
         self.updated = False
+        self.pager = {}
+        self.pagination = None
+        self.total = None
+        self.order = None
+        self.size = None
+        self.times = {}
         self.byline = ""
         self.collection_links = []
         self.in_collection_nav = False
@@ -26,6 +32,17 @@ class Page(HTMLParser):
 
     def handle_starttag(self, tag, attrs):
         attrs = dict(attrs)
+        if "data-total" in attrs:
+            self.total = int(attrs["data-total"])
+        if "data-list-order" in attrs:
+            self.order = attrs["data-list-order"]
+            self.size = int(attrs["data-page-size"])
+        if "data-page-number" in attrs:
+            self.pagination = (int(attrs["data-page-number"]), int(attrs["data-total-pages"]))
+        if "data-page-link" in attrs:
+            self.pager[attrs["data-page-link"]] = attrs["href"]
+        if tag == "time":
+            self.times[attrs.get("class")] = attrs["datetime"]
         if tag == "article":
             assert self.article is None, "More than one article renderer"
             self.article = attrs
@@ -79,6 +96,23 @@ def page(output, route):
     return Page(output / route.strip("/") / "index.html")
 
 
+def pagers(output, route, prefix=""):
+    """Follow actual next links, retaining all pagers (and detecting loops)."""
+    seen = set()
+    while route:
+        assert route not in seen, ("Pagination cycle", route)
+        seen.add(route)
+        assert route.startswith(prefix + "/"), route
+        rendered = page(output, route[len(prefix):])
+        yield route, rendered
+        route = rendered.pager.get("next")
+
+
+def all_articles(output, route, prefix=""):
+    return [link for _, rendered in pagers(output, route, prefix)
+            for link in rendered.links["articles"]]
+
+
 def same_links(actual, expected):
     assert len(actual) == len(set(actual)), f"Duplicate links: {actual}"
     assert set(actual) == set(expected), (actual, expected)
@@ -104,7 +138,7 @@ def check_baseline(output, extra=False):
     for slug, (byline, updated, paths) in COLLECTIONS.items():
         owner = f"/{slug}/"
         routes = [f"{owner}{path}/" for path in paths]
-        same_links(page(output, owner).links["articles"], routes)
+        same_links(all_articles(output, owner), routes)
         same_links(page(output, owner).collection_links, [owner])
         for path, route in zip(paths, routes):
             expected_articles.add(route)
@@ -112,7 +146,7 @@ def check_baseline(output, extra=False):
             text = (output / route.strip("/") / "index.html").read_text()
             assert "This is the synthetic <strong>" in text, route
     article(output, "/about/", "", "", False)
-    same_links(page(output, "/lab-notes/storage/").links["articles"],
+    same_links(all_articles(output, "/lab-notes/storage/"),
                ["/lab-notes/storage/epsilon/"])
     same_links(page(output, "/lab-notes/storage/").collection_links, ["/lab-notes/"])
     assert not (output / "journal/2024/index.html").exists(), "Directory became a section"
@@ -121,7 +155,7 @@ def check_baseline(output, extra=False):
         expected_articles.add(route)
         article(output, route, "/lab-notes/annex/", "Annex team", True)
         for section in ["/lab-notes/annex/", "/lab-notes/annex/storage/"]:
-            same_links(page(output, section).links["articles"], [route])
+            same_links(all_articles(output, section), [route])
             same_links(page(output, section).collection_links, ["/lab-notes/annex/"])
     actual_articles = set()
     for path in output.rglob("*.html"):
@@ -153,7 +187,7 @@ def snapshot(root):
 
 def build(source, output, run, label):
     command = ["hugo", "--source", str(source), "--destination", str(output),
-               "--cacheDir", str(run / "cache"), "--panicOnWarning", "--printPathWarnings"]
+               "--cacheDir", str(run / (label + "-cache")), "--panicOnWarning", "--printPathWarnings"]
     result = subprocess.run(command, text=True, stdout=subprocess.PIPE,
                             stderr=subprocess.STDOUT, timeout=60)
     (run / f"{label}.log").write_text(result.stdout)
@@ -191,7 +225,7 @@ def main():
     check_baseline(run / "extended", extra=True)
     assert snapshot(variant / "layouts") == original_templates == snapshot(ROOT / "layouts")
     print("PASS content-only extension: 5 collections, nearest nested owner/cascade, no parent-list leakage, unchanged templates/config")
-    summary = "PASS P1-A targeted checks (P1-01, P1-02, P1-07, P1-08). P1-03/04 are pending; P1-05/06 are checked separately by check_p1b.py.\n"
+    summary = "PASS P1-A targeted checks (P1-01, P1-02, P1-07, P1-08). P1-03/04 are checked separately by check_p1c.py; P1-05/06 are checked separately by check_p1b.py.\n"
     (run / "result.txt").write_text(summary)
     print(summary, end="")
 

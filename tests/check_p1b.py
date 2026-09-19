@@ -17,7 +17,7 @@ from urllib.parse import unquote, urljoin, urlparse
 
 sys.dont_write_bytecode = True
 
-from check_p1a import ROOT, Page, check_baseline, same_links, snapshot
+from check_p1a import ROOT, Page, check_baseline, same_links, snapshot, pagers, all_articles
 
 
 class View(HTMLParser):
@@ -124,20 +124,21 @@ def tag_checks(out, owner, expected, all_notes):
     assert tree.tree == {labels[s]: len(notes) for s, notes in expected.items()}, tree.tree
     for slug, notes in {'': all_notes, **expected}.items():
         route = hub + (slug + '/' if slug else '')
-        v, p = View(html(out, route)), Page(html(out, route))
-        assert v.owner == root and v.key == labels.get(slug, ''), (route, v.owner, v.key)
-        assert v.count == len(notes), (route, v.count, notes)
-        same_links(p.links['articles'], [root + n + '/' for n in notes])
-        same_links(v.nav['Collection'], [root])
-        ancestors = [hub]
-        pieces = slug.split('/') if slug else []
-        ancestors += [hub + '/'.join(pieces[:i]) + '/' for i in range(1, len(pieces) + 1)]
-        assert v.nav['Tag ancestors'] == ancestors, (route, v.nav)
-        descendants = {labels[s]: len(ns) for s, ns in expected.items()
-                       if s != slug and (not slug or s.startswith(slug + '/'))}
-        assert v.tree == descendants, (route, v.tree, descendants)
-        assert v.tree_links == {labels[s]: hub + s + '/' for s in expected
-                                if labels[s] in descendants}, (route, v.tree_links)
+        same_links(all_articles(out, route), [root + n + "/" for n in notes])
+        for pager_route, p in pagers(out, route):
+            v = View(html(out, pager_route))
+            assert v.owner == root and v.key == labels.get(slug, ''), (route, v.owner, v.key)
+            assert v.count == len(notes), (route, v.count, notes)
+            same_links(v.nav['Collection'], [root])
+            ancestors = [hub]
+            pieces = slug.split('/') if slug else []
+            ancestors += [hub + '/'.join(pieces[:i]) + '/' for i in range(1, len(pieces) + 1)]
+            assert v.nav['Tag ancestors'] == ancestors, (route, v.nav)
+            descendants = {labels[s]: len(ns) for s, ns in expected.items()
+                           if s != slug and (not slug or s.startswith(slug + '/'))}
+            assert v.tree == descendants, (route, v.tree, descendants)
+            assert v.tree_links == {labels[s]: hub + s + '/' for s in expected
+                                    if labels[s] in descendants}, (route, v.tree_links)
         # Follow every list -> article -> collection/hub navigation edge.
         for note in notes:
             a = html(out, root + note + '/')
@@ -146,7 +147,7 @@ def tag_checks(out, owner, expected, all_notes):
             for direct in Page(a).links['assigned-tags']:
                 direct = unquote(direct)
                 assert direct.startswith(hub), (note, direct)
-                assert root + note + '/' in Page(html(out, direct)).links['articles']
+                assert root + note + '/' in all_articles(out, direct)
     if 'delta' in all_notes:
         assert Page(html(out, root + 'delta/')).links['assigned-tags'] == []
 
@@ -165,7 +166,7 @@ def local_links(out, prefix=""):
             assert path.is_file(), (file, link, path)
 
 
-def http_smoke(out, run):
+def http_smoke(out, run, routes=None):
     class QuietHandler(SimpleHTTPRequestHandler):
         def log_message(self, *args):
             pass
@@ -183,10 +184,12 @@ def http_smoke(out, run):
     thread.start()
     checked = []
     try:
-        for route in ['/', '/field-notes/', '/field-notes/tags/',
+        for route in routes or ['/', '/field-notes/', '/field-notes/tags/',
                       '/field-notes/tags/science/quantum/basics/',
                       '/field-notes/tags/u-e9878fe5ad90/u-e59fbae7a180/', '/field-notes/alpha/',
-                      '/lab-notes/alpha/', '/lab-notes/tags/science/quantum/basics/']:
+                      '/lab-notes/alpha/', '/lab-notes/tags/science/quantum/basics/',
+                      '/journal/page/2/', '/field-notes/page/3/',
+                      '/field-notes/tags/page/2/', '/lab-notes/page/2/']:
             with urlopen(f'http://127.0.0.1:{port}' + quote(route), timeout=5) as response:
                 assert response.status == 200
                 assert response.read() == html(out, route).read_bytes()
@@ -229,6 +232,9 @@ def main():
     expected_routes = {f'{owner}/tags/{slug + "/" if slug else ""}index.html'
                        for owner, terms in [('field-notes', FIELD), ('lab-notes', LAB)]
                        for slug in ['', *terms]}
+    expected_routes.update({'field-notes/tags/page/2/index.html',
+                            'field-notes/tags/page/3/index.html',
+                            'lab-notes/tags/page/2/index.html'})
     actual_routes = {p.relative_to(baseline).as_posix() for p in baseline.rglob('*.html')
                      if View(p).owner is not None}
     assert actual_routes == expected_routes, (actual_routes, expected_routes)
@@ -341,7 +347,7 @@ def main():
     source = copy_site(run, 'lifecycle')
     (source / 'content/_content.gotmpl').write_text('{{ $pages := .Site.Pages }}')
     build(source, run, 'lifecycle', 'this method cannot be called before the site is fully initialized')
-    summary = 'PASS P1-B: routes, membership/counts, ancestor/tree links, collection context, isolation, Unicode, normalization, collisions, deterministic output, and adapter lifecycle rejection. P1-03/04 remain pending.\n'
+    summary = 'PASS P1-B: routes, membership/counts, ancestor/tree links, collection context, isolation, Unicode, normalization, collisions, deterministic output, and adapter lifecycle rejection. P1-03/04 are checked separately by check_p1c.py.\n'
     (run / 'result.txt').write_text(summary)
     print(summary, end='')
 

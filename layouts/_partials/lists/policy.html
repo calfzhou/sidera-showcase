@@ -1,0 +1,19 @@
+{{- /* Read ONLY the nearest owner's params; do not cascade list settings. */ -}}
+{{- $order := "title" -}}
+{{- $size := 10 -}}
+{{- with . -}}
+  {{- if eq .Params.collection "blog" -}}{{- $order = "publication" -}}{{- end -}}
+  {{- if eq .Params.collection "notebook" -}}{{- $order = "modification" -}}{{- end -}}
+  {{- if isset .Params "list_order" -}}
+    {{- if or (ne (printf "%T" .Params.list_order) "string") (not (in (slice "publication" "modification" "title") .Params.list_order)) -}}
+      {{- errorf "P1C list_order must be publication, modification or title: %s" .Path -}}
+    {{- else -}}{{- $order = .Params.list_order -}}{{- end -}}
+  {{- end -}}
+  {{- if isset .Params "page_size" -}}
+    {{- $value := .Params.page_size -}}
+    {{- if or (not (in (slice "int" "int64" "uint64") (printf "%T" $value))) (lt (int $value) 1) -}}
+      {{- errorf "P1C page_size must be a positive integer: %s (got %v, %T)" .Path $value $value -}}
+    {{- else -}}{{- $size = int $value -}}{{- end -}}
+  {{- end -}}
+{{- end -}}
+{{- return (dict "order" $order "size" $size) -}}
