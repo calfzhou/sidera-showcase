@@ -2,7 +2,8 @@ baseURL = 'https://example.org/'
 locale = 'en-US'
 title = 'Collection organization showcase'
 timeZone = 'Asia/Shanghai'
-# The generated skeleton is retained, but inactive. No theme decision is implied.
+# Temporary PoC packaging, not the final theme selection. Skeleton is retained.
+theme = 'poc'
 disableKinds = ['taxonomy', 'term', 'RSS']
 
 # Explicit metadata-only fallback chains: no Git, file mtime or build clock.

@@ -1,6 +1,6 @@
 # Hugo collection organization showcase
 
-P1-A/P1-B/P1-C form an intentionally unstyled, synthetic organizational proof, not a theme choice or a Stellar port. The generated `themes/skeleton` files remain intact but are **inactive**. No dependencies, external services, JavaScript, preprocessing, series, or wiki implementation are required.
+P1-A/P1-B/P1-C form an intentionally unstyled, synthetic organizational proof, not a final theme choice or a Stellar port. The proof is now packaged in **`themes/poc`**, enabled by `theme = 'poc'`; no site-local templates or adapter are required. The generated `themes/skeleton` files remain intact but are **inactive** by default. No dependencies, external services, JavaScript, preprocessing, series, or wiki implementation are required.
 
 The durable plan, fixture matrix, decisions, results and phase gates live in [migration-project](../migration-project/README.md), especially [P1-A evidence](../migration-project/P1-A.md) and [P1-B evidence](../migration-project/P1-B.md) and [P1-C evidence](../migration-project/P1-C.md). Do not infer completion of Phase 1 from this slice.
 
@@ -15,6 +15,7 @@ From this repository:
 uv run --no-project --no-managed-python python3 tests/check_p1a.py
 uv run --no-project --no-managed-python python3 tests/check_p1b.py
 uv run --no-project --no-managed-python python3 tests/check_p1c.py
+uv run --no-project --no-managed-python python3 tests/check_poc_theme.py
 
 # Standalone build, isolated from any pre-existing public/ output:
 run=$(mktemp -d "$PWD/.checks/manual-XXXXXX") # .checks exists after running the checks
@@ -40,10 +41,10 @@ content/
 ```
 
 - Mark a collection root's `_index.md` with `[params] collection = 'blog'` or `'notebook'`. Its Page object/logical location supplies identity and its title supplies the label. Do **not** cascade the collection marker or repeat membership IDs on articles.
-- `layouts/_partials/collection-owner.html` selects the page itself if it is a marked section, otherwise its closest marked ancestor. `.Section` is only the top-level section name; `.CurrentSection` can be an unmarked storage subsection. Neither alone is the owner contract.
+- `themes/poc/layouts/_partials/collection-owner.html` selects the page itself if it is a marked section, otherwise its closest marked ancestor. `.Section` is only the top-level section name; `.CurrentSection` can be an unmarked storage subsection. Neither alone is the owner contract.
 - Native `cascade`, targeted to `kind = 'page'`, supplies `params.byline` and `params.show_updated`. Articles can override either, including explicit `false`. Templates read the resolved `.Params` directly; they do not use a truthy fallback that would discard `false`.
 - Identity/classification are read from the owner, not copied into article defaults. List policies below belong on the collection root, not on every article; read them from the owner, never article params.
-- All regular pages use one `layouts/page.html`, regardless of blog/notebook/standalone identity. Content uses ordinary `.Content`; relative image/source links remain within the article leaf bundle.
+- All regular pages use one `themes/poc/layouts/page.html`, regardless of blog/notebook/standalone identity. Content uses ordinary `.Content`; relative image/source links remain within the article leaf bundle.
 - A collection lists `.RegularPagesRecursive`, **filtered by nearest owner**. This reaches storage subsections but excludes articles of any nested marked collection. The homepage discovers marked sections at any depth, with no collection-name map or singleton blog.
 - Native cascade follows ancestry independently of collection ownership: an inner collection overrides outer defaults it sets, but unspecified defaults still inherit. A collection marker is not a cascade firewall.
 - Collection roots/ordinary sections use `_index.md`; individual article bundles use `index.md`. `journal/2024` intentionally has no `_index.md`, so it is a storage directory, not a section. `resource-note.md` inside `field-notes/alpha` is intentionally a leaf resource, not a second article.
@@ -176,7 +177,7 @@ Always build with **both** `--panicOnWarning --printPathWarnings` to detect Hugo
 
 ### Implementation and limits
 
-`content/_content.gotmpl` creates real Hugo **section Pages** for hubs, tags and their ancestors. A small recursive partial reads local front matter with Hugo's `os.ReadDir`/`ReadFile` and `transform.Unmarshal`. It recognizes marked owners and leaf bundles, skipping Markdown leaf resources. This is **route discovery**, not a replacement for Hugo's page parsing. No `Site.Pages` access occurs in the adapter: installed Hugo 0.166 errors at that build stage, as the test reproduces.
+`themes/poc/content/_content.gotmpl` creates real Hugo **section Pages** for hubs, tags and their ancestors. A small recursive partial reads local front matter with Hugo's `os.ReadDir`/`ReadFile` and `transform.Unmarshal`. It recognizes marked owners and leaf bundles, skipping Markdown leaf resources. This is **route discovery**, not a replacement for Hugo's page parsing. No `Site.Pages` access occurs in the adapter: installed Hugo 0.166 errors at that build stage, as the test reproduces.
 
 At render time, `tags/model.html` computes membership from the owner's actual `.RegularPagesRecursive`, filtered through the same nearest-owner helper used in P1-A. One normalizer serves discovery and membership. Counts and lists come from the same deduplicated Page slices. P1-C passes the full selected union through ordering/pins and then native `.Paginate`; the tag model and tree counts never use the current pager subset.
 
@@ -205,8 +206,7 @@ Port 14237 was available for the automated HTTP smoke tests, which stopped its s
 ## P1-D readiness observations (not production approval)
 
 [P1-D review](../migration-project/P1-D.md) inventories the real-site structure and
-records bounded experiments. The runtime templates/configuration remain at the
-P1-C behavior; this slice adds observation helpers, not a loader replacement.
+records bounded experiments. The runtime templates retain P1-C behavior (now theme-packaged); this slice adds observation helpers, not a loader replacement.
 
 ```sh
 uv run --no-project --no-managed-python python3 tests/check_p1d.py
@@ -264,3 +264,49 @@ a draft's malformed tags or slug collision with a public tag still fails a fresh
 These expected diagnostic probes **characterize a limitation**, not acceptance of that
 failure. See [P1-D follow-up](../migration-project/P1-D.md#follow-up--migration-tolerance-and-quick-investigation)
 for the user's clarified scope, evidence and future investigation leads.
+
+
+## Temporary theme packaging and skeleton comparison
+
+The user authorized this small P1-D packaging experiment, **not final theme
+selection or P2 execution**. [PoC theme guide](themes/poc/README.md) and
+[comparison report](../migration-project/P1-D-THEME.md) explain the boundary.
+All 18 templates and the tag adapter moved unchanged into the theme. Native Hugo
+theme lookup/content mounting supplies them; site content and policies remain
+here. Moving the adapter too prevents a switch to skeleton from leaving behind a
+site adapter calling unavailable PoC helpers. No custom mount setup was added.
+
+`check_poc_theme.py` runs six strict isolated builds: active PoC, reconstructed
+former in-place layout, optional site-template override, untouched skeleton,
+skeleton with its demo content parked outside a scratch copy, and a native-global-
+taxonomy contrast. It asserts whole-output byte equivalence for the move, then
+checks the known skeleton gaps rather than pretending feature parity. The helper
+retains sources, published outputs, logs and `results.json` under `.checks/poc-theme-*`.
+It also serves four skeleton routes on its own available explicit loopback port
+and stops the server. No original skeleton file is edited or deleted.
+
+For a direct switch experiment without changing saved configuration:
+
+```sh
+mkdir -p .checks
+run=$(mktemp -d "$PWD/.checks/skeleton-preview-XXXXXX")
+hugo --theme skeleton --destination "$run/public" --cacheDir "$run/cache" --panicOnWarning --printPathWarnings
+# If desired, serve only that successful build on an explicit free port:
+uv run --no-project --no-managed-python python3 -m http.server 14237 --bind 127.0.0.1 --directory "$run/public"
+```
+
+Do not stop an existing preview if that port is occupied; choose another explicit
+free port. Stop your own foreground server with Ctrl-C. This stock-theme experiment
+includes skeleton's three demo posts by default. The comparison helper also retains
+a source-only variant (demo content moved within the scratch run, not deleted).
+
+Skeleton renders all 17 showcase article/standalone routes and their local assets,
+but offers a global homepage stream and immediate-section lists instead of the
+collection/notebook contract. It ignores the custom owner list policies, pins,
+recent-update widget, byline/update display and scoped tag navigation. With the
+site's current config it has no taxonomies; enabling them in scratch gives **global
+flat assignments**, not notebook-scoped ancestor unions. It also emits a zero date
+on About and breaks relative bundle image/download URLs in list summaries (not on
+the article). Its default Home/Posts/Tags menu needs site-specific configuration.
+No other third-party theme was downloaded or tested; skeleton is a bundled Hugo
+starter scaffold, not a universal default or representative of every mature theme.

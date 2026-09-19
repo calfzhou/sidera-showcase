@@ -19,5 +19,5 @@ hugo.linux
 /tests/__pycache__/
 
 # These are source templates, not a globally ignored ctags file.
-!/layouts/_partials/tags/
-!/layouts/_partials/tags/**
+!/themes/poc/layouts/_partials/tags/
+!/themes/poc/layouts/_partials/tags/**
