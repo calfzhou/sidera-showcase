@@ -1,4 +1,4 @@
-"""P1-D packaging equivalence and bounded bundled-skeleton comparison.
+"""Active-theme packaging invariants and historical bundled-skeleton comparison.
 Also verifies the Sidera submodule handoff and local theme edits.
 No downloads; only synthetic .checks copies are modified.
 """
@@ -12,7 +12,8 @@ from urllib.parse import unquote, urljoin, urlparse
 
 sys.dont_write_bytecode = True
 from check_p1a import ROOT, THEME, COLLECTIONS, article_route, check_baseline, snapshot
-from check_p1b import build, copy_site, html, http_smoke
+from check_p1b import build, copy_site, html, http_smoke, tag_checks, FIELD, LAB
+from check_p1c import baseline_checks
 
 
 class Scan(HTMLParser):
@@ -109,9 +110,17 @@ def main():
     baseline = build(ROOT, run, 'poc')
     check_baseline(baseline)
 
-    # Retained PoC is an immutable baseline for the initial Sidera handoff.
+    # D-015: visual-byte equality was a one-time seed check (bd5dd82).
+    # Preserve the untouched PoC as evidence; compare behavior, not its old UI.
+    poc_before = snapshot(ROOT / 'themes/poc')
     legacy = build(ROOT, run, 'legacy-poc', flags=('--theme', 'poc'))
-    assert snapshot(baseline) == snapshot(legacy), 'Sidera changed PoC output'
+    for output in (baseline, legacy):
+        check_baseline(output)
+        baseline_checks(output)  # exact ordering/pager chains, policies, local targets
+        tag_checks(output, 'field-notes', FIELD, COLLECTIONS['field-notes'][2])
+        tag_checks(output, 'lab-notes', LAB, COLLECTIONS['lab-notes'][2])
+    assert {p for p in snapshot(baseline) if p.endswith('.html')} == {
+        p for p in snapshot(legacy) if p.endswith('.html')}, 'Theme changed HTML routes'
 
     # A theme working-tree edit must affect output without Git commit/push.
     edited = copy_site(run, 'local-theme-edit')
@@ -126,6 +135,8 @@ def main():
     inline = copy_site(run, 'in-place')
     (inline / THEME / 'layouts').rename(inline / 'layouts')
     (inline / THEME / 'content/_content.gotmpl').rename(inline / 'content/_content.gotmpl')
+    # Active theme assets now participate in the packaging equivalence check too.
+    (inline / THEME / 'assets').rename(inline / 'assets')
     config = inline / 'hugo.toml'
     config.write_text(config.read_text().replace("theme = 'sidera'\n", ''))
     previous = build(inline, run, 'in-place')
@@ -142,7 +153,8 @@ def main():
 
     stock = copy_site(run, 'skeleton-stock')
     stock_out = build(stock, run, 'skeleton-stock', flags=('--theme', 'skeleton'))
-    results = {'packaging_byte_identical': True, 'sidera_matches_retained_poc': True,
+    results = {'packaging_byte_identical': True, 'retained_poc_functional_invariants': True,
+               'seed_visual_equality': 'retired intentionally in P2-A; historical bd5dd82 evidence retained',
                'local_theme_edits_effective': True, 'optional_site_override': True,
                'skeleton_stock': skeleton_checks(stock_out, samples=True)}
 
@@ -163,8 +175,9 @@ def main():
     results['native_tags'] = {'basics_members': basics, 'implicit_science_ancestor': False}
     http_smoke(clean_out, run, routes=['/', '/about/', '/field-notes/alpha/', '/lab-notes/storage/epsilon/'])
     assert snapshot(ROOT / 'themes/skeleton') == skeleton_before
+    assert snapshot(ROOT / 'themes/poc') == poc_before
     (run / 'results.json').write_text(json.dumps(results, indent=2, ensure_ascii=False))
-    print('PASS Sidera/PoC equivalence, local theme edits, packaging, optional override and measured skeleton gaps.')
+    print('PASS Sidera/PoC functional invariants, local theme edits, packaging, optional override and measured skeleton gaps.')
 
 
 if __name__ == '__main__':

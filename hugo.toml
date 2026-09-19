@@ -1,6 +1,6 @@
 baseURL = 'https://example.org/'
 locale = 'en-US'
-title = 'Collection organization showcase'
+title = 'Sidera showcase'
 timeZone = 'Asia/Shanghai'
 # Active development checkout is a pinned Git submodule. PoC/skeleton remain fixtures.
 theme = 'sidera'

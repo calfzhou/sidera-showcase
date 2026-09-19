@@ -6,8 +6,9 @@ This repository is `calfzhou/sidera-showcase`; its local folder is still named
 The former sibling clone was moved here, not deleted or recreated. The retained
 `themes/poc` and `themes/skeleton` are inactive reference/comparison fixtures.
 
-The initial Sidera templates/adapter are byte-identical to the closed P1 proof;
-this wiring step adds no visual changes or production-compatibility claims.
+The P2-A Sidera visual foundation now styles the closed P1 proof without changing
+its organization/metadata/route contract. User visual acceptance and later P2 work
+remain pending; no production-compatibility claim is implied.
 The durable plan, decisions and evidence live in
 [migration-project](../migration-project/README.md).
 
@@ -309,7 +310,7 @@ build options are not synonymous with public Page membership: `render = 'never'`
 and `render = 'link'` probes produce unsuitable list links. The user tolerates harmless empty tags during migration, but requires fresh-build
 success and intact published rendering. This is not approval of invalid links for supported valid content or public disclosure of private data. Invalid or colliding draft metadata is correctly rejected; drafts are not exempt from structural validation (D-013).
 Final publication semantics remain for later review; passing P1-A/B/C does not
-prove complete eligibility parity. P1 is closed; only the Sidera submodule setup is currently authorized, not visual implementation.
+prove complete eligibility parity. P1 is closed; P2-A visual foundation is implemented for review. Later slices need separate authorization.
 
 
 ### P1-D follow-up: migration tolerance and quick investigation
@@ -333,18 +334,18 @@ for the user's clarified scope, evidence and future investigation leads.
 
 ## Historical PoC packaging and current regression comparison
 
-The original P1-D experiment is retained for reference. Sidera now supplies the same implementation through a submodule. [PoC theme guide](themes/poc/README.md) and
+The original P1-D experiment is retained for reference. Sidera supplies the organization implementation plus its independent visual shell through a submodule. [PoC theme guide](themes/poc/README.md) and
 [comparison report](../migration-project/P1-D-THEME.md) explain the boundary.
 All 18 templates and the tag adapter moved unchanged into the theme. Native Hugo
 theme lookup/content mounting supplies them; site content and policies remain
 here. Moving the adapter too prevents a switch to skeleton from leaving behind a
 site adapter calling unavailable PoC helpers. No custom mount setup was added.
 
-`check_poc_theme.py` now runs eight strict isolated builds: active Sidera, retained PoC equivalence, uncommitted local theme edit, reconstructed
+`check_poc_theme.py` now runs eight strict isolated builds: active Sidera, retained PoC functional comparison, uncommitted local theme edit, reconstructed
 former in-place layout, optional site-template override, untouched skeleton,
 skeleton with its demo content parked outside a scratch copy, and a native-global-
-taxonomy contrast. It asserts whole-output byte equivalence for the move, then
-checks the known skeleton gaps rather than pretending feature parity. The helper
+taxonomy contrast. It asserts whole-output byte equivalence between **active Sidera and its in-place
+reconstruction**, including CSS/JS assets, then checks the known skeleton gaps rather than pretending feature parity. The helper
 retains sources, published outputs, logs and `results.json` under `.checks/poc-theme-*`.
 It also serves four skeleton routes on its own available explicit loopback port
 and stops the server. No original skeleton file is edited or deleted.
@@ -374,3 +375,50 @@ on About and breaks relative bundle image/download URLs in list summaries (not o
 the article). Its default Home/Posts/Tags menu needs site-specific configuration.
 No other third-party theme was downloaded or tested; skeleton is a bundled Hugo
 starter scaffold, not a universal default or representative of every mature theme.
+
+
+## P2-A visual review and local browser checks
+
+The review direction is a quiet dark reading site, not a Stellar/Hexo port: translucent
+collection rail, slate cards, native scoped notebook navigation and shared article
+rendering. This homepage is explicitly a multi-collection **synthetic demo**, not an
+approved replacement for the real site's Notes-first homepage. See the theme README
+for visual boundaries/provenance and the coordination P2-A report for exact evidence.
+
+P2-A explicitly retires the setup-only **active Sidera = retained PoC visual-byte**
+assertion. Its historical `bd5dd82` evidence is preserved. Packaging checks now assert
+both themes' exact membership/defaults/assets and ordering/pager chains, identical HTML
+route sets, unchanged PoC/skeleton source, active/in-place full-output equality, local
+theme edits and optional overrides. P1-A/B/C and Journal assertions remain intact.
+
+The browser test uses installed Chrome and Node **24.12.0** (`.nvmrc`); Node is a
+**test-only** prerequisite. Building Sidera requires only Hugo, not Node or Hexo. No
+packages, browser binaries or fonts are downloaded. Python remains stdlib via uv.
+
+```sh
+nvm use
+# NODE_BIN avoids a system Node being prepended by a uv/Python launcher.
+NODE_BIN="$(command -v node)" uv run --no-project --no-managed-python python3 tests/check_p2a.py
+```
+
+It makes timestamped `.checks/frontend-design_YYYYMMDD_HHMMSS/` output with isolated
+source copies, strict baseline/stress/subpath builds, logs, JSON and screenshots.
+`SIDERA_CHECK_DIR` optionally names a **new** run directory. `CHROME_BIN` can point
+to another installed Chrome. Own loopback HTTP **14378** and CDP **14379** must be free
+(or explicitly select `SIDERA_HTTP_PORT` / `SIDERA_CDP_PORT`); occupied ports fail,
+never replace another service. The harness verifies its unique Chrome profile before
+creating a target, tests only local output and stops its own browser/server in `finally`.
+No existing browser/profile is inspected or attached. Native Node WebSocket supplies
+CDP because no repository Playwright/Selenium dependency was available.
+
+Coverage: six routes at 1440/900/768/390/320 CSS px; 18px long-title/mixed-language/code/
+table/image/TOC stress page at three widths; overflow, context, loaded images, styles,
+landmarks, keyboard skip/focus/Enter/Space disclosure, pager click, no-JS fallback,
+subpath assets and foreground-token contrast. Not a full accessibility audit, real
+device check, Safari/Firefox test, light theme, rich-content or production acceptance.
+
+For manual review use the **fresh build + static server** recipe above. Start at `/`,
+then `/field-notes/`, `/field-notes/alpha/`, `/field-notes/tags/science/`, `/journal/`
+and `/about/`. Compare `/lab-notes/` and paginate the lists. Below 900px open “Browse
+collections & tags”; use Tab, Enter/Space, and the skip link. Comment on reading width,
+font feel, contrast, card density and the rail before the next visual slice.

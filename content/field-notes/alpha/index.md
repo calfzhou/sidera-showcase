@@ -8,7 +8,7 @@ pinned = true
 +++
 This is the synthetic **Alpha note** article in `field-notes`.
 
-Notebook tags classify notes independently of storage folders. Pinning remains a later-phase fixture.
+Notebook tags classify notes independently of storage folders. A pinned note appears once, before the other notes in its selected list.
 
 ![Two connected sample nodes](sample.svg)
 
