@@ -6,11 +6,15 @@ This repository is `calfzhou/sidera-showcase`; its local folder is still named
 The former sibling clone was moved here, not deleted or recreated. The retained
 `themes/poc` and `themes/skeleton` are inactive reference/comparison fixtures.
 
-The accepted P2-A foundation and implemented P2-B reading/appearance slice style
-the closed P1 proof without changing its organization/metadata/route contract.
+P2-A/B/C provide the responsive theme, dark/light/system reading experience and
+native English/Chinese UI over the closed P1 proof. P2-D consolidates documentation
+and readiness without changing runtime behavior.
 Whole-P2 acceptance remains pending; no production-compatibility claim is implied.
-The durable plan, decisions and evidence live in
-[migration-project](../migration-project/README.md).
+The theme-owned [supported contract](themes/sidera/CONTRACT.md) distinguishes required
+site policies from defaults and links the native i18n/override guide. The durable
+plan and decisions live in the optional workspace sibling
+[migration-project](../migration-project/README.md); that repository is **not** a build
+or regression-test dependency.
 
 ## Clone, build and develop
 
@@ -57,7 +61,8 @@ uv run --no-project --no-managed-python python3 tests/check_poc_theme.py
 uv run --no-project --no-managed-python python3 tests/check_journal_urls.py
 
 # Standalone build, isolated from any pre-existing public/ output:
-run=$(mktemp -d "$PWD/.checks/manual-XXXXXX") # .checks exists after running the checks
+mkdir -p .checks
+run=$(mktemp -d "$PWD/.checks/manual-XXXXXX")
 hugo --destination "$run/public" --cacheDir "$run/cache" --panicOnWarning --printPathWarnings
 ```
 
@@ -193,7 +198,7 @@ Missing all applicable sources yields Hugo's zero time; the UI says `undated` or
 - A single page has no pager links. An empty result keeps its root route and shows “No articles”; Hugo reports PageNumber 1 and TotalPages 0, with no later pages/links.
 - `page/` is reserved beneath **every paginated section**, including blogs and unmarked storage sections as well as notebook roots/tag routes. Authored published routes, aliases and local static collisions fail with `P1C` diagnostics; P1-B's early notebook discovery checks remain. This is not a redesign of source discovery or support for arbitrary static/module mounts.
 - Counts and tag trees always describe the full selected result/owner model, not the current pager. Untagged notes remain in roots/hubs; tag results remain deduplicated ancestor/leaf unions.
-- Invalid order, non-positive/non-integer size and non-boolean pins fail with the offending owner/article path. Boolean false is preserved; string `"true"` is not a pin. Minimal labels/dates/navigation are verification UI, not theme styling.
+- Invalid order, non-positive/non-integer size and non-boolean pins fail with the offending owner/article path. Boolean false is preserved; string `"true"` is not a pin. These list semantics are independent of the localized Sidera presentation.
 
 ### Baseline expected sequences
 
@@ -256,7 +261,8 @@ At render time, `tags/model.html` computes membership from the owner's actual `.
 
 The route inventory reads all local note metadata, while list membership uses Hugo's published pages. Consequently **unpublished-only tags can have empty generated routes and exposed labels**. Tags must be public vocabulary in this showcase. P1-D now observes draft/future/expiry vocabulary exposure, build-option list gaps and incremental watcher failures. Harmless empty tags and watcher inconvenience are now tolerated during migration; build/rendering failures are not waived. Production semantics and sensitive vocabulary still require an explicit review before publication. This does not expose unpublished article bodies through the list model. Full fresh builds are the verified workflow.
 
-P1-B checks cover exact routes, tree links/counts, direct tags, ancestor unions, isolation, source and URL/alias namespace failures, deterministic fresh outputs, subpath hosting, and HTTP responses. Invalid-input probes deliberately fail and assert their diagnostics. No browser/visual review, final styling, global taxonomy behavior, feeds, or real-content compatibility is claimed.
+P1-B checks cover exact routes, tree links/counts, direct tags, ancestor unions, isolation, source and URL/alias namespace failures, deterministic fresh outputs, subpath hosting, and HTTP responses. Invalid-input probes deliberately fail and assert their diagnostics. P1-B alone did not verify visuals. P2-A/B/C add the bounded browser evidence below;
+global taxonomies, feeds and real-content compatibility remain outside that evidence.
 
 ### Manual preview
 
@@ -299,6 +305,7 @@ Do not trust watcher output for validation/publication. Use fresh destinations
 and successful full builds; the existing separate static-preview workflow remains
 verified. The user accepts unreliable live preview as non-blocking during migration; use this fresh-build workflow for validation. A quick resource-dependency probe is retained for later investigation, not adopted as a fix.
 
+**Optional historical inventory, not a clean-checkout build/test prerequisite:**
 `inventory_p1d.py` reads tracked reference Markdown from sibling `gocalf.com-hugo`
 without writes there. It reports aggregate front-matter shapes and lexical
 capability candidates (ignoring fenced/inline examples), not a full YAML/Hexo
@@ -310,7 +317,8 @@ build options are not synonymous with public Page membership: `render = 'never'`
 and `render = 'link'` probes produce unsuitable list links. The user tolerates harmless empty tags during migration, but requires fresh-build
 success and intact published rendering. This is not approval of invalid links for supported valid content or public disclosure of private data. Invalid or colliding draft metadata is correctly rejected; drafts are not exempt from structural validation (D-013).
 Final publication semantics remain for later review; passing P1-A/B/C does not
-prove complete eligibility parity. P1 is closed; P2-A visual foundation is implemented for review. Later slices need separate authorization.
+prove complete eligibility parity. P1 is closed; P2-A/B/C are implemented and P2-D reviews readiness. P3 implementation
+and real migration need separate authorization.
 
 
 ### P1-D follow-up: migration tolerance and quick investigation
@@ -460,8 +468,8 @@ WCAG, screen-reader, real-device or cross-browser audit.
 The native code hook only replaces fixed highlighting colors with theme token
 classes; it does not implement P3 code-file tools or special shortcodes. The fixture
 uses Hugo's existing `figure` shortcode, not a new component. The ordinary showcase
-content and P1 assertions remain unchanged. P1 stays closed; whole-P2/license and
-future presentation coverage still need a separate disposition.
+content and P1 assertions remain unchanged. P1 stays closed; whole-P2 user visual approval and licensing still need explicit
+disposition. P2-D consolidates coverage rather than inventing another polish slice.
 
 ## P2-C English/Chinese localization
 
@@ -529,3 +537,20 @@ no ownership/date/count/route/pin/pager/asset assertion was removed. Packaging's
 active/in-place byte comparison now includes native i18n catalogs. Historical
 PoC/skeleton fixtures remain immutable and English-only. Browser checks are local
 Chromium spot checks, not full cross-browser/screen-reader/WCAG certification.
+
+
+## Distribution boundary
+
+Sidera currently has no selected distribution license. Its active CSS/JS/templates
+are independently authored; local/system font names do not bundle font files.
+Do not infer a license grant from public repository metadata or a visual reference.
+No external distribution is authorized by the local P2 readiness review.
+
+The retained inactive PoC is project-authored comparison code. The inactive
+`themes/skeleton` was generated by `hugo new theme` (commit `0d51869`) and includes
+a sample JPEG and favicon, but no tracked license/attribution file. Its asset rights
+were **not established** by this review. Before distributing the complete showcase,
+verify upstream scaffold/asset terms and preserve required notices (or discuss a
+separately authorized exclusion). These files are not active Sidera output; do not
+modify/remove the frozen fixtures as incidental cleanup. This separate showcase
+packaging issue does not block local P3 capability work.
