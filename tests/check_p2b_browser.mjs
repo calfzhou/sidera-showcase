@@ -8,7 +8,22 @@ await runBrowser(async ({ run, port, debugPort, profile, origin, version, errors
   call, evaluate, navigate, viewport, key, screenshot, delay }) => {
   const results = [], contrasts = [], reading = [];
   const palette = () => evaluate(`document.documentElement.dataset.appearance || 'dark'`);
-  const os = value => call('Emulation.setEmulatedMedia', { features: [{ name: 'prefers-color-scheme', value }] });
+  // Native media events and keyboard scrolling are asynchronous in headless Chrome.
+  // Wait for the asserted state, not an assumed 80/100ms compositor schedule.
+  const waitFor = async (predicate, label) => {
+    for (let n=0; n<80; n++) {
+      if (await predicate()) return;
+      await delay(25);
+    }
+    assert.fail(`Timed out waiting for ${label}`);
+  };
+  const os = async value => {
+    await call('Emulation.setEmulatedMedia', { features: [{ name: 'prefers-color-scheme', value }] });
+    await waitFor(() => evaluate(`matchMedia('(prefers-color-scheme: light)').matches === ${value==='light'}`), 'native media query');
+    if (await evaluate(`document.querySelector('#appearance')?.value === 'system'`)) {
+      await waitFor(async () => (await palette()) === value, 'System appearance');
+    }
+  };
   const choose = async value => {
     await evaluate(`document.querySelector('#appearance').value = ${JSON.stringify(value)}; document.querySelector('#appearance').dispatchEvent(new Event('change', {bubbles:true}))`);
   };
@@ -183,7 +198,8 @@ await runBrowser(async ({ run, port, debugPort, profile, origin, version, errors
     await key('Tab','Tab',9);
     const tag = await evaluate(`document.activeElement.matches('pre,table') && document.activeElement.scrollWidth > document.activeElement.clientWidth ? document.activeElement.tagName : ''`);
     if(tag) {
-      await key('ArrowRight','ArrowRight',39); await delay(100);
+      await key('ArrowRight','ArrowRight',39);
+      await waitFor(() => evaluate('document.activeElement.scrollLeft > 0'), `keyboard scroll ${tag}`);
       assert(await evaluate('document.activeElement.scrollLeft > 0'), `keyboard scroll ${tag}`);
       scrollTargets.add(tag);
     }
