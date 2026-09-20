@@ -563,7 +563,8 @@ The committed site-owned [Workshop handbook](content/guidebook/_index.md) has
 body-bearing branches, a three-level tree, partial order, pagers, a local SVG,
 links and an intentionally disabled child list. The separate
 [theme-owned sample](themes/sidera/docs/content/_index.md) stays solely in the
-Sidera submodule. This showcase explicitly mounts it; theme activation alone is off.
+Sidera submodule. Both the showcase and theme leave it **off by default**; use
+[docs-on.toml](docs-on.toml) to publish it explicitly.
 See the precise [schema, native behavior and validation contract](themes/sidera/DOCS.md).
 
 From this checkout, after initializing its exact theme submodule:
@@ -573,23 +574,25 @@ git submodule update --init --recursive
 hugo server --bind 127.0.0.1 --port 14420 --disableFastRender
 ```
 
-Open <http://127.0.0.1:14420/guidebook/> (site-owned) and
-<http://127.0.0.1:14420/sidera/> (theme-owned). Navigate through Start a workshop →
-Set up the room, inspect page 2, and compare Workshop reference: it has prose and
-a child in the full tree, but no under-body child list. Stop with Ctrl-C.
-Use another free port if needed; Eureka leaves no preview running.
+Open <http://127.0.0.1:14420/guidebook/> (site-owned). Navigate through Start a
+workshop → Set up the room, inspect page 2, and compare Workshop reference: it has
+prose and a child in the full tree, but no under-body child list. Bundled `/sidera/`
+and its collection/sitemap entries are absent in this normal configuration.
+Stop with Ctrl-C. Use another free port if needed; Eureka leaves no preview running.
 
-To inspect the default-off boundary, start a **fresh** server with the override
-that omits the optional mount, not a menu toggle:
+To opt in to the theme-owned sample, start a fresh server with:
 
 ```sh
-hugo server --config hugo.toml,docs-off.toml \
+hugo server --config hugo.toml,docs-on.toml \
   --bind 127.0.0.1 --port 14421 --disableFastRender
 ```
 
-The handbook remains at <http://127.0.0.1:14421/guidebook/>; `/sidera/` and its
-collection/sitemap entries do not exist. Fresh builds are authoritative. Do not
-infer absence from an old public directory or stale watcher output.
+Both <http://127.0.0.1:14421/guidebook/> and
+<http://127.0.0.1:14421/sidera/> are then available. The sample remains solely in
+the theme repository; no content is copied or removed. The earlier `docs-off.toml`
+is retained as an explicit reset for layered configurations, but normal preview
+no longer needs it. Fresh builds are authoritative: do not infer absence from
+an old public directory or stale watcher output.
 
 Reproduction with installed Hugo/Python and optional nvm Node/Chrome:
 

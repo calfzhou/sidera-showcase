@@ -151,15 +151,19 @@ DOC_ROUTES = [
     '/guidebook/reference/', '/guidebook/reference/glossary/', '/guidebook/about/',
     '/guidebook/faq/', '/guidebook/supplies/', '/guidebook/wrap-up/',
     '/guidebook/page/2/', '/guidebook/page/3/', '/guidebook/getting-started/page/2/',
+]
+THEME_DOC_ROUTES = [
     '/sidera/', '/sidera/authoring/', '/sidera/authoring/example/',
     '/sidera/publishing/', '/sidera/page/2/',
 ]
 
 
-def check_baseline(output, extra=False, docs=True):
+def check_baseline(output, extra=False, docs=True, theme_docs=False):
     roots = [f"/{slug}/" for slug in COLLECTIONS]
     if docs:
-        roots += ["/guidebook/", "/sidera/"]
+        roots.append("/guidebook/")
+    if theme_docs:
+        roots.append("/sidera/")
     if extra:
         roots.append("/lab-notes/annex/")
     same_links(page(output, "/").links["collections"], roots)
@@ -187,9 +191,10 @@ def check_baseline(output, extra=False, docs=True):
         for section in ["/lab-notes/annex/", "/lab-notes/annex/storage/"]:
             same_links(all_articles(output, section), [route])
             same_links(page(output, section).collection_links, ["/lab-notes/annex/"])
-    if docs:
-        expected_articles.update(DOC_ROUTES)
-        for route in DOC_ROUTES:
+    doc_routes = (DOC_ROUTES if docs else []) + (THEME_DOC_ROUTES if theme_docs else [])
+    if doc_routes:
+        expected_articles.update(doc_routes)
+        for route in doc_routes:
             owner = '/guidebook/' if route.startswith('/guidebook/') else '/sidera/'
             article(output, route, owner, '', False)
     actual_articles = set()

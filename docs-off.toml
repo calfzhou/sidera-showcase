@@ -1,4 +1,4 @@
-# Use with --config hugo.toml,docs-off.toml. Replaces the optional mount array.
+# Optional reset after docs-on.toml; ordinary hugo.toml already leaves theme docs off.
 [[module.mounts]]
 source = 'content'
 target = 'content'

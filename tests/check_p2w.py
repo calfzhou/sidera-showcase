@@ -69,6 +69,14 @@ ROOT_ORDER = ['getting-started','reference','about','faq','supplies','wrap-up']
 TREE = ['getting-started','getting-started/setup','getting-started/practice','getting-started/review',
         'reference','reference/glossary','about','faq','supplies','wrap-up']
 
+def docs_site(run, label):
+    """Explicitly opt test variants in; the ordinary showcase stays default-off."""
+    source = copy_site(run, label)
+    config = source / 'hugo.toml'
+    config.write_text(config.read_text() + '\n' + (ROOT/'docs-on.toml').read_text())
+    return source
+
+
 def main():
     run = Path(os.environ.get('SIDERA_CHECK_DIR') or tempfile.mkdtemp(prefix='p2w-', dir=ROOT/'.checks')).resolve()
     run.mkdir(parents=True, exist_ok=True)
@@ -78,8 +86,9 @@ def main():
         out = build(source, run, label, diagnostic=diagnostic, flags=('--printI18nWarnings', *flags))
         (rejected if diagnostic else successful).append(label)
         return out
-    baseline = check(ROOT, 'baseline')
-    check_baseline(baseline); baseline_checks(baseline)
+    on = docs_site(run, 'baseline')
+    baseline = check(on, 'baseline')
+    check_baseline(baseline, theme_docs=True); baseline_checks(baseline)
     assert not missing_targets(baseline)
     sequence(baseline, '/guidebook/', ['/guidebook/'+n+'/' for n in ROOT_ORDER], 2)
     sequence(baseline, '/guidebook/getting-started/', ['/guidebook/getting-started/'+n+'/' for n in ['setup','practice','review']], 2)
@@ -99,12 +108,15 @@ def main():
     assert 'id="TableOfContents"' not in html(baseline,'/guidebook/page/2/').read_text()
     assert (baseline/'sidera/nodes.svg').read_bytes() == (ROOT/THEME/'docs/content/nodes.svg').read_bytes()
     assert not (ROOT/'content/sidera').exists(), 'Theme docs must not be copied into site'
-    again = check(ROOT, 'repeat'); assert snapshot(baseline) == snapshot(again)
+    again = check(on, 'repeat'); assert snapshot(baseline) == snapshot(again)
 
     off = copy_site(run, 'off')
-    # Omit the opt-in completely, independently of navigation or draft metadata.
-    config = off/'hugo.toml'; config.write_text(config.read_text().split('# Consumer opt-in only;')[0])
+    # The unmodified ordinary showcase configuration is independently default-off.
     out = check(off, 'off')
+    check_baseline(out)
+    assert '<small>docs</small>' in html(out,'/').read_text()
+    assert '<small>Docs</small>' not in html(out,'/').read_text()
+    assert '<span class="eyebrow">docs</span>' in html(out,'/').read_text()
     assert not (out/'sidera').exists()
     assert not any('/sidera/' in p.read_text() for p in out.rglob('*.html'))
     assert '/sidera/' not in (out/'sitemap.xml').read_text()
@@ -114,12 +126,17 @@ def main():
     assert 'data-native-path="/sidera' not in html(native_off,'/').read_text()
     assert '/guidebook/reference/glossary' in html(native_off,'/').read_text()
     # User-facing override file really omits the optional array entry too.
-    override_off = copy_site(run, 'off-config')
+    explicit = copy_site(run, 'explicit-on')
+    shutil.copy2(ROOT/'docs-on.toml', explicit/'docs-on.toml')
+    enabled = check(explicit, 'explicit-on', flags=('--config','hugo.toml,docs-on.toml'))
+    check_baseline(enabled, theme_docs=True)
+    assert snapshot(enabled) == snapshot(baseline)
+    override_off = docs_site(run, 'off-config')
     shutil.copy2(ROOT/'docs-off.toml', override_off/'docs-off.toml')
     out = check(override_off, 'off-config', flags=('--config','hugo.toml,docs-off.toml'))
     assert not (out/'sidera').exists()
 
-    alt = copy_site(run, 'alternate')
+    alt = docs_site(run, 'alternate')
     replace(alt, 'hugo.toml', "target = 'content/sidera'", "target = 'content/manuals/theme'")
     out = check(alt, 'alternate', flags=('--baseURL','https://example.org/preview/'))
     assert not (out/'sidera').exists()
@@ -130,7 +147,7 @@ def main():
     assert (out/'manuals/theme/nodes.svg').read_bytes() == (baseline/'sidera/nodes.svg').read_bytes()
     assert html(out,'/field-notes/tags/science/').exists()
 
-    edges = copy_site(run, 'edges')
+    edges = docs_site(run, 'edges')
     replace(edges,'content/guidebook/_index.md', "collection = 'docs'", "collection = 'wiki'")
     for n in ['field-notes','lab-notes']:
         replace(edges,f'content/{n}/_index.md', "collection = 'notebook'", "collection = 'notes'")
@@ -159,7 +176,7 @@ def main():
     tag_checks(out,'lab-notes',LAB,['alpha','beta','gamma','delta','storage/epsilon'])
     assert not (out/'guidebook/tags').exists()
 
-    defaults = copy_site(run,'defaults')
+    defaults = docs_site(run,'defaults')
     replace(defaults,'content/guidebook/_index.md', "order = ['getting-started', 'reference']", 'order = []')
     out = check(defaults,'empty-order')
     sequence(out,'/guidebook/', ['/guidebook/'+n+'/' for n in ['about','faq','supplies','getting-started','reference','wrap-up']],2)
@@ -171,7 +188,7 @@ def main():
     branch(defaults,'guidebook/empty','Empty document','[params.children]\nlist=false')
     out = check(defaults,'empty-disabled'); assert not Docs(html(out,'/guidebook/empty/')).children
 
-    publication = copy_site(run,'native-eligibility')
+    publication = docs_site(run,'native-eligibility')
     for name,fm in [('draft','draft=true'),('future','publishDate=2099-01-01T00:00:00Z'),
                     ('expired','expiryDate=2000-01-01T00:00:00Z'),
                     ('unlisted',"[build]\nlist='never'"),('headless',"[build]\nrender='never'")]:
@@ -187,7 +204,7 @@ def main():
     replace(publication,'content/guidebook/draft/_index.md','draft=true',"draft=true\n[params.children]\norder=['typo']")
     check(publication,'referenced-invalid-draft','P2W unknown children.order')
 
-    mixed = copy_site(run,'mixed')
+    mixed = docs_site(run,'mixed')
     write(mixed,'content/guidebook/leaf.md', '+++\ntitle="Regular leaf"\nslug="leaf-url"\n+++\nAn ordinary leaf document.\n')
     replace(mixed,'content/guidebook/_index.md', "order = ['getting-started', 'reference']", "order=['leaf','getting-started','reference']")
     write(mixed,'content/yaml-manual/_index.md', '---\ntitle: YAML manual\nparams:\n  collection: docs\n  children:\n    order: [z]\n    sort: name\n---\nA separate authored YAML collection.\n')
@@ -198,25 +215,25 @@ def main():
     assert Page(html(out,'/guidebook/leaf-url/')).article['data-collection']=='/guidebook/'
     replace(mixed,'content/guidebook/_index.md', "order=['leaf','getting-started','reference']", "order=['leaf-url']")
     check(mixed,'slug-not-identity','P2W unknown children.order')
-    nonchild = copy_site(run,'nonchild')
+    nonchild = docs_site(run,'nonchild')
     branch(nonchild,'guidebook/independent','Independent',"[params]\ncollection='docs'")
     replace(nonchild,'content/guidebook/_index.md', "order = ['getting-started', 'reference']", "order=['independent']")
     check(nonchild,'nonchild','P2W children.order target is not a direct child')
-    scalar = copy_site(run,'scalar-settings')
+    scalar = docs_site(run,'scalar-settings')
     branch(scalar,'guidebook/bad','Bad',"[params]\nchildren=false")
     check(scalar,'scalar-settings','P2W children must be a table')
 
     # Native same-source-path override is deliberate and tested, not an accidental mask.
-    override = copy_site(run,'override')
+    override = docs_site(run,'override')
     write(override,'content/sidera/authoring/_index.md','+++\ntitle="Site-authored override"\n+++\nIntentional site override body.\n')
     out = check(override,'override')
     assert 'Intentional site override body' in html(out,'/sidera/authoring/').read_text()
     assert 'Use a branch bundle' not in html(out,'/sidera/authoring/').read_text()
     assert html(out,'/sidera/authoring/example/').exists()
-    collision = copy_site(run,'collision')
+    collision = docs_site(run,'collision')
     branch(collision,'collision','Route collision',"url='/sidera/authoring/'")
     check(collision,'route-collision','Duplicate target paths')
-    ambiguous = copy_site(run,'ambiguous')
+    ambiguous = docs_site(run,'ambiguous')
     write(ambiguous,'content/guidebook/about.md','+++\ntitle="Duplicate logical child"\n+++\nAmbiguous.\n')
     check(ambiguous,'ambiguous','P2W ambiguous docs node')
 
@@ -236,16 +253,16 @@ def main():
         ("page_size = 2", "page_size = 2\nlist='false'", 'children.list must be boolean'),
     ]
     for i,(old,new,message) in enumerate(invalid):
-        source = copy_site(run,'invalid-'+str(i)); replace(source,'content/guidebook/_index.md',old,new)
+        source = docs_site(run,'invalid-'+str(i)); replace(source,'content/guidebook/_index.md',old,new)
         check(source,'invalid-'+str(i),'P2W '+message)
-    bad = copy_site(run,'grouping')
+    bad = docs_site(run,'grouping')
     write(bad,'content/guidebook/no-branch/deep.md','+++\ntitle="Accidental flattening"\n+++\nBody\n')
     check(bad,'grouping','P2W docs require a branch')
-    draft = copy_site(run,'draft-validation')
+    draft = docs_site(run,'draft-validation')
     branch(draft,'guidebook/draft','Invalid draft',"draft=true\n[params.children]\npage_size=0")
     check(draft,'draft-validation','P2W children.page_size',flags=('--buildDrafts','--buildFuture','--buildExpired'))
 
-    bilingual = copy_site(run,'bilingual')
+    bilingual = docs_site(run,'bilingual')
     write(bilingual,'locale.toml', "defaultContentLanguage='en'\ndefaultContentLanguageInSubdir=true\n[languages.en]\nlocale='en-US'\nweight=1\n[languages.zh]\nlocale='zh-CN'\nweight=2\n")
     docs = bilingual/THEME/'docs/content'
     (docs/'_index.zh.md').write_text('+++\ntitle="Sidera 文档示例"\n[params]\ncollection="docs"\n[params.children]\norder=["publishing","authoring"]\n+++\n这是一份手工编写的文档示例。\n\n[编写文档]({{< relref "./authoring" >}})\n\n![节点](nodes.svg)\n')
@@ -259,7 +276,7 @@ def main():
     assert not missing_targets_with_prefix(out,'/preview')
     assert html(out,'/en/field-notes/tags/science/').exists()
     # New docs assets/links and UI under a Chinese-only site, no duplicated source bodies.
-    chinese = copy_site(run,'chinese')
+    chinese = docs_site(run,'chinese')
     write(chinese,'locale.toml', "defaultContentLanguage='zh'\nlocale='zh-CN'\n")
     out = check(chinese,'chinese-preview',flags=('--config','hugo.toml,locale.toml','--baseURL','https://example.org/_chinese/'))
     assert '子文档' in html(out,'/guidebook/').read_text()
