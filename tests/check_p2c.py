@@ -142,13 +142,13 @@ def main():
     zh_catalog = (ROOT / THEME / 'i18n/zh-CN.toml').read_text()
     keys = set(re.findall(r'^\[([^]]+)\]', en_catalog, re.M))
     assert keys == set(re.findall(r'^\[([^]]+)\]', zh_catalog, re.M))
-    assert len(keys) == 51, keys # Deliberate UI inventory: update alongside I18N.md.
+    assert len(keys) == 57, keys # Deliberate UI inventory: update alongside I18N.md.
     assert en_catalog.count('other = ') == zh_catalog.count('other = ') == len(keys)
     # Literal call sites plus the four deliberately native dynamic message groups.
     implementation = '\n'.join(p.read_text() for directory in ['layouts', 'content']
                                for p in (ROOT / THEME / directory).rglob('*') if p.is_file())
     used = set(re.findall(r'\bT "([a-z_]+)"', implementation))
-    used.update(['collection_blog', 'collection_notebook', 'order_publication', 'order_modification',
+    used.update(['collection_blog', 'collection_notebook', 'collection_docs', 'order_publication', 'order_modification',
                  'order_title', 'date_published', 'date_modified', 'date_updated', 'published_undated',
                  'modified_undated', 'notes_all', 'notes_subtags'])
     assert keys == used, (keys-used, used-keys)

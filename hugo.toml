@@ -19,3 +19,11 @@ disableAliases = true
 # Journal date is its publication date; preserve explicit slugs or bundle basenames.
 [permalinks.page]
 journal = '/journal/:year/:month/:day/:slugorcontentbasename/'
+
+# Consumer opt-in only; Sidera itself does not mount its optional docs.
+[[module.mounts]]
+source = 'content'
+target = 'content'
+[[module.mounts]]
+source = 'themes/sidera/docs/content'
+target = 'content/sidera'

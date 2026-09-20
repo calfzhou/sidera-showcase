@@ -10,7 +10,7 @@ from unittest.mock import patch
 
 sys.dont_write_bytecode = True
 import check_p1d
-from check_p1a import THEME, Page, check_baseline, snapshot
+from check_p1a import THEME, Page, DOC_ROUTES, check_baseline, snapshot
 from check_p1b import ROOT, build, copy_site, write_note, html, View
 
 
@@ -49,7 +49,9 @@ def publication(run):
     check_baseline(out)
     before, after = snapshot(baseline), snapshot(out)
     article_files = [p for p in baseline.rglob('*.html') if Page(p).article]
-    assert len(article_files) == 17
+    original_articles = [p for p in article_files if p.relative_to(baseline).parts[0] not in ('guidebook', 'sidera')]
+    assert len(original_articles) == 17
+    assert len(article_files) == 17 + len(DOC_ROUTES)
     assert all(p.read_bytes() == (out / p.relative_to(baseline)).read_bytes() for p in article_files)
     changed = sorted(p for p in before if before[p] != after.get(p))
     assert changed == ['index.html', 'sitemap.xml'], changed
@@ -57,7 +59,7 @@ def publication(run):
     for key in ('draft', 'future', 'expired', 'headless'):
         assert not html(out, '/field-notes/excluded-' + key + '/').exists()
         assert View(html(out, '/field-notes/tags/excluded/' + key + '/')).count == 0
-    results = {'valid_excluded': {'build': 'pass', 'unchanged_articles': 17,
+    results = {'valid_excluded': {'build': 'pass', 'unchanged_original_articles': 17, 'unchanged_doc_documents_and_pagers': len(DOC_ROUTES),
                                  'changed_existing_files': changed,
                                  'new_files': sorted(set(after) - set(before))}}
     # Syntactically valid but conflicting unpublished vocabulary is not harmless.

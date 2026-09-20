@@ -48,9 +48,11 @@ class View(HTMLParser):
             self.pending_tag = a['data-tag']
         if tag == 'nav':
             self.current_nav = a.get('aria-label')
+            if self.current_nav == 'Notes tags':
+                self.current_nav = 'Notebook tags'
             if self.chinese:
                 # Presentation-only mapping; full existing link/count assertions remain.
-                self.current_nav = {'所属合集': 'Collection', '笔记本标签': 'Notebook tags',
+                self.current_nav = {'所属合集': 'Collection', '笔记标签': 'Notebook tags', '笔记本标签': 'Notebook tags',
                                     '标签层级路径': 'Tag ancestors'}.get(self.current_nav, self.current_nav)
             self.nav[self.current_nav] = []
         if tag == 'a' and self.pending_tag:

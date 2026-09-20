@@ -107,7 +107,7 @@ def date_probe(source):
     f = source / 'content/dates/e.md'
     f.write_text(f.read_text().replace('[params]', '[params]\nlist_order = "title"\npage_size = 99\npinned = false'))
     # Observe all three native Page values without changing production markup.
-    template = source / THEME / 'layouts/page.html'
+    template = source / THEME / 'layouts/_partials/article.html'
     template.write_text(template.read_text().replace('    <h1>', '''    <p data-date="{{ .Date.Format "2006-01-02" }}" data-publication="{{ .PublishDate.Format "2006-01-02" }}" data-modification="{{ .Lastmod.Format "2006-01-02" }}"></p>
     <h1>'''))
 
@@ -243,12 +243,12 @@ def main():
     f.write_text('Conflict')
     build(source, run, 'blog-static', 'P1C static file in reserved pagination route')
 
-    # Architectural guard: only one actual pagination call; widgets/nav never
+    # Architectural guard: one call per mutually exclusive list/docs renderer; widgets/nav never
     # accidentally seed Hugo's cached first call with a different collection.
     calls = [(p.relative_to(ROOT).as_posix(), line.strip())
              for p in (ROOT/THEME/'layouts').rglob('*.html') for line in p.read_text().splitlines()
              if '{{' in line and '/*' not in line and ('.Paginate ' in line or '.Paginator' in line)]
-    assert len(calls) == 1 and calls[0][0].endswith('lists/render.html'), calls
+    assert len(calls) == 2 and {p.split('/_partials/')[-1] for p, _ in calls} == {'lists/render.html', 'docs/render.html'}, calls
     summary = ('PASS P1-C: explicit sequences, native date fallback/aliases/offsets, ties, pins once/overflow, '
                'all pager navigation/counts, empty/single/multiple results, independent recent updates/sizes, '
                'nested owners, full tag unions/trees, subpath links, repeat builds and 13 invalid-input rejections.\n')

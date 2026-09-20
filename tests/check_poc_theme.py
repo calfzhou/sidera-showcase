@@ -99,6 +99,13 @@ def skeleton_checks(out, samples):
             'missing_local_targets': missing, 'home_anchors_without_href': home.empty_anchors}
 
 
+def original_scope(source):
+    """Omit ONLY new P2-W inputs for frozen themes; preserve their exact P1 proof."""
+    config = source / 'hugo.toml'
+    text = config.read_text().split('# Consumer opt-in only;')[0]
+    config.write_text(text + "\n[[module.mounts]]\nsource='content'\ntarget='content'\nfiles=['! guidebook/**']\n")
+
+
 def main():
     (ROOT / '.checks').mkdir(exist_ok=True)
     run = Path(tempfile.mkdtemp(prefix='poc-theme-', dir=ROOT / '.checks'))
@@ -113,18 +120,20 @@ def main():
     # D-015: visual-byte equality was a one-time seed check (bd5dd82).
     # Preserve the untouched PoC as evidence; compare behavior, not its old UI.
     poc_before = snapshot(ROOT / 'themes/poc')
-    legacy = build(ROOT, run, 'legacy-poc', flags=('--theme', 'poc'))
+    legacy_source = copy_site(run, 'legacy-poc')
+    original_scope(legacy_source)
+    legacy = build(legacy_source, run, 'legacy-poc', flags=('--theme', 'poc'))
     for output in (baseline, legacy):
-        check_baseline(output)
+        check_baseline(output, docs=(output == baseline))
         baseline_checks(output)  # exact ordering/pager chains, policies, local targets
         tag_checks(output, 'field-notes', FIELD, COLLECTIONS['field-notes'][2])
         tag_checks(output, 'lab-notes', LAB, COLLECTIONS['lab-notes'][2])
-    assert {p for p in snapshot(baseline) if p.endswith('.html')} == {
+    assert {p for p in snapshot(baseline) if p.endswith('.html') and not p.startswith(('guidebook/', 'sidera/'))} == {
         p for p in snapshot(legacy) if p.endswith('.html')}, 'Theme changed HTML routes'
 
     # A theme working-tree edit must affect output without Git commit/push.
     edited = copy_site(run, 'local-theme-edit')
-    template = edited / THEME / 'layouts/page.html'
+    template = edited / THEME / 'layouts/_partials/article.html'
     template.write_text(template.read_text().replace('data-renderer="shared-article"',
                                                     'data-renderer="local-theme-edit"'))
     edited_out = build(edited, run, 'local-theme-edit')
@@ -146,13 +155,15 @@ def main():
     # An optional site template overrides the corresponding theme template.
     override = copy_site(run, 'override')
     (override / 'layouts').mkdir()
-    template = (override / THEME / 'layouts/page.html').read_text()
-    (override / 'layouts/page.html').write_text(template.replace('data-renderer="shared-article"', 'data-renderer="site-override"'))
+    (override / 'layouts/_partials').mkdir()
+    template = (override / THEME / 'layouts/_partials/article.html').read_text()
+    (override / 'layouts/_partials/article.html').write_text(template.replace('data-renderer="shared-article"', 'data-renderer="site-override"'))
     custom = build(override, run, 'override')
     assert 'data-renderer="site-override"' in html(custom, '/field-notes/alpha/').read_text()
     assert snapshot(override / THEME) == snapshot(ROOT / THEME)
 
     stock = copy_site(run, 'skeleton-stock')
+    original_scope(stock)
     stock_out = build(stock, run, 'skeleton-stock', flags=('--theme', 'skeleton'))
     results = {'packaging_byte_identical': True, 'retained_poc_functional_invariants': True,
                'seed_visual_equality': 'retired intentionally in P2-A; historical bd5dd82 evidence retained',
@@ -162,6 +173,7 @@ def main():
     # Park starter demo content outside this scratch source; never delete it or edit the original theme.
     clean = copy_site(run, 'skeleton-content-only')
     (clean / 'themes/skeleton/content').rename(run / 'retained-skeleton-demo-content')
+    original_scope(clean)
     clean_out = build(clean, run, 'skeleton-content-only', flags=('--theme', 'skeleton'))
     results['skeleton_content_only'] = skeleton_checks(clean_out, samples=False)
 

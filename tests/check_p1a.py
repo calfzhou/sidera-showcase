@@ -144,8 +144,22 @@ def article(output, route, owner, byline, updated):
     assert rendered.updated is updated, (route, rendered.updated, updated)
 
 
-def check_baseline(output, extra=False):
+# Intentional P2-W additions; keep the original exact 17-article set intact.
+DOC_ROUTES = [
+    '/guidebook/', '/guidebook/getting-started/', '/guidebook/getting-started/setup/',
+    '/guidebook/getting-started/practice/', '/guidebook/getting-started/review/',
+    '/guidebook/reference/', '/guidebook/reference/glossary/', '/guidebook/about/',
+    '/guidebook/faq/', '/guidebook/supplies/', '/guidebook/wrap-up/',
+    '/guidebook/page/2/', '/guidebook/page/3/', '/guidebook/getting-started/page/2/',
+    '/sidera/', '/sidera/authoring/', '/sidera/authoring/example/',
+    '/sidera/publishing/', '/sidera/page/2/',
+]
+
+
+def check_baseline(output, extra=False, docs=True):
     roots = [f"/{slug}/" for slug in COLLECTIONS]
+    if docs:
+        roots += ["/guidebook/", "/sidera/"]
     if extra:
         roots.append("/lab-notes/annex/")
     same_links(page(output, "/").links["collections"], roots)
@@ -173,6 +187,11 @@ def check_baseline(output, extra=False):
         for section in ["/lab-notes/annex/", "/lab-notes/annex/storage/"]:
             same_links(all_articles(output, section), [route])
             same_links(page(output, section).collection_links, ["/lab-notes/annex/"])
+    if docs:
+        expected_articles.update(DOC_ROUTES)
+        for route in DOC_ROUTES:
+            owner = '/guidebook/' if route.startswith('/guidebook/') else '/sidera/'
+            article(output, route, owner, '', False)
     actual_articles = set()
     for path in output.rglob("*.html"):
         rendered = Page(path)

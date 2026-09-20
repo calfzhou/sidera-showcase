@@ -554,3 +554,58 @@ verify upstream scaffold/asset terms and preserve required notices (or discuss a
 separately authorized exclusion). These files are not active Sidera output; do not
 modify/remove the frozen fixtures as incidental cleanup. This separate showcase
 packaging issue does not block local P3 capability work.
+
+
+## P2-W: inspect both documentation trees
+
+Sidera's docs/page-tree proof is implemented, **not** the final P2 visual redesign.
+The committed site-owned [Workshop handbook](content/guidebook/_index.md) has
+body-bearing branches, a three-level tree, partial order, pagers, a local SVG,
+links and an intentionally disabled child list. The separate
+[theme-owned sample](themes/sidera/docs/content/_index.md) stays solely in the
+Sidera submodule. This showcase explicitly mounts it; theme activation alone is off.
+See the precise [schema, native behavior and validation contract](themes/sidera/DOCS.md).
+
+From this checkout, after initializing its exact theme submodule:
+
+```sh
+git submodule update --init --recursive
+hugo server --bind 127.0.0.1 --port 14420 --disableFastRender
+```
+
+Open <http://127.0.0.1:14420/guidebook/> (site-owned) and
+<http://127.0.0.1:14420/sidera/> (theme-owned). Navigate through Start a workshop →
+Set up the room, inspect page 2, and compare Workshop reference: it has prose and
+a child in the full tree, but no under-body child list. Stop with Ctrl-C.
+Use another free port if needed; Eureka leaves no preview running.
+
+To inspect the default-off boundary, start a **fresh** server with the override
+that omits the optional mount, not a menu toggle:
+
+```sh
+hugo server --config hugo.toml,docs-off.toml \
+  --bind 127.0.0.1 --port 14421 --disableFastRender
+```
+
+The handbook remains at <http://127.0.0.1:14421/guidebook/>; `/sidera/` and its
+collection/sitemap entries do not exist. Fresh builds are authoritative. Do not
+infer absence from an old public directory or stale watcher output.
+
+Reproduction with installed Hugo/Python and optional nvm Node/Chrome:
+
+```sh
+uv run --no-project --no-managed-python python3 tests/check_p2w.py
+# Use the retained run path printed above (contains both browser input builds):
+nvm use
+node tests/check_p2w_browser.mjs .checks/p2w-REPLACE-WITH-PRINTED-RUN
+```
+
+The suite tests exact tree and pager membership, defaults/overrides/empty/invalid
+settings, source-local versus cascade order, notes/wiki aliases, native publication,
+childless-to-parent identity, nested independent docs, mixed leaves and logical
+identity versus slugs, default off, two mount namespaces, intentional site override,
+URL/source collisions, authored filename translations and both UIs. An all-states
+native validation build is required for **unreferenced** excluded docs; see DOCS.md.
+Existing P1 suites retain exact original article/list/tag/route/date/asset assertions
+and now explicitly account for the new section documents and their pagers. Frozen
+PoC/skeleton comparisons deliberately omit only the new docs inputs they predate.

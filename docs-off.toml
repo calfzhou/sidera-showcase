@@ -1,0 +1,4 @@
+# Use with --config hugo.toml,docs-off.toml. Replaces the optional mount array.
+[[module.mounts]]
+source = 'content'
+target = 'content'
