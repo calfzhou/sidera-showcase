@@ -142,7 +142,13 @@ def main():
     branch(edges,'guidebook/hidden','Unpublished valid document','draft=true')
     # Native GetPage sees the draft, but it is absent from native .Pages.
     replace(edges,'content/guidebook/_index.md', "order = ['getting-started', 'reference']", "order = ['hidden', 'getting-started', 'reference']")
+    # A docs owner nested inside notes must stop discovery and native note membership.
+    branch(edges,'field-notes/manual','Nested manual',"[params]\ncollection='docs'")
+    write(edges,'content/field-notes/manual/leaf.md', '+++\ntitle="Not a note"\n[params]\ntags=["not-a-note//invalid-as-note"]\n+++\nA regular docs leaf, never tag-adapter input.\n')
     out = check(edges,'edges')
+    assert Docs(html(out,'/field-notes/manual/')).children == ['/field-notes/manual/leaf/']
+    assert Page(html(out,'/field-notes/manual/leaf/')).article['data-collection'] == '/field-notes/manual/'
+    assert not (out/'field-notes/tags/not-a-note').exists()
     sequence(out,'/guidebook/', ['/guidebook/'+n+'/' for n in ROOT_ORDER[:5]+['a-tie','z-tie','wrap-up']],2)
     assert not html(out,'/guidebook/hidden/').exists()
     assert '/guidebook/another/only/' not in Docs(html(out,'/guidebook/')).tree
