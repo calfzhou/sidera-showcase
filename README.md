@@ -612,3 +612,78 @@ native validation build is required for **unreferenced** excluded docs; see DOCS
 Existing P1 suites retain exact original article/list/tag/route/date/asset assertions
 and now explicitly account for the new section documents and their pagers. Frozen
 PoC/skeleton comparisons deliberately omit only the new docs inputs they predate.
+
+## P2-F — approved shell and configurable regions
+
+The active theme now implements the left-anchored neutral/glass shell, native
+menus, real optional right region and full standalone-page capabilities.
+[Theme shell contract](themes/sidera/SHELL.md) covers the fixed components,
+site/language → nearest-owner → Page presence rules, native cascade caveats,
+false/empty/clear semantics, local images, icon choices and small native hooks.
+Existing collection/list/notes/docs keys are deliberately unchanged; **new** shell
+keys are namespaced under `params.sidera`, with no legacy compatibility layer.
+
+Use an available explicit port; these are **your foreground processes**, stopped
+with Ctrl-C. Eureka does not leave a preview server running:
+
+```sh
+# Default collection overview; contextual notes/docs navigation; full About page.
+hugo server --bind 127.0.0.1 --port 14420 --disableFastRender
+
+# Native selected menu, original local identity mark and authored profile.
+hugo server --config hugo.toml,examples/full-shell.toml \
+  --bind 127.0.0.1 --port 14420 --disableFastRender
+
+# Genuine two-sidebar browsing: left navigation/tree, right recent/profile/TOC.
+hugo server --config hugo.toml,examples/full-shell.toml,examples/two-regions.toml \
+  --bind 127.0.0.1 --port 14420 --disableFastRender
+
+# Collection override, article exception and explicitly compact About page.
+hugo server --config hugo.toml,examples/full-shell.toml,examples/scoped.toml \
+  --bind 127.0.0.1 --port 14420 --disableFastRender
+
+# All-site compact or context-only/inapplicable-region collapse demonstrations.
+hugo server --config hugo.toml,examples/compact.toml \
+  --bind 127.0.0.1 --port 14420 --disableFastRender
+hugo server --config hugo.toml,examples/empty-regions.toml \
+  --bind 127.0.0.1 --port 14420 --disableFastRender
+```
+
+Inspect `/`, `/field-notes/`, `/field-notes/tags/science/quantum/`,
+`/field-notes/alpha/`, `/journal/2024/01/01/first-signal/`, `/guidebook/`,
+`/guidebook/getting-started/setup/` and `/about/`. About now has ordinary headings
+to demonstrate its default right TOC. Its compact layout is explicitly chosen by
+`examples/scoped.toml`, not hard-coded. The scoped example uses native targeted
+cascade to populate ordinary Page params; the same tables can be put directly in
+root/page front matter. Theme source does not change between examples.
+
+Append `,docs-on.toml` to a chosen config list for the single-source theme sample
+at `/sidera/`. **Bundled docs remain off in normal configuration.** The persistent
+handbook and its native ordered children remain functional in every arrangement.
+
+F does not complete selected-collection home, covers/refined cards, native blog
+index/term templates or full footer composition. The `blog-taxonomies` component
+consumes actual native Pages if a site supplies them; it never invents missing
+links. G/H implement the remaining capabilities. No search/comments/backlinks,
+real-site migration, font download, license grant or production publication.
+
+### Focused shell checks
+
+```sh
+uv run --no-project --no-managed-python python3 tests/check_p2f.py
+# Installed Node/Chrome only; explicitly retain the nvm Node path through uv.
+nvm use
+export NODE_BIN="$(command -v node)"
+run="$PWD/.checks/f-visual-$(date +%Y%m%d_%H%M%S)"
+SIDERA_CHECK_DIR="$run" uv run --no-project --no-managed-python \
+  python3 tests/prepare_p2f_browser.py
+"$NODE_BIN" tests/check_p2f_browser.mjs "$run"
+```
+
+The visual preparation uses longer **synthetic** articles in isolated copies,
+never edits the normal content or real-site output, and builds seven configurations
+on the same theme bytes. The 224-case browser matrix checks geometry, no ghost
+regions, useful trees, headings/links/assets, palettes, breakpoints, keyboard and
+no-JS behavior. Existing P1/P2 suites remain required regressions; historical tests
+now check full owner-tree semantics and current TOC IDs rather than freezing old
+markup/colors/border radii. Chromium/macOS is the actual tested browser boundary.

@@ -1,0 +1,41 @@
+# hugo server --config hugo.toml,examples/full-shell.toml
+# Omitted regions retain page-kind defaults. No footer/home APIs implied.
+[params.sidera]
+menu = 'primary'
+[params.sidera.identity]
+subtitle = 'A place for evolving ideas'
+image = 'images/sidera-mark.svg'
+[params.sidera.profile]
+title = 'The publishing notebook'
+text = 'Blogs, evolving notes, and a small **handbook**. One native reading space.'
+menu = 'profile'
+
+[[menus.primary]]
+name = 'Overview'
+pageRef = '/'
+weight = 1
+[[menus.primary]]
+name = 'Field notes'
+pageRef = '/field-notes'
+weight = 10
+[[menus.primary]]
+identifier = 'journal'
+name = 'Journal'
+pageRef = '/journal'
+weight = 20
+[[menus.primary]]
+name = 'First signal'
+pageRef = '/journal/first-signal'
+parent = 'journal'
+weight = 10
+[[menus.primary]]
+name = 'Handbook'
+pageRef = '/guidebook'
+weight = 30
+[[menus.primary]]
+name = 'About'
+pageRef = '/about'
+weight = 40
+[[menus.profile]]
+name = 'About this notebook →'
+pageRef = '/about'

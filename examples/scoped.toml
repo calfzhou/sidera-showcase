@@ -1,0 +1,31 @@
+# hugo server --config hugo.toml,examples/full-shell.toml,examples/scoped.toml
+# Native targeted cascades set ordinary Page.Params; nearest-owner fallback then
+# supplies the collection's settings to its articles. No source identity registry.
+[[cascade]]
+[cascade.target]
+path = '/field-notes'
+kind = 'section'
+[cascade.params.sidera]
+left = ['menu', 'notes-tags']
+right = ['recent', 'profile']
+recent_count = 2
+[cascade.params.sidera.profile]
+title = 'Field notebook'
+text = 'A collection-local profile, replacing the site profile completely.'
+
+[[cascade]]
+[cascade.target]
+path = '/field-notes/alpha'
+kind = 'page'
+[cascade.params.sidera]
+left = ['notes-tags']
+right = ['text']
+text = 'This page replaces the collection’s right region.'
+
+[[cascade]]
+[cascade.target]
+path = '/about'
+kind = 'page'
+[cascade.params.sidera]
+left = false
+right = []

@@ -105,7 +105,7 @@ def main():
     assert 'This site-owned demo' in html(baseline,'/guidebook/').read_text()
     assert 'This site-owned demo' not in html(baseline,'/guidebook/page/2/').read_text()
     assert 'Read the full document' in html(baseline,'/guidebook/page/2/').read_text()
-    assert 'id="TableOfContents"' not in html(baseline,'/guidebook/page/2/').read_text()
+    assert 'data-toc' not in html(baseline,'/guidebook/page/2/').read_text()
     assert (baseline/'sidera/nodes.svg').read_bytes() == (ROOT/THEME/'docs/content/nodes.svg').read_bytes()
     assert not (ROOT/'content/sidera').exists(), 'Theme docs must not be copied into site'
     again = check(on, 'repeat'); assert snapshot(baseline) == snapshot(again)

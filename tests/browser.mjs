@@ -8,7 +8,7 @@ import { once } from 'node:events';
 import { mkdir, readFile, writeFile, open } from 'node:fs/promises';
 import { resolve, extname, sep } from 'node:path';
 
-export async function runBrowser(check) {
+export async function runBrowser(check, mounts = {}) {
 const run = resolve(process.argv[2]);
 const port = Number(process.env.SIDERA_HTTP_PORT || 14378);
 const debugPort = Number(process.env.SIDERA_CDP_PORT || 14379);
@@ -21,8 +21,10 @@ const server = createServer(async (req, res) => {
   try {
     if (req.url === '/__p2a') { res.end(run); return; }
     let path = decodeURIComponent(new URL(req.url, origin).pathname);
-    const source = path.startsWith('/_chinese/') ? 'chinese-preview-public' : path.startsWith('/_stress/') ? 'stress-public' : path.startsWith('/preview/') ? 'subpath-public' : 'baseline-public';
-    path = path.replace(/^\/(?:_chinese|_stress|preview)(?=\/)/, '');
+    let source = path.startsWith('/_chinese/') ? 'chinese-preview-public' : path.startsWith('/_stress/') ? 'stress-public' : path.startsWith('/preview/') ? 'subpath-public' : 'baseline-public';
+    const mount = Object.entries(mounts).find(([prefix]) => path.startsWith(prefix + '/'));
+    if (mount) { source = mount[1]; path = path.slice(mount[0].length); }
+    else path = path.replace(/^\/(?:_chinese|_stress|preview)(?=\/)/, '');
     const root = resolve(run, source);
     const file = resolve(root, '.' + path + (path.endsWith('/') ? 'index.html' : ''));
     assert(file.startsWith(root + sep));

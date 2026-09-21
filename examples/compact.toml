@@ -1,0 +1,5 @@
+# Site-wide compact override. The identical keys may be page front matter.
+# hugo server --config hugo.toml,examples/compact.toml
+[params.sidera]
+left = false
+right = []

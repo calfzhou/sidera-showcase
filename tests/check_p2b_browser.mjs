@@ -117,7 +117,7 @@ await runBrowser(async ({ run, port, debugPort, profile, origin, version, errors
       assert.equal(await evaluate(`getComputedStyle(document.querySelector('.prose')).fontSize`), '18px');
       if (width < 900) assert(await evaluate(`[...document.querySelectorAll('pre,table')].filter(e=>e.scrollWidth>e.clientWidth).length >= 2`));
       // Native TOC link activation, actual fragment and scroll destination.
-      await evaluate(`document.querySelector('#TableOfContents a[href="#closing-observations"]').focus()`);
+      await evaluate(`document.querySelector('.context-menu').open=true; document.querySelector('[data-toc] a[href="#closing-observations"]').focus()`);
       await key('Enter','Enter',13); await delay(50);
       assert.equal(await evaluate('location.hash'), '#closing-observations');
       assert(await evaluate(`document.querySelector('#closing-observations').getBoundingClientRect().top < innerHeight`));
@@ -173,7 +173,7 @@ await runBrowser(async ({ run, port, debugPort, profile, origin, version, errors
     assert(await evaluate(`document.activeElement.matches('.site-menu > summary')`));
     await key('Enter','Enter',13); assert(await evaluate(`document.querySelector('.site-menu').open`));
     await key(' ','Space',32); assert.equal(await evaluate(`document.querySelector('.site-menu').open`),false);
-    await viewport(1440); await delay(60); assert(await evaluate(`document.querySelector('.site-menu').open`));
+    await viewport(1440); await waitFor(() => evaluate(`document.querySelector('.site-menu').open`), 'desktop navigation disclosure');
     // 200% text enlargement, then a 1280px desktop's 200% zoom-equivalent reflow.
     await navigate('/_stress/field-notes/reading-sample/');
     await evaluate(`document.documentElement.style.fontSize='36px'`);

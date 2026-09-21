@@ -32,6 +32,7 @@ class View(HTMLParser):
         self.nav = {}
         self.current_nav = None
         self.chinese = False
+        self.full_tree = False
         self.feed(file.read_text())
 
     def handle_starttag(self, tag, attrs):
@@ -47,6 +48,7 @@ class View(HTMLParser):
             self.tree[a['data-tag']] = int(a['data-count'])
             self.pending_tag = a['data-tag']
         if tag == 'nav':
+            if a.get('data-tree-scope') == 'owner': self.full_tree = True
             self.current_nav = a.get('aria-label')
             if self.current_nav == 'Notes tags':
                 self.current_nav = 'Notebook tags'
@@ -144,7 +146,7 @@ def tag_checks(out, owner, expected, all_notes):
             ancestors += [hub + '/'.join(pieces[:i]) + '/' for i in range(1, len(pieces) + 1)]
             assert v.nav['Tag ancestors'] == ancestors, (route, v.nav)
             descendants = {labels[s]: len(ns) for s, ns in expected.items()
-                           if s != slug and (not slug or s.startswith(slug + '/'))}
+                           if v.full_tree or (s != slug and (not slug or s.startswith(slug + '/')))}
             assert v.tree == descendants, (route, v.tree, descendants)
             assert v.tree_links == {labels[s]: hub + s + '/' for s in expected
                                     if labels[s] in descendants}, (route, v.tree_links)

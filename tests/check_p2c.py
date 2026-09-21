@@ -142,7 +142,7 @@ def main():
     zh_catalog = (ROOT / THEME / 'i18n/zh-CN.toml').read_text()
     keys = set(re.findall(r'^\[([^]]+)\]', en_catalog, re.M))
     assert keys == set(re.findall(r'^\[([^]]+)\]', zh_catalog, re.M))
-    assert len(keys) == 57, keys # Deliberate UI inventory: update alongside I18N.md.
+    assert len(keys) == 59, keys # Deliberate UI inventory: update alongside I18N.md.
     assert en_catalog.count('other = ') == zh_catalog.count('other = ') == len(keys)
     # Literal call sites plus the four deliberately native dynamic message groups.
     implementation = '\n'.join(p.read_text() for directory in ['layouts', 'content']
@@ -150,10 +150,10 @@ def main():
     used = set(re.findall(r'\bT "([a-z_]+)"', implementation))
     used.update(['collection_blog', 'collection_notebook', 'collection_docs', 'order_publication', 'order_modification',
                  'order_title', 'date_published', 'date_modified', 'date_updated', 'published_undated',
-                 'modified_undated', 'notes_all', 'notes_subtags'])
+                 'modified_undated', 'notes_all', 'notes_subtags', 'categories'])
     assert keys == used, (keys-used, used-keys)
     css = (ROOT / THEME / 'assets/css/sidera.css').read_text()
-    assert not re.search(r'(?:^|[;{])\s*content\s*:', css), 'Inventory new CSS textual content'
+    assert all(not value.strip(" \"'") for value in re.findall(r'(?:^|[;{])\s*content\s*:\s*([^;}]*)', css)), 'CSS must not generate untranslated text'
     assert 'aria-label=' not in css, 'Styles must not depend on translated labels'
     en = copy_site(run, 'baseline')
     baseline = build(en, run, 'baseline', flags=('--printI18nWarnings',))
@@ -204,7 +204,7 @@ def main():
             for k, suffix, chinese_suffix in [('notes_all', 'untagged notes', '未标记标签的笔记'), ('notes_subtags', 'subtags', '子标签')]:
                 assert messages.messages[k, str(count)] == (f'共 {number} 篇笔记（含{chinese_suffix}）。' if lang == 'chinese' else f'{number} {noun}, including {suffix}.')
             assert HOSTILE in messages.messages['all_tags_in', str(count)]
-            assert HOSTILE in messages.messages['subtags_hint', str(count)]
+            assert HOSTILE in messages.messages['toggle_branch', str(count)]
         assert messages.messages['page_summary','1'] == ('第 1,234 页，共 12,345 页' if lang == 'chinese' else 'Page 1,234 of 12,345')
         assert messages.messages['date_published','1'] == ('发表于 2024年2月3日' if lang == 'chinese' else 'Published Feb 3, 2024')
         probes.append(messages.messages)

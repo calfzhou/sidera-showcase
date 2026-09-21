@@ -1,0 +1,5 @@
+# Same theme: hugo server --config hugo.toml,examples/full-shell.toml,examples/two-regions.toml
+[params.sidera]
+left = ['menu', 'notes-tags', 'docs-tree']
+right = ['toc', 'recent', 'profile']
+recent_count = 3

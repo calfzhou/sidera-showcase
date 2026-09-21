@@ -26,12 +26,12 @@ await runBrowser(async ({ run, port, debugPort, profile, version, errors,
         };
       })()`);
       assert(geometry.scroll <= width + 1, `${name}@${width} overflow: ${geometry.scroll}`);
-      assert.equal(geometry.open, width >= 900);
+      assert.equal(geometry.open, width >= 761);
       assert.equal(geometry.h1, 1); assert.equal(geometry.mains, 1);
-      assert.equal(geometry.background, 'rgb(17, 24, 32)');
+      assert.equal(geometry.background, 'rgb(28, 32, 33)');
       assert(geometry.imgs); assert.equal(geometry.empty, 0);
       if (path.startsWith('/field-notes/')) assert.equal(geometry.active, '/field-notes/');
-      if (width < 900) assert(geometry.main.top < 230, 'Collapsed navigation obscures reading');
+      if (width < 761) assert(geometry.main.top < 230, 'Collapsed navigation obscures reading');
       if (width === 1440 || width === 390) await screenshot(`${name}-${width}`);
       results.push({ name, width, geometry });
     }
@@ -51,7 +51,7 @@ await runBrowser(async ({ run, port, debugPort, profile, version, errors,
   await key(' ', 'Space', 32);
   assert.equal(await evaluate(`document.querySelector('.site-menu').open`), false);
   // Responsive transition must restore desktop navigation after mobile collapse.
-  await viewport(1440); await delay(100);
+  await viewport(1440); for(let n=0;n<80 && !await evaluate(`document.querySelector('.site-menu').open`);n++) await delay(25);
   assert(await evaluate(`document.querySelector('.site-menu').open`));
   // Native link navigation and complete pager links remain actionable.
   await navigate('/field-notes/');
@@ -64,8 +64,8 @@ await runBrowser(async ({ run, port, debugPort, profile, version, errors,
     await navigate('/_stress/field-notes/visual-stress/');
     const stress = await evaluate(`(() => ({
       width: document.documentElement.scrollWidth, viewport: innerWidth,
-      toc: [...document.querySelectorAll('#TableOfContents a')].every(a => document.getElementById(decodeURIComponent(a.hash.slice(1)))),
-      tocCount: document.querySelectorAll('#TableOfContents a').length,
+      toc: [...document.querySelectorAll('[data-toc] a')].every(a => document.getElementById(decodeURIComponent(a.hash.slice(1)))),
+      tocCount: document.querySelectorAll('[data-toc] a').length,
       wideCode: [...document.querySelectorAll('pre')].some(p => p.scrollWidth > p.clientWidth),
       font: getComputedStyle(document.querySelector('.prose')).fontSize
     }))()`);
@@ -82,7 +82,7 @@ await runBrowser(async ({ run, port, debugPort, profile, version, errors,
   // Light OS preference is deliberately still dark in this first dark-only slice.
   await call('Emulation.setEmulatedMedia', { features: [{ name: 'prefers-color-scheme', value: 'light' }, { name: 'prefers-reduced-motion', value: 'reduce' }] });
   await navigate('/preview/field-notes/alpha/');
-  assert.equal(await evaluate(`getComputedStyle(document.documentElement).backgroundColor`), 'rgb(17, 24, 32)');
+  assert.equal(await evaluate(`getComputedStyle(document.documentElement).backgroundColor`), 'rgb(28, 32, 33)');
   assert(await evaluate(`[...document.querySelectorAll('link[rel="stylesheet"],script[src]')].every(e => (e.getAttribute('href') || e.getAttribute('src')).startsWith('/preview/'))`));
   // No-script fallback keeps the complete native navigation usable.
   await call('Emulation.setScriptExecutionDisabled', { value: true });

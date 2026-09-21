@@ -51,7 +51,7 @@ await runBrowser(async ({ run, port, debugPort, profile, origin, version, errors
           assert.equal(state.headings,1); assert(state.images);
           if (['list','tag','blog'].includes(name)) {
             assert.equal(await evaluate(`getComputedStyle(document.querySelector('[data-page-number]')).display`),'flex');
-            assert(await evaluate(`[...document.querySelectorAll('[data-page-link]')].every(a=>getComputedStyle(a).borderTopWidth==='1px' && getComputedStyle(a).borderRadius==='8px')`));
+            assert(await evaluate(`[...document.querySelectorAll('[data-page-link]')].every(a=>parseFloat(getComputedStyle(a).paddingTop)>0 && getComputedStyle(a.closest('.pagination')).backgroundColor !== 'rgba(0, 0, 0, 0)')`));
           }
           if(lang==='zh') {
             assert(!/Published|Modified|Updated|articles|Pins first|Page \d|Built with|Recent updates/.test(state.ui+state.dates.join(' ')),state.ui);
@@ -69,7 +69,8 @@ await runBrowser(async ({ run, port, debugPort, profile, origin, version, errors
       await navigate(prefix+'/field-notes/'); for(let n=0;n<3;n++) await key('Tab','Tab',9);
       assert(await evaluate(`document.activeElement.matches('.site-menu>summary')`));
       await key('Enter','Enter',13); assert(await evaluate(`document.querySelector('.site-menu').open`));
-      await key('Tab','Tab',9); assert.equal(await evaluate('document.activeElement.id'),'appearance');
+      for(let n=0;n<100 && await evaluate('document.activeElement.id')!=='appearance';n++) await key('Tab','Tab',9);
+      assert.equal(await evaluate('document.activeElement.id'),'appearance');
       assert.equal(await evaluate('document.activeElement.labels[0].textContent'),labels[0]);
       const tree = await call('Accessibility.getFullAXTree');
       assert(tree.nodes.some(n=>n.role?.value==='combobox' && n.name?.value===labels[0]));
@@ -101,10 +102,11 @@ await runBrowser(async ({ run, port, debugPort, profile, origin, version, errors
     for(const width of [1440,320]) {
       await viewport(width,width<900?844:960);
       await navigate('/preview/zh/field-notes/alpha/');
-      assert.equal(await evaluate(`document.querySelector('#toc-heading').textContent`),'本页目录');
+      assert.equal(await evaluate(`document.querySelector('[id^="toc-heading-"]').textContent`),'本页目录');
+      await evaluate(`document.querySelector('.context-menu').open=true`);
       const ax = await call('Accessibility.getFullAXTree');
       assert(ax.nodes.some(n=>n.role?.value==='navigation' && n.name?.value==='本页目录'));
-      await evaluate(`document.querySelector('#TableOfContents a').focus()`); await key('Enter','Enter',13);
+      await evaluate(`document.querySelector('.context-menu').open=true; document.querySelector('[data-toc] a').focus()`); await key('Enter','Enter',13);
       assert.equal(await evaluate('location.hash'),'#reading');
       await screenshot(`bilingual-article-${mode}-${width}`);
       await navigate('/preview/zh/field-notes/tags/');
