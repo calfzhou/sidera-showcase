@@ -8,6 +8,7 @@ sys.dont_write_bytecode = True
 from check_p1a import ROOT, THEME, snapshot
 from check_p1b import build, copy_site, html
 from check_p2w import write, replace
+from prepare_scoped_example import apply as apply_scoped
 
 class Node:
     def __init__(self, tag='', attrs=()):
@@ -90,8 +91,8 @@ text='Site text'
 title='Site profile'
 text='Must not leak through replacement'
 """)
-    replace(scoped,'content/field-notes/_index.md','[params]',"[params.sidera]\nleft=['notes-tags','text']\nright=['recent','profile']\nrecent_count=2\ntext='Owner text'\n[params.sidera.profile]\ntitle='Owner profile'\n[params]")
-    replace(scoped,'content/field-notes/alpha/index.md','[params]',"[params.sidera]\nleft=false\nright=['profile','toc']\ntext=''\n[params.sidera.profile]\ntext='Page profile'\n[params]")
+    replace(scoped,'content/field-notes/_index.md','[params.sidera]',"[params.sidera]\nleft=['notes-tags','text']\nright=['recent','profile']\nrecent_count=2\ntext='Owner text'\nprofile={title='Owner profile'}")
+    replace(scoped,'content/field-notes/alpha/index.md','[params.sidera]',"[params.sidera]\nleft=false\nright=['profile','toc']\ntext=''\nprofile={text='Page profile'}")
     replace(scoped,'content/about.md',"title = 'About this proof'", "title = 'About this proof'\n[params.sidera]\nleft=[]\nright=false")
     with (scoped/'content/field-notes/alpha/index.md').open('a') as f: f.write('\n## Local heading\n\nA scoped page.\n')
     out=check(scoped,'scoped')
@@ -105,10 +106,10 @@ text='Must not leak through replacement'
     assert 'Owner profile' not in html(out,'/field-notes/alpha/').read_text()
     assert not region(out,'/about/','left') and not region(out,'/about/','right')
     assert 'compact-header' in html(out,'/about/').read_text() and 'id="appearance"' in html(out,'/about/').read_text()
-    # Literal committed scoped example, not a manually approximated configuration.
+    # Literal committed owner/page front-matter example (no cascade emulation).
     example=source('scoped-example',(ROOT/'examples/full-shell.toml').read_text())
-    write(example,'scoped.toml',(ROOT/'examples/scoped.toml').read_text())
-    out=check(example,'scoped-example',flags=('--config','hugo.toml,scoped.toml'))
+    apply_scoped(example)
+    out=check(example,'scoped-example')
     assert components(out,'/field-notes/','right')==['recent','profile']
     assert components(out,'/field-notes/alpha/','left')==['notes-tags']
     assert components(out,'/field-notes/alpha/','right')==['text']
@@ -137,13 +138,14 @@ text='中文外壳'
     assert 'English shell' not in html(out,'/zh/about/').read_text()
     # Page-local sidera replaces the native cascaded table; owner/site fallback is per key.
     cascade=source('cascade',"[params.sidera]\nleft=['text']\nright=false\ntext='Site text'")
-    replace(cascade,'content/field-notes/_index.md','[params]',"[params.sidera]\ntext='Owner text'\nright=['recent']\n[params]")
-    replace(cascade,'content/field-notes/_index.md','show_updated = true',"show_updated = true\n[cascade.params.sidera]\nleft=['profile']\ntext='Cascade text'\n[cascade.params.sidera.profile]\ntitle='Cascaded profile'")
-    replace(cascade,'content/field-notes/alpha/index.md','[params]',"[params.sidera]\ntext=''\n[params]")
+    replace(cascade,'content/field-notes/_index.md','[params.sidera]',"[params.sidera]\ntext='Owner text'\nright=['recent']")
+    replace(cascade,'content/field-notes/_index.md','\n+++\n',"\n[cascade.params.sidera]\nleft=['profile']\ntext='Cascade text'\n[cascade.params.sidera.profile]\ntitle='Cascaded profile'\n+++\n")
+    write(cascade,'content/field-notes/no-local.md','+++\ntitle="No local table"\n+++\nA note without local params.')
+    replace(cascade,'content/field-notes/alpha/index.md','[params.sidera]',"[params.sidera]\ntext=''")
     out=check(cascade,'cascade')
     assert not region(out,'/field-notes/alpha/','left') # local table dropped cascaded profile; empty text clears
     assert components(out,'/field-notes/alpha/','right')==['recent'] # owner fallback, not a truthy default
-    assert components(out,'/field-notes/beta/','left')==['profile'] # no local table, cascade intentionally applies
+    assert components(out,'/field-notes/no-local/','left')==['profile'] # no local table, cascade intentionally applies
     # Empty/inapplicable components and deliberately repeated cross-region components.
     empty=source('empty',"[params.sidera]\nleft=['text','links','profile','docs-tree','notes-tags','blog-taxonomies']\nright=['text','links','profile']\ntext=''\nlinks_menu='missing'\n[params.sidera.profile]\nmenu='missing'")
     out=check(empty,'empty'); assert not region(out,'/about/','left') and not region(out,'/about/','right')

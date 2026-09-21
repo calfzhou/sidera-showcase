@@ -2,7 +2,7 @@
 title = 'Second signal'
 date = 2024-01-02T09:00:00+08:00
 lastmod = 2024-01-03T09:00:00+08:00
-[params]
+[params.sidera]
 tags = ["shared"]
 pinned = true
 byline = 'Guest editor'

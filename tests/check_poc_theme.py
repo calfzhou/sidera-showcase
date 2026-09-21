@@ -5,6 +5,7 @@ No downloads; only synthetic .checks copies are modified.
 from html.parser import HTMLParser
 from pathlib import Path
 import json
+import re
 import subprocess
 import sys
 import tempfile
@@ -101,6 +102,15 @@ def skeleton_checks(out, samples):
 
 def original_scope(source):
     """Omit ONLY new P2-W inputs for frozen themes; preserve their exact P1 proof."""
+    for file in (source/'content').rglob('*.md'):
+        text=file.read_text().replace('[params.sidera]', '[params]').replace('[cascade.params.sidera]', '[cascade.params]')
+        # Historic root defaults were native cascade. Do not alter frozen theme readers.
+        if file.name=='_index.md':
+            fields=re.findall(r"^(?:byline|show_updated) = [^\n]+\n",text,re.M)
+            if fields:
+                text=re.sub(r"^(?:byline|show_updated) = [^\n]+\n",'',text,flags=re.M)
+                text=text.replace('\n+++\n',"\n[cascade.target]\nkind='page'\n[cascade.params]\n"+''.join(fields)+'+++\n',1)
+        file.write_text(text)
     config = source / 'hugo.toml'
     text = config.read_text().split('# Consumer opt-in only;')[0]
     config.write_text(text + "\n[[module.mounts]]\nsource='content'\ntarget='content'\nfiles=['! guidebook/**']\n")

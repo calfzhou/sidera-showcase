@@ -102,7 +102,7 @@ def copy_site(run, label):
 def write_note(source, path, tags, extra=''):
     file = source / 'content' / path
     file.parent.mkdir(parents=True, exist_ok=True)
-    file.write_text('+++\ntitle = "Edge note"\n' + extra + '\n[params]\ntags = '
+    file.write_text('+++\ntitle = "Edge note"\n' + extra + '\n[params.sidera]\ntags = '
                     + json.dumps(tags, ensure_ascii=False) + '\n+++\nSynthetic edge.\n')
 
 
@@ -264,14 +264,14 @@ def main():
     source = copy_site(run, 'positive')
     shutil.copytree(ROOT / 'tests/fixtures/annex', source / 'content/lab-notes/annex')
     file = source / 'content/lab-notes/annex/storage/probe/index.md'
-    file.write_text(file.read_text().replace('\n+++\nA content', '\n[params]\ntags = ["science/quantum/basics", "shared"]\n+++\nA content'))
+    file.write_text(file.read_text().replace('\n+++\nA content', '\n[params.sidera]\ntags = ["science/quantum/basics", "shared"]\n+++\nA content'))
     # Namespace separation: ordinary article/section names can equal tag labels.
     write_note(source, 'field-notes/science/index.md', ['science', 'tags', 'shared/basics'])
     write_note(source, 'field-notes/storage/tags/index.md', ['shared/basics'])
     (source / 'content/field-notes/storage/_index.md').write_text('+++\ntitle = "Storage"\n+++\n')
-    (source / 'content/field-notes/alpha/resource-note.md').write_text('+++\n[params]\ntags = ["resource/only"]\n+++\nLeaf resource, not a note.\n')
+    (source / 'content/field-notes/alpha/resource-note.md').write_text('+++\n[params.sidera]\ntags = ["resource/only"]\n+++\nLeaf resource, not a note.\n')
     # A YAML note exercises the other native metadata syntax, including whitespace normalization.
-    (source / 'content/field-notes/yaml.md').write_text('---\ntitle: YAML edge\nparams:\n  tags: [" FIELD WORK / lab "]\n---\nSynthetic.\n')
+    (source / 'content/field-notes/yaml.md').write_text('---\ntitle: YAML edge\nparams:\n  sidera:\n    tags: [" FIELD WORK / lab "]\n---\nSynthetic.\n')
     write_note(source, 'field-notes/unicode.md', ['café', 'cafe\u0301'])
     positive = build(source, run, 'positive')
     ext = {k: list(v) for k, v in FIELD.items()}

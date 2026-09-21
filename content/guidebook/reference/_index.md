@@ -1,6 +1,6 @@
 +++
 title = "Workshop reference"
-[params.children]
+[params.sidera.children]
 list = false
 +++
 

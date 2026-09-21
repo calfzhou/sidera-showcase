@@ -2,7 +2,7 @@
 title = 'Delta note'
 date = 2024-01-04T09:00:00+08:00
 lastmod = 2024-02-01T09:00:00+08:00
-[params]
+[params.sidera]
 tags = []
 +++
 This is the synthetic **Delta note** article in `field-notes`.

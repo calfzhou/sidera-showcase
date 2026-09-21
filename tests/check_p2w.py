@@ -154,14 +154,14 @@ def main():
     branch(edges,'guidebook/getting-started/setup/new-child','New child')
     branch(edges,'guidebook/a-tie','Same','weight=999')
     branch(edges,'guidebook/z-tie','Same','weight=-999')
-    branch(edges,'guidebook/another','Independent docs',"[params]\ncollection='docs'")
+    branch(edges,'guidebook/another','Independent docs',"[params.sidera]\ncollection='docs'")
     branch(edges,'guidebook/another/only','Independent child')
     branch(edges,'guidebook/hidden','Unpublished valid document','draft=true')
     # Native GetPage sees the draft, but it is absent from native .Pages.
     replace(edges,'content/guidebook/_index.md', "order = ['getting-started', 'reference']", "order = ['hidden', 'getting-started', 'reference']")
     # A docs owner nested inside notes must stop discovery and native note membership.
-    branch(edges,'field-notes/manual','Nested manual',"[params]\ncollection='docs'")
-    write(edges,'content/field-notes/manual/leaf.md', '+++\ntitle="Not a note"\n[params]\ntags=["not-a-note//invalid-as-note"]\n+++\nA regular docs leaf, never tag-adapter input.\n')
+    branch(edges,'field-notes/manual','Nested manual',"[params.sidera]\ncollection='docs'")
+    write(edges,'content/field-notes/manual/leaf.md', '+++\ntitle="Not a note"\n[params.sidera]\ntags=["not-a-note//invalid-as-note"]\n+++\nA regular docs leaf, never tag-adapter input.\n')
     out = check(edges,'edges')
     assert Docs(html(out,'/field-notes/manual/')).children == ['/field-notes/manual/leaf/']
     assert Page(html(out,'/field-notes/manual/leaf/')).article['data-collection'] == '/field-notes/manual/'
@@ -181,11 +181,11 @@ def main():
     out = check(defaults,'empty-order')
     sequence(out,'/guidebook/', ['/guidebook/'+n+'/' for n in ['about','faq','supplies','getting-started','reference','wrap-up']],2)
     # Cascaded order is deliberately ignored, while native fallback defaults apply.
-    replace(defaults,'content/guidebook/_index.md','[cascade.params.children]',"[cascade.params.children]\norder=['not-a-child']")
+    replace(defaults,'content/guidebook/_index.md','[cascade.params.sidera.children]',"[cascade.params.sidera.children]\norder=['not-a-child']")
     out = check(defaults,'cascade-order-ignored')
     assert Docs(html(out,'/guidebook/reference/')).tree == [
         '/guidebook/'+n+'/' for n in ['about','faq','supplies','getting-started','getting-started/setup','getting-started/practice','getting-started/review','reference','reference/glossary','wrap-up']]
-    branch(defaults,'guidebook/empty','Empty document','[params.children]\nlist=false')
+    branch(defaults,'guidebook/empty','Empty document','[params.sidera.children]\nlist=false')
     out = check(defaults,'empty-disabled'); assert not Docs(html(out,'/guidebook/empty/')).children
 
     publication = docs_site(run,'native-eligibility')
@@ -201,13 +201,13 @@ def main():
     for name in ['draft','future','expired','headless']:
         assert not html(out,'/guidebook/'+name+'/').exists()
     # Invalid referenced drafts are validated even during a normal publication build.
-    replace(publication,'content/guidebook/draft/_index.md','draft=true',"draft=true\n[params.children]\norder=['typo']")
+    replace(publication,'content/guidebook/draft/_index.md','draft=true',"draft=true\n[params.sidera.children]\norder=['typo']")
     check(publication,'referenced-invalid-draft','P2W unknown children.order')
 
     mixed = docs_site(run,'mixed')
     write(mixed,'content/guidebook/leaf.md', '+++\ntitle="Regular leaf"\nslug="leaf-url"\n+++\nAn ordinary leaf document.\n')
     replace(mixed,'content/guidebook/_index.md', "order = ['getting-started', 'reference']", "order=['leaf','getting-started','reference']")
-    write(mixed,'content/yaml-manual/_index.md', '---\ntitle: YAML manual\nparams:\n  collection: docs\n  children:\n    order: [z]\n    sort: name\n---\nA separate authored YAML collection.\n')
+    write(mixed,'content/yaml-manual/_index.md', '---\ntitle: YAML manual\nparams:\n  sidera:\n    collection: docs\n    children:\n      order: [z]\n      sort: name\n---\nA separate authored YAML collection.\n')
     for name in ['a','m','z']: branch(mixed,'yaml-manual/'+name,name)
     out = check(mixed,'mixed-slug')
     sequence(out,'/yaml-manual/', ['/yaml-manual/'+n+'/' for n in ['z','a','m']],10)
@@ -216,11 +216,11 @@ def main():
     replace(mixed,'content/guidebook/_index.md', "order=['leaf','getting-started','reference']", "order=['leaf-url']")
     check(mixed,'slug-not-identity','P2W unknown children.order')
     nonchild = docs_site(run,'nonchild')
-    branch(nonchild,'guidebook/independent','Independent',"[params]\ncollection='docs'")
+    branch(nonchild,'guidebook/independent','Independent',"[params.sidera]\ncollection='docs'")
     replace(nonchild,'content/guidebook/_index.md', "order = ['getting-started', 'reference']", "order=['independent']")
     check(nonchild,'nonchild','P2W children.order target is not a direct child')
     scalar = docs_site(run,'scalar-settings')
-    branch(scalar,'guidebook/bad','Bad',"[params]\nchildren=false")
+    branch(scalar,'guidebook/bad','Bad',"[params.sidera]\nchildren=false")
     check(scalar,'scalar-settings','P2W children must be a table')
 
     # Native same-source-path override is deliberate and tested, not an accidental mask.
@@ -259,13 +259,13 @@ def main():
     write(bad,'content/guidebook/no-branch/deep.md','+++\ntitle="Accidental flattening"\n+++\nBody\n')
     check(bad,'grouping','P2W docs require a branch')
     draft = docs_site(run,'draft-validation')
-    branch(draft,'guidebook/draft','Invalid draft',"draft=true\n[params.children]\npage_size=0")
+    branch(draft,'guidebook/draft','Invalid draft',"draft=true\n[params.sidera.children]\npage_size=0")
     check(draft,'draft-validation','P2W children.page_size',flags=('--buildDrafts','--buildFuture','--buildExpired'))
 
     bilingual = docs_site(run,'bilingual')
     write(bilingual,'locale.toml', "defaultContentLanguage='en'\ndefaultContentLanguageInSubdir=true\n[languages.en]\nlocale='en-US'\nweight=1\n[languages.zh]\nlocale='zh-CN'\nweight=2\n")
     docs = bilingual/THEME/'docs/content'
-    (docs/'_index.zh.md').write_text('+++\ntitle="Sidera 文档示例"\n[params]\ncollection="docs"\n[params.children]\norder=["publishing","authoring"]\n+++\n这是一份手工编写的文档示例。\n\n[编写文档]({{< relref "./authoring" >}})\n\n![节点](nodes.svg)\n')
+    (docs/'_index.zh.md').write_text('+++\ntitle="Sidera 文档示例"\n[params.sidera]\ncollection="docs"\n[params.sidera.children]\norder=["publishing","authoring"]\n+++\n这是一份手工编写的文档示例。\n\n[编写文档]({{< relref "./authoring" >}})\n\n![节点](nodes.svg)\n')
     (docs/'authoring/_index.zh.md').write_text('+++\ntitle="编写文档"\n+++\n文档可以同时拥有正文和子文档。\n\n[返回目录]({{< relref ".." >}})\n')
     # publishing exists only in EN, is a valid ordered reference but absent from ZH list.
     out = check(bilingual,'bilingual',flags=('--config','hugo.toml,locale.toml','--baseURL','https://example.org/preview/'))

@@ -85,7 +85,7 @@ def replace(source, path, old, new):
 def root(source, owner, kind='blog', params=''):
     f = source / 'content' / owner / '_index.md'
     f.parent.mkdir(parents=True, exist_ok=True)
-    f.write_text(f'+++\ntitle = "{owner}"\n[params]\ncollection = "{kind}"\n{params}\n+++\n')
+    f.write_text(f'+++\ntitle = "{owner}"\n[params.sidera]\ncollection = "{kind}"\n{params}\n+++\n')
 
 
 def date_probe(source):
@@ -105,7 +105,7 @@ def date_probe(source):
     for name, metadata in notes.items():
         write_note(source, f'dates/{name}.md', [], metadata)
     f = source / 'content/dates/e.md'
-    f.write_text(f.read_text().replace('[params]', '[params]\nlist_order = "title"\npage_size = 99\npinned = false'))
+    f.write_text(f.read_text().replace('[params.sidera]', '[params.sidera]\nlist_order = "title"\npage_size = 99\npinned = false'))
     # Observe all three native Page values without changing production markup.
     template = source / THEME / 'layouts/_partials/article.html'
     template.write_text(template.read_text().replace('    <h1>', '''    <p data-date="{{ .Date.Format "2006-01-02" }}" data-publication="{{ .PublishDate.Format "2006-01-02" }}" data-modification="{{ .Lastmod.Format "2006-01-02" }}"></p>
@@ -130,8 +130,8 @@ def main():
         write_note(source, f'field-notes/{name}.md', ['science/quantum/basics'],
                    f'date = 2024-01-02T09:00:00+08:00\nlastmod = 2024-03-03T09:00:00+08:00\nweight = {weight}')
         replace(source, f'content/field-notes/{name}.md', 'title = "Edge note"', 'title = "Beta note"')
-        replace(source, f'content/field-notes/{name}.md', '[params]', '[params]\npinned = true')
-    replace(source, 'content/field-notes/gamma/index.md', '[params]', '[params]\npinned = true')
+        replace(source, f'content/field-notes/{name}.md', '[params.sidera]', '[params.sidera]\npinned = true')
+    replace(source, 'content/field-notes/gamma/index.md', '[params.sidera]', '[params.sidera]\npinned = true')
     shutil.copytree(ROOT / 'tests/fixtures/annex', source / 'content/lab-notes/annex')
     replace(source, 'content/lab-notes/annex/_index.md', "collection = 'notebook'",
             "collection = 'notebook'\nlist_order = 'publication'\npage_size = 1")
@@ -144,7 +144,7 @@ def main():
     # YAML integer policy, useful title order even on a blog; exact title ties.
     yaml = source / 'content/titles/_index.md'
     yaml.parent.mkdir()
-    yaml.write_text('---\ntitle: Titles\nparams:\n  collection: blog\n  list_order: title\n  page_size: 1\n---\n')
+    yaml.write_text('---\ntitle: Titles\nparams:\n  sidera:\n    collection: blog\n    list_order: title\n    page_size: 1\n---\n')
     for name, title in [('a', 'Same'), ('b', 'Same'), ('z', 'Before')]:
         write_note(source, f'titles/{name}.md', [], 'date = 2024-01-01T00:00:00Z')
         replace(source, f'content/titles/{name}.md', 'Edge note', title)

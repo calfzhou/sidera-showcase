@@ -1,6 +1,6 @@
 +++
 title = "Start a workshop"
-[params.children]
+[params.sidera.children]
 order = ['setup']
 page_size = 2
 sort = 'name'

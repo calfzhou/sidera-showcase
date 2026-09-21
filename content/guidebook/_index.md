@@ -1,11 +1,11 @@
 +++
 title = "Workshop handbook"
-[params]
+[params.sidera]
 collection = 'docs'
-[params.children]
+[params.sidera.children]
 order = ['getting-started', 'reference']
 page_size = 2
-[cascade.params.children]
+[cascade.params.sidera.children]
 sort = 'title'
 page_size = 2
 +++

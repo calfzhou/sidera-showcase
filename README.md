@@ -84,16 +84,16 @@ content/
         └── epsilon/index.md        # belongs to Lab notes
 ```
 
-- Mark a collection root's `_index.md` with `[params] collection = 'blog'` or `'notebook'`. Its Page object/logical location supplies identity and its title supplies the label. Do **not** cascade the collection marker or repeat membership IDs on articles.
+- Mark a collection root's `_index.md` with `[params.sidera] collection = 'blog'` or `'notebook'`. Its Page object/logical location supplies identity and its title supplies the label. Do **not** cascade the collection marker or repeat membership IDs on articles.
 - `themes/sidera/layouts/_partials/collection-owner.html` selects the page itself if it is a marked section, otherwise its closest marked ancestor. `.Section` is only the top-level section name; `.CurrentSection` can be an unmarked storage subsection. Neither alone is the owner contract.
-- Native `cascade`, targeted to `kind = 'page'`, supplies `params.byline` and `params.show_updated`. Articles can override either, including explicit `false`. Templates read the resolved `.Params` directly; they do not use a truthy fallback that would discard `false`.
+- Root `params.sidera.byline` and `params.sidera.show_updated` provide article defaults through Page → nearest owner → Site key-presence resolution. Articles can override either, including explicit empty/`false`. This avoids native table replacement when a page authors its own `sidera.tags`.
 - Identity/classification are read from the owner, not copied into article defaults. List policies below belong on the collection root, not on every article; read them from the owner, never article params.
 - All regular pages use one `themes/sidera/layouts/page.html`, regardless of blog/notebook/standalone identity. Content uses ordinary `.Content`; relative image/source links remain within the article leaf bundle.
 - A collection lists `.RegularPagesRecursive`, **filtered by nearest owner**. This reaches storage subsections but excludes articles of any nested marked collection. The homepage discovers marked sections at any depth, with no collection-name map or singleton blog.
-- Native cascade follows ancestry independently of collection ownership: an inner collection overrides outer defaults it sets, but unspecified defaults still inherit. A collection marker is not a cascade firewall.
+- Native cascade follows ancestry independently of collection ownership, but a local `sidera` table replaces its cascaded counterpart. The theme does not recreate cascade merging. Article defaults intentionally fall back to the nearest owner, not an outer independent collection; set nested-owner defaults explicitly.
 - Collection roots/ordinary sections use `_index.md`; individual article bundles use `index.md`. `journal/2024` intentionally has no `_index.md`, so it is a storage directory, not a section. `resource-note.md` inside `field-notes/alpha` is intentionally a leaf resource, not a second article.
 
-The two notebooks intentionally differ in byline and update-date visibility. These presentation settings do **not** define what a notebook is; tag organization is proven by P1-B; a generalized reference/backlink system remains out of scope. `Date`/`PublishDate`/`Lastmod`, ordering, pins and native pagination follow the P1-C contract below. All fixtures use explicit historical timestamps, never Git or build time. `params.tags` follows the P1-B contract below for notebooks; blog tags remain raw fixtures. Global taxonomy/term/RSS outputs remain disabled; custom notebook tag sections are not native taxonomy pages, and no feed support is claimed.
+The two notebooks intentionally differ in byline and update-date visibility. These presentation settings do **not** define what a notebook is; tag organization is proven by P1-B; a generalized reference/backlink system remains out of scope. `Date`/`PublishDate`/`Lastmod`, ordering, pins and native pagination follow the P1-C contract below. All fixtures use explicit historical timestamps, never Git or build time. `params.sidera.tags` follows the P1-B contract below for notebooks; blog tags remain raw fixtures. Global taxonomy/term/RSS outputs remain disabled; custom notebook tag sections are not native taxonomy pages, and no feed support is claimed.
 
 
 ## Journal publication-date URLs
@@ -127,19 +127,15 @@ unrelated collection output is compared byte-for-byte with a rule-free build.
 
 ## Add a collection
 
-Add a content section, give its `_index.md` the marker and cascade defaults, and add regular articles beneath it. No template edit or central registry is necessary. For example:
+Add a content section, give its `_index.md` the marker and owner defaults, and add regular articles beneath it. No template edit or central registry is necessary. For example:
 
 ```toml
 +++
 title = 'Another notebook'
-[params]
-collection = 'notebook'
-[cascade]
-[cascade.target]
-kind = 'page'
-[cascade.params]
+[params.sidera]
 byline = 'Another team'
 show_updated = true
+collection = 'notebook'
 +++
 ```
 
@@ -153,10 +149,10 @@ Pass: **P1-01–P1-08** for the supported public synthetic showcase contract. P1
 
 ## P1-C collection list policy
 
-Settings are optional **only on the marked owner `_index.md`**, alongside `params.collection`. Do not cascade them or duplicate them on articles. They apply to that owner's collection root, ordinary storage-section subsets, notebook hub and every tag-result union. Nested marked collections read their own settings/defaults, never the outer owner's policy.
+Settings are optional **only on the marked owner `_index.md`**, alongside `params.sidera.collection`. Do not cascade them or duplicate them on articles. They apply to that owner's collection root, ordinary storage-section subsets, notebook hub and every tag-result union. Nested marked collections read their own settings/defaults, never the outer owner's policy.
 
 ```toml
-[params]
+[params.sidera]
 collection = 'notebook'
 list_order = 'modification' # publication | modification | title
 page_size = 2              # positive integer (TOML or YAML)
@@ -164,12 +160,12 @@ page_size = 2              # positive integer (TOML or YAML)
 
 | Setting | Default / meaning |
 |---|---|
-| `params.list_order` | Blogs: `publication`; notebooks: `modification`; unowned sections: `title` |
+| `params.sidera.list_order` | Blogs: `publication`; notebooks: `modification`; unowned sections: `title` |
 | `publication` | Native `.PublishDate` descending, then `.Title` ascending, then logical `.Path` ascending |
 | `modification` | Native `.Lastmod` descending, then `.Title` ascending, then `.Path` ascending |
 | `title` | Native `.Title` ascending, then `.Path` ascending; not `.LinkTitle`, date or weight |
-| `params.page_size` | 10 for either collection kind; explicit owner size overrides it, including for tag results |
-| Article `params.pinned` | Boolean, absent/false means ordinary; true promotes the article within each selected main result |
+| `params.sidera.page_size` | 10 for either collection kind; explicit owner size overrides it, including for tag results |
+| Article `params.sidera.pinned` | Boolean, absent/false means ordinary; true promotes the article within each selected main result |
 
 Sorting uses Hugo's stable `collections.Sort`, least-significant key first; tied titles/dates, opposite weights and different paths are verified against installed Hugo 0.166.0. Title comparison is Hugo's native ascending string comparison, not natural-number sorting or custom transliteration. Dates compare instants (including equal timestamps with different offsets). Zero/unknown dates sort after known dates in descending date views. No hidden weight, source-discovery order or Git date decides a tie.
 
@@ -215,10 +211,10 @@ Two notebooks remain peers despite different sort orders; the content-only Annex
 
 ## P1-B notebook tags and routes
 
-Write tags **once**, as literal `params.tags` arrays on ordinary Markdown notes. No notebook ID, term registry, explicit ancestor assignments, hand-authored tag pages, or build preprocessor is needed. TOML and YAML front matter are supported in local `content/`; P2-C adds the native filename-translation convention documented below. An empty/missing array means untagged. Tags classify notes; neither the storage sections nor the tag tree prescribe a reading sequence.
+Write tags **once**, as literal `params.sidera.tags` arrays on ordinary Markdown notes. No notebook ID, term registry, explicit ancestor assignments, hand-authored tag pages, or build preprocessor is needed. TOML and YAML front matter are supported in local `content/`; P2-C adds the native filename-translation convention documented below. An empty/missing array means untagged. Tags classify notes; neither the storage sections nor the tag tree prescribe a reading sequence.
 
 ```toml
-[params]
+[params.sidera]
 tags = ['science/quantum/basics', 'science/quantum/experiments']
 ```
 
@@ -620,8 +616,8 @@ menus, real optional right region and full standalone-page capabilities.
 [Theme shell contract](themes/sidera/SHELL.md) covers the fixed components,
 site/language → nearest-owner → Page presence rules, native cascade caveats,
 false/empty/clear semantics, local images, icon choices and small native hooks.
-Existing collection/list/notes/docs keys are deliberately unchanged; **new** shell
-keys are namespaced under `params.sidera`, with no legacy compatibility layer.
+All Sidera-defined collection/list/notes/docs/article/shell settings now use
+`params.sidera`, with no legacy compatibility layer. Native Hugo fields remain native.
 
 Use an available explicit port; these are **your foreground processes**, stopped
 with Ctrl-C. Eureka does not leave a preview server running:
@@ -638,7 +634,7 @@ hugo server --config hugo.toml,examples/full-shell.toml \
 hugo server --config hugo.toml,examples/full-shell.toml,examples/two-regions.toml \
   --bind 127.0.0.1 --port 14420 --disableFastRender
 
-# Collection override, article exception and explicitly compact About page.
+# Native cascade example: explicitly compact About (no local sidera table).
 hugo server --config hugo.toml,examples/full-shell.toml,examples/scoped.toml \
   --bind 127.0.0.1 --port 14420 --disableFastRender
 
@@ -653,9 +649,11 @@ Inspect `/`, `/field-notes/`, `/field-notes/tags/science/quantum/`,
 `/field-notes/alpha/`, `/journal/2024/01/01/first-signal/`, `/guidebook/`,
 `/guidebook/getting-started/setup/` and `/about/`. About now has ordinary headings
 to demonstrate its default right TOC. Its compact layout is explicitly chosen by
-`examples/scoped.toml`, not hard-coded. The scoped example uses native targeted
-cascade to populate ordinary Page params; the same tables can be put directly in
-root/page front matter. Theme source does not change between examples.
+`examples/scoped.toml`, not hard-coded. Since all custom fields now share one
+namespace, native cascade cannot inject settings into an existing local `sidera`
+table. [Collection/page front-matter examples](examples/scoped-frontmatter.md)
+provide the full arrangement and a ready-to-run isolated copy command. No theme
+source changes are needed.
 
 Append `,docs-on.toml` to a chosen config list for the single-source theme sample
 at `/sidera/`. **Bundled docs remain off in normal configuration.** The persistent
@@ -687,3 +685,19 @@ regions, useful trees, headings/links/assets, palettes, breakpoints, keyboard an
 no-JS behavior. Existing P1/P2 suites remain required regressions; historical tests
 now check full owner-tree semantics and current TOC IDs rather than freezing old
 markup/colors/border radii. Chromium/macOS is the actual tested browser boundary.
+
+## Namespace cleanup after F
+
+Sidera owns `params.sidera`, in site config, current-language config, content front
+matter and native menu-entry params. Keys include `collection`, `list_order`,
+`page_size`, `tags` (custom hierarchical notes tags), `pinned`, `byline`,
+`show_updated`, `children` and shell settings. Private generated tag fields are
+namespaced too. Native Hugo metadata/menus/taxonomies/assignments and unrelated
+site custom parameters are not moved. This is a pre-release break, not aliases.
+
+Root article defaults now live directly in `[params.sidera]`, resolved per-key
+from the Page, nearest owner, then Site. This preserves fixture bylines and explicit
+false overrides without repeating metadata on notes. **Important native behavior:**
+a local `sidera` table replaces cascaded `sidera`, including when its only local
+field is `tags` or `collection`. Root/page front matter is the right place for
+those scoped exceptions; no custom cascade emulation has been added.

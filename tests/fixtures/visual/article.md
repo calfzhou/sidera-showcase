@@ -2,7 +2,7 @@
 title = 'A deliberately long notebook title about observations, classification, and ideas that keep changing across a lifetime of learning'
 date = 2024-01-01T09:00:00+08:00
 lastmod = 2024-03-01T09:00:00+08:00
-[params]
+[params.sidera]
 tags = ['science/quantum/basics']
 +++
 This synthetic stress fixture checks ordinary reading, not rich-content compatibility. A note can grow without becoming a chapter in a prescribed sequence.
