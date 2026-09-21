@@ -2,8 +2,9 @@
 title = 'Reading slowly: observations across languages, long notebook titles, and the ordinary details that help an idea remain understandable'
 date = 2024-01-01T09:00:00+08:00
 lastmod = 2024-03-01T09:00:00+08:00
-[params.sidera]
 tags = ['reading/observations/languages/english/cjk/paragraphs/long-labels/final-level']
+[params.sidera]
+
 +++
 This public synthetic fixture exercises ordinary Markdown, not migrated private content. It belongs to Field notes; the labels classify it without imposing a chapter sequence.
 

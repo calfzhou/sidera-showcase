@@ -34,9 +34,15 @@ def main():
     config.write_text(config.read_text().replace(PATTERN, ''))
     previous = build(old, run, 'without-rule')
     before, after = snapshot(previous), snapshot(baseline)
-    unchanged = [p for p in before if not p.startswith('journal/') and p != 'sitemap.xml']
+    unchanged = [p for p in before if not p.startswith(('journal/', 'tags/', 'categories/')) and p != 'sitemap.xml']
     assert all(after.get(p) == before[p] for p in unchanged)
-    assert all(p in before for p in after if not p.startswith('journal/') and p != 'sitemap.xml')
+    assert all(p in before for p in after if not p.startswith(('journal/', 'tags/', 'categories/')) and p != 'sitemap.xml')
+
+    # Global taxonomy results intentionally link the same Journal pages; native
+    # dated policy must propagate there instead of retaining stale destinations.
+    assert '/journal/2024/01/01/first-signal/' in html(baseline,'/tags/shared/').read_text()
+    assert '/journal/first-signal/' in html(previous,'/tags/shared/').read_text()
+    local_links(baseline); local_links(previous)
 
     edge = copy_site(run, 'edges')
     content = edge / 'content/journal'

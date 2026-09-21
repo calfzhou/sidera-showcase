@@ -9,7 +9,14 @@ await runBrowser(async ({ run, port, debugPort, profile, origin, version, errors
   const results = [];
   const palette = () => evaluate(`document.documentElement.dataset.appearance || 'dark'`);
   const choose = value => evaluate(`document.querySelector('#appearance').value=${JSON.stringify(value)};document.querySelector('#appearance').dispatchEvent(new Event('change',{bubbles:true}))`);
-  const os = value => call('Emulation.setEmulatedMedia',{features:[{name:'prefers-color-scheme',value}]});
+  const os = async value => {
+    await call('Emulation.setEmulatedMedia',{features:[{name:'prefers-color-scheme',value}]});
+    for(let n=0;n<80;n++) {
+      if(await evaluate(`matchMedia('(prefers-color-scheme: light)').matches === ${value==='light'} && (document.querySelector('#appearance')?.value !== 'system' || document.documentElement.dataset.appearance === ${JSON.stringify(value)})`)) return;
+      await delay(25);
+    }
+    assert.fail('Native media/appearance state did not settle');
+  };
   const pages = [['overview','/'],['article','/field-notes/alpha/'],['list','/field-notes/'],
     ['tag','/field-notes/tags/science/'],['blog','/journal/'],['standalone','/about/']];
   for (const lang of ['en','zh']) {

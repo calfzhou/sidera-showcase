@@ -1,5 +1,7 @@
 +++
 title = "Set up the room"
+tags = ["science/quantum"]
+categories = ["learning/experiments"]
 
 +++
 

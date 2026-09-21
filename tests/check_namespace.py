@@ -9,7 +9,7 @@ from check_p2w import write,replace
 def main():
     run=Path(os.environ.get('SIDERA_CHECK_DIR') or tempfile.mkdtemp(prefix='namespace-',dir=ROOT/'.checks')).resolve()
     run.mkdir(parents=True,exist_ok=True);print('Retained run:',run)
-    keys='collection|list_order|page_size|byline|show_updated|pinned|tags|children|tag_view|tag_key|tag_slug|icon'
+    keys='collection|list_order|page_size|byline|show_updated|pinned|children|tag_view|tag_key|tag_slug|icon'
     for root in ['layouts','content']:
         for p in (ROOT/THEME/root).rglob('*'):
             if p.is_file(): assert not re.search(r'\b(?:Params|params)\.('+keys+r')\b',p.read_text()),p
@@ -27,9 +27,9 @@ weight=3
 [menus.primary.params.sidera]
 icon='star'
 ''')
-    replace(source,'content/about.md',"title = 'About this proof'", "title = 'About this proof'\ndate=2024-01-02T00:00:00Z\nlastmod=2024-02-03T00:00:00Z\nblog_tags=['Native assignment']\n[params]\nsite_owned='Page value'\nbyline='Obsolete flat value'\nshow_updated=false")
+    replace(source,'content/about.md',"title = 'About this proof'", "title = 'About this proof'\ndate=2024-01-02T00:00:00Z\nlastmod=2024-02-03T00:00:00Z\ntags=['Native assignment']\n[params]\nsite_owned='Page value'\nbyline='Obsolete flat value'\nshow_updated=false")
     replace(source,'content/field-notes/beta/index.md',"byline = 'Visiting naturalist'", "byline = ''")
-    write(source,'layouts/_partials/sidera/head-extra.html','''<meta name="namespace-probe" content="{{ .Page.Site.Params.site_owned }}|{{ .Page.Params.site_owned }}|{{ .Page.Params.blog_tags }}">
+    write(source,'layouts/_partials/sidera/head-extra.html','''<meta name="namespace-probe" content="{{ .Page.Site.Params.site_owned }}|{{ .Page.Params.site_owned }}|{{ .Page.Params.tags }}">
 {{ if .Page.Params.sidera.tag_view }}<meta name="generated-namespace" content="{{ .Page.Params.sidera.tag_key }}|{{ isset .Page.Params "tag_view" }}">{{ end }}''')
     out=build(source,run,'scopes',flags=('--printI18nWarnings',))
     assert Page(html(out,'/about/')).byline=='Site author' and Page(html(out,'/about/')).updated

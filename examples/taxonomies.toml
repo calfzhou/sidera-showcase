@@ -1,0 +1,38 @@
+# hugo server --config hugo.toml,examples/taxonomies.toml
+# These are Sidera presentation policies, not alternate taxonomy assignments.
+[params.sidera]
+menu = 'taxonomy-demo'
+taxonomy_navigation = ['tags', 'categories']
+taxonomy_hierarchy = ['tags', 'categories']
+taxonomy_page_size = 2
+
+[[menus.taxonomy-demo]]
+name = 'Overview'
+pageRef = '/'
+weight = 1
+[[menus.taxonomy-demo]]
+name = 'Notes'
+pageRef = '/field-notes'
+weight = 10
+[[menus.taxonomy-demo]]
+name = 'Journal'
+pageRef = '/journal'
+weight = 20
+[[menus.taxonomy-demo]]
+name = 'Handbook'
+pageRef = '/guidebook'
+weight = 30
+[[menus.taxonomy-demo]]
+identifier = 'topics'
+name = 'Across the site'
+weight = 40
+[[menus.taxonomy-demo]]
+name = 'Tags'
+pageRef = '/tags'
+parent = 'topics'
+weight = 1
+[[menus.taxonomy-demo]]
+name = 'Categories'
+pageRef = '/categories'
+parent = 'topics'
+weight = 2

@@ -4,7 +4,10 @@ title = 'Sidera showcase'
 timeZone = 'Asia/Shanghai'
 # Active development checkout is a pinned Git submodule. PoC/skeleton remain fixtures.
 theme = 'sidera'
-disableKinds = ['taxonomy', 'term', 'RSS']
+disableKinds = ['RSS']
+[taxonomies]
+tag = 'tags'
+category = 'categories'
 
 # Explicit metadata-only fallback chains: no Git, file mtime or build clock.
 [frontmatter]
@@ -19,3 +22,8 @@ disableAliases = true
 # Journal date is its publication date; preserve explicit slugs or bundle basenames.
 [permalinks.page]
 journal = '/journal/:year/:month/:day/:slugorcontentbasename/'
+
+# Native term URLs honor adapter-provided filesystem-safe Unicode slugs.
+[permalinks.term]
+tags = '/tags/:slug/'
+categories = '/categories/:slug/'

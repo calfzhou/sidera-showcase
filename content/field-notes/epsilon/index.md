@@ -2,8 +2,9 @@
 title = 'Epsilon note'
 date = 2024-01-05T09:00:00+08:00
 lastmod = 2024-02-02T09:00:00+08:00
-[params.sidera]
 tags = ["math/graphs", "量子/基础", " Field   Work / LAB "]
+[params.sidera]
+
 +++
 This is the synthetic **Epsilon note** article in `field-notes`.
 

@@ -86,14 +86,14 @@ content/
 
 - Mark a collection root's `_index.md` with `[params.sidera] collection = 'blog'` or `'notebook'`. Its Page object/logical location supplies identity and its title supplies the label. Do **not** cascade the collection marker or repeat membership IDs on articles.
 - `themes/sidera/layouts/_partials/collection-owner.html` selects the page itself if it is a marked section, otherwise its closest marked ancestor. `.Section` is only the top-level section name; `.CurrentSection` can be an unmarked storage subsection. Neither alone is the owner contract.
-- Root `params.sidera.byline` and `params.sidera.show_updated` provide article defaults through Page → nearest owner → Site key-presence resolution. Articles can override either, including explicit empty/`false`. This avoids native table replacement when a page authors its own `sidera.tags`.
+- Root `params.sidera.byline` and `params.sidera.show_updated` provide article defaults through Page → nearest owner → Site key-presence resolution. Articles can override either, including explicit empty/`false`. This avoids native table replacement when a page authors its own native `tags`.
 - Identity/classification are read from the owner, not copied into article defaults. List policies below belong on the collection root, not on every article; read them from the owner, never article params.
 - All regular pages use one `themes/sidera/layouts/page.html`, regardless of blog/notebook/standalone identity. Content uses ordinary `.Content`; relative image/source links remain within the article leaf bundle.
 - A collection lists `.RegularPagesRecursive`, **filtered by nearest owner**. This reaches storage subsections but excludes articles of any nested marked collection. The homepage discovers marked sections at any depth, with no collection-name map or singleton blog.
 - Native cascade follows ancestry independently of collection ownership, but a local `sidera` table replaces its cascaded counterpart. The theme does not recreate cascade merging. Article defaults intentionally fall back to the nearest owner, not an outer independent collection; set nested-owner defaults explicitly.
 - Collection roots/ordinary sections use `_index.md`; individual article bundles use `index.md`. `journal/2024` intentionally has no `_index.md`, so it is a storage directory, not a section. `resource-note.md` inside `field-notes/alpha` is intentionally a leaf resource, not a second article.
 
-The two notebooks intentionally differ in byline and update-date visibility. These presentation settings do **not** define what a notebook is; tag organization is proven by P1-B; a generalized reference/backlink system remains out of scope. `Date`/`PublishDate`/`Lastmod`, ordering, pins and native pagination follow the P1-C contract below. All fixtures use explicit historical timestamps, never Git or build time. `params.sidera.tags` follows the P1-B contract below for notebooks; blog tags remain raw fixtures. Global taxonomy/term/RSS outputs remain disabled; custom notebook tag sections are not native taxonomy pages, and no feed support is claimed.
+The two notebooks intentionally differ in byline and update-date visibility. These presentation settings do **not** define what a notebook is; tag organization is proven by P1-B; a generalized reference/backlink system remains out of scope. `Date`/`PublishDate`/`Lastmod`, ordering, pins and native pagination follow the P1-C contract below. All fixtures use explicit historical timestamps, never Git or build time. Native top-level `tags` and `categories` now work across all content kinds. Native global taxonomy/term output is enabled; collection-scoped views project the same assignments. RSS remains disabled; no feed support is claimed.
 
 
 ## Journal publication-date URLs
@@ -211,10 +211,10 @@ Two notebooks remain peers despite different sort orders; the content-only Annex
 
 ## P1-B notebook tags and routes
 
-Write tags **once**, as literal `params.sidera.tags` arrays on ordinary Markdown notes. No notebook ID, term registry, explicit ancestor assignments, hand-authored tag pages, or build preprocessor is needed. TOML and YAML front matter are supported in local `content/`; P2-C adds the native filename-translation convention documented below. An empty/missing array means untagged. Tags classify notes; neither the storage sections nor the tag tree prescribe a reading sequence.
+Write tags **once**, as literal native top-level `tags` arrays on ordinary Markdown notes. No notebook ID, term registry, explicit ancestor assignments, hand-authored tag pages, or build preprocessor is needed. TOML and YAML front matter are supported in local `content/`; P2-C adds the native filename-translation convention documented below. An empty/missing array means untagged. Tags classify notes; neither the storage sections nor the tag tree prescribe a reading sequence.
 
 ```toml
-[params.sidera]
+# Native front matter, before any [params.sidera] table
 tags = ['science/quantum/basics', 'science/quantum/experiments']
 ```
 
@@ -659,10 +659,10 @@ Append `,docs-on.toml` to a chosen config list for the single-source theme sampl
 at `/sidera/`. **Bundled docs remain off in normal configuration.** The persistent
 handbook and its native ordered children remain functional in every arrangement.
 
-F does not complete selected-collection home, covers/refined cards, native blog
-index/term templates or full footer composition. The `blog-taxonomies` component
-consumes actual native Pages if a site supplies them; it never invents missing
-links. G/H implement the remaining capabilities. No search/comments/backlinks,
+Selected-collection home, covers/refined cards and full footer composition remain
+unfinished. The shared taxonomy follow-up now implements native global indexes,
+term results and scoped hierarchical/flat projections across all content kinds.
+See the current taxonomy walkthrough below; these are not only sidebar links. No search/comments/backlinks,
 real-site migration, font download, license grant or production publication.
 
 ### Focused shell checks
@@ -690,7 +690,7 @@ markup/colors/border radii. Chromium/macOS is the actual tested browser boundary
 
 Sidera owns `params.sidera`, in site config, current-language config, content front
 matter and native menu-entry params. Keys include `collection`, `list_order`,
-`page_size`, `tags` (custom hierarchical notes tags), `pinned`, `byline`,
+`page_size`, `pinned`, `byline`,
 `show_updated`, `children` and shell settings. Private generated tag fields are
 namespaced too. Native Hugo metadata/menus/taxonomies/assignments and unrelated
 site custom parameters are not moved. This is a pre-release break, not aliases.
@@ -699,5 +699,73 @@ Root article defaults now live directly in `[params.sidera]`, resolved per-key
 from the Page, nearest owner, then Site. This preserves fixture bylines and explicit
 false overrides without repeating metadata on notes. **Important native behavior:**
 a local `sidera` table replaces cascaded `sidera`, including when its only local
-field is `tags` or `collection`. Root/page front matter is the right place for
+field is `pinned` or `collection`. Root/page front matter is the right place for
 those scoped exceptions; no custom cascade emulation has been added.
+
+## Shared native tags/categories — current contract
+
+Every blog post, note, docs page and standalone page uses the same native top-level
+`tags` and `categories`; they are no longer Sidera-owned assignments. Only hierarchy,
+layout/list policies and other actual theme settings belong under `params.sidera`.
+See [the theme taxonomy contract](themes/sidera/TAXONOMIES.md) for native configuration,
+validation, URL policy, source-discovery boundaries and migration details.
+
+```toml
++++
+title = 'A useful observation'
+tags = ['science/quantum']
+categories = ['learning/experiments']
+[params.sidera]
+pinned = true
++++
+```
+
+The same page/bundle can move between marked notes/blog/docs folders without editing
+its front matter. Native URLs, inherited defaults and relative links still follow
+its new location. Global views span all content kinds, while contextual views filter
+to the nearest marked collection. Hierarchical parent unions deduplicate Pages before
+counts/pins/pagination; flat mode treats `foo/bar` as one whole term. Both tags and
+categories support this independently through site/owner `taxonomy_hierarchy`.
+
+Persistent examples: the Journal and Dispatch posts, Alpha note and the handbook's
+“Set up the room” branch share `learning/experiments`. Global category results show
+all four; scoped results show their own collection. The docs tree remains ordered
+and never includes the generated taxonomy views as chapters.
+
+```sh
+# Native global/scoped taxonomy demo, two items per native global pager.
+hugo server --config hugo.toml,examples/taxonomies.toml \
+  --bind 127.0.0.1 --port 14420 --disableFastRender
+# Same metadata, flat interpretation:
+hugo server --config hugo.toml,examples/taxonomies.toml,examples/taxonomies-flat.toml \
+  --bind 127.0.0.1 --port 14420 --disableFastRender
+```
+
+Inspect `/tags/`, `/tags/science/`, `/categories/learning/`,
+`/field-notes/categories/learning/`, `/journal/categories/learning/`,
+`/guidebook/tags/science/` and `/guidebook/getting-started/setup/`.
+Use an available port and stop your foreground server with Ctrl-C. Bundled docs
+still require explicit `docs-on.toml`; no task preview is retained.
+
+The fixed sidebar component names are now `taxonomies` (contextual) and
+`site-taxonomies` (global links); `taxonomy_navigation` selects their display order.
+There are no aliases for old `notes-tags`, `blog-taxonomies`, `blog_taxonomies`,
+`params.sidera.tags` or the earlier proposed `blog_tags`/`blog_categories` split.
+Native assignment fields remain native, including `.GetTerms` consumption.
+
+```sh
+uv run --no-project --no-managed-python python3 tests/check_taxonomies.py
+nvm use
+export NODE_BIN="$(command -v node)"
+run="$PWD/.checks/taxonomy-visual-$(date +%Y%m%d_%H%M%S)"
+SIDERA_CHECK_DIR="$run" uv run --no-project --no-managed-python \
+  python3 tests/prepare_taxonomies_browser.py
+"$NODE_BIN" tests/check_taxonomies_browser.mjs "$run"
+```
+
+The model suite moves one bundle through notes → blog → docs and checks identical
+Markdown bytes, native metadata, owned/global memberships, resources and new native
+URLs. Browser checks cover index/term/empty/scoped/docs views in EN/ZH and both
+palettes, keyboard/pagers, no-JS, flat mode and subpaths. This implements the affected
+theme path, not only sidebars; it does not declare remaining card/footer polish or
+whole-P2 completion, universal loaders, deployment or real-site migration.

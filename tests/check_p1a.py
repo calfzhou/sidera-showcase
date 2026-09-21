@@ -56,7 +56,7 @@ class Page(HTMLParser):
         if tag == "nav":
             self.in_collection_nav = attrs.get("aria-label") == self.collection_label
         if tag == "a":
-            if self.list_id:
+            if self.list_id and "data-result-owner" not in attrs:
                 self.links[self.list_id].append(attrs["href"])
             if self.in_collection_nav:
                 self.collection_links.append(attrs["href"])

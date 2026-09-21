@@ -104,6 +104,12 @@ def original_scope(source):
     """Omit ONLY new P2-W inputs for frozen themes; preserve their exact P1 proof."""
     for file in (source/'content').rglob('*.md'):
         text=file.read_text().replace('[params.sidera]', '[params]').replace('[cascade.params.sidera]', '[cascade.params]')
+        # Frozen discovery reads raw params.tags, unlike current native input.
+        tags=re.search(r'^tags\s*=.*$',text,re.M)
+        if tags:
+            text=text[:tags.start()]+text[tags.end()+1:]
+            if '[params]\n' in text: text=text.replace('[params]\n','[params]\n'+tags[0]+'\n',1)
+            else: text=text.replace('\n+++\n','\n[params]\n'+tags[0]+'\n+++\n',1)
         # Historic root defaults were native cascade. Do not alter frozen theme readers.
         if file.name=='_index.md':
             fields=re.findall(r"^(?:byline|show_updated) = [^\n]+\n",text,re.M)
@@ -112,7 +118,7 @@ def original_scope(source):
                 text=text.replace('\n+++\n',"\n[cascade.target]\nkind='page'\n[cascade.params]\n"+''.join(fields)+'+++\n',1)
         file.write_text(text)
     config = source / 'hugo.toml'
-    text = config.read_text().split('# Consumer opt-in only;')[0]
+    text = config.read_text().split('# Consumer opt-in only;')[0].replace("disableKinds = ['RSS']", "disableKinds = ['taxonomy', 'term', 'RSS']")
     config.write_text(text + "\n[[module.mounts]]\nsource='content'\ntarget='content'\nfiles=['! guidebook/**']\n")
 
 
@@ -138,7 +144,7 @@ def main():
         baseline_checks(output)  # exact ordering/pager chains, policies, local targets
         tag_checks(output, 'field-notes', FIELD, COLLECTIONS['field-notes'][2])
         tag_checks(output, 'lab-notes', LAB, COLLECTIONS['lab-notes'][2])
-    assert {p for p in snapshot(baseline) if p.endswith('.html') and not p.startswith(('guidebook/', 'sidera/'))} == {
+    assert {p for p in snapshot(baseline) if p.endswith('.html') and not p.startswith(('guidebook/', 'sidera/', 'tags/', 'categories/')) and not any(p.startswith(o+'/categories/') for o in COLLECTIONS) and not p.startswith(('journal/tags/', 'dispatches/tags/'))} == {
         p for p in snapshot(legacy) if p.endswith('.html')}, 'Theme changed HTML routes'
 
     # A theme working-tree edit must affect output without Git commit/push.

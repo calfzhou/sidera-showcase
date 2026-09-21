@@ -1,5 +1,5 @@
 # On home/standalone these inapplicable components collapse completely.
 # Notes/docs retain their applicable contextual tree; headings retain TOC.
 [params.sidera]
-left = ['notes-tags', 'docs-tree']
-right = ['toc', 'blog-taxonomies']
+left = ['taxonomies', 'docs-tree']
+right = ['toc']

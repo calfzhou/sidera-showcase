@@ -16,7 +16,7 @@ def prepare(run):
     for owner in ['field-notes','journal']:
         replace(source,'content/'+owner+'/_index.md','page_size = 2','page_size = 8')
         for i,title in enumerate(titles):
-            write(source,f'content/{owner}/shell-{i+1}/index.md',f'+++\ntitle={json.dumps(title)}\ndate="2024-04-{8-i:02d}"\nlastmod="2024-04-{8-i:02d}"\n[params.sidera]\ntags=["practice/writing", "systems/tools"]\n+++\n\n'+body)
+            write(source,f'content/{owner}/shell-{i+1}/index.md',f'+++\ntitle={json.dumps(title)}\ndate="2024-04-{8-i:02d}"\nlastmod="2024-04-{8-i:02d}"\ntags=["practice/writing", "systems/tools"]\n+++\n\n'+body)
     # Baseline remains the actual defaults; the longer synthetic articles supply comparison density.
     build(source,run,'baseline')
     for variant,configs in [('full',['full-shell']),('two',['full-shell','two-regions']),('compact',['compact']),('empty',['empty-regions']),('scoped',['full-shell','scoped'])]:

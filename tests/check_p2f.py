@@ -55,8 +55,8 @@ def main():
     assert not region(baseline,'/','right')
     assert components(baseline,'/about/','left')==['menu']
     assert components(baseline,'/about/','right')==['toc']
-    assert components(baseline,'/field-notes/alpha/','left')==['menu','notes-tags','recent']
-    assert components(baseline,'/guidebook/','left')==['menu','docs-tree']
+    assert components(baseline,'/field-notes/alpha/','left')==['menu','taxonomies','recent']
+    assert components(baseline,'/guidebook/','left')==['menu','docs-tree','taxonomies']
     assert not region(baseline,'/guidebook/page/2/','right')
     assert not (baseline/'sidera').exists()
     # Complete owner tree; active ancestors open; body-bearing parent link distinct from summary.
@@ -76,7 +76,7 @@ def main():
     # Native config tables cannot be redefined in a single TOML file: use layered config, like the documented command.
     write(two,'two.toml',(ROOT/'examples/two-regions.toml').read_text())
     out=check(two,'two',flags=('--config','hugo.toml,two.toml'))
-    assert components(out,'/field-notes/','left')==['menu','notes-tags']
+    assert components(out,'/field-notes/','left')==['menu','taxonomies']
     assert components(out,'/field-notes/','right')==['recent','profile']
     recent=next(n for n in region(out,'/field-notes/','right').all() if 'data-recent' in n.attrs)
     assert len([n for n in recent.all() if n.tag=='a'])==3
@@ -91,12 +91,12 @@ text='Site text'
 title='Site profile'
 text='Must not leak through replacement'
 """)
-    replace(scoped,'content/field-notes/_index.md','[params.sidera]',"[params.sidera]\nleft=['notes-tags','text']\nright=['recent','profile']\nrecent_count=2\ntext='Owner text'\nprofile={title='Owner profile'}")
+    replace(scoped,'content/field-notes/_index.md','[params.sidera]',"[params.sidera]\nleft=['taxonomies','text']\nright=['recent','profile']\nrecent_count=2\ntext='Owner text'\nprofile={title='Owner profile'}")
     replace(scoped,'content/field-notes/alpha/index.md','[params.sidera]',"[params.sidera]\nleft=false\nright=['profile','toc']\ntext=''\nprofile={text='Page profile'}")
     replace(scoped,'content/about.md',"title = 'About this proof'", "title = 'About this proof'\n[params.sidera]\nleft=[]\nright=false")
     with (scoped/'content/field-notes/alpha/index.md').open('a') as f: f.write('\n## Local heading\n\nA scoped page.\n')
     out=check(scoped,'scoped')
-    assert components(out,'/field-notes/','left')==['notes-tags','text']
+    assert components(out,'/field-notes/','left')==['taxonomies','text']
     assert 'Owner text' in region(out,'/field-notes/','left').words()
     assert 'Must not leak' not in html(out,'/field-notes/').read_text()
     recent=next(n for n in nodes(out,'/field-notes/').all() if 'data-recent' in n.attrs)
@@ -111,7 +111,7 @@ text='Must not leak through replacement'
     apply_scoped(example)
     out=check(example,'scoped-example')
     assert components(out,'/field-notes/','right')==['recent','profile']
-    assert components(out,'/field-notes/alpha/','left')==['notes-tags']
+    assert components(out,'/field-notes/alpha/','left')==['taxonomies']
     assert components(out,'/field-notes/alpha/','right')==['text']
     assert not region(out,'/about/','left') and not region(out,'/about/','right')
     # Current native language settings and per-language menus, with both prefixes.
@@ -147,9 +147,9 @@ text='中文外壳'
     assert components(out,'/field-notes/alpha/','right')==['recent'] # owner fallback, not a truthy default
     assert components(out,'/field-notes/no-local/','left')==['profile'] # no local table, cascade intentionally applies
     # Empty/inapplicable components and deliberately repeated cross-region components.
-    empty=source('empty',"[params.sidera]\nleft=['text','links','profile','docs-tree','notes-tags','blog-taxonomies']\nright=['text','links','profile']\ntext=''\nlinks_menu='missing'\n[params.sidera.profile]\nmenu='missing'")
+    empty=source('empty',"[params.sidera]\nleft=['text','links','profile','docs-tree','taxonomies']\nright=['text','links','profile']\ntext=''\nlinks_menu='missing'\n[params.sidera.profile]\nmenu='missing'")
     out=check(empty,'empty'); assert not region(out,'/about/','left') and not region(out,'/about/','right')
-    duplicate=source('duplicate',"[params.sidera]\nleft=['toc','notes-tags','recent']\nright=['toc','notes-tags','recent']")
+    duplicate=source('duplicate',"[params.sidera]\nleft=['toc','taxonomies','recent']\nright=['toc','taxonomies','recent']")
     out=check(duplicate,'duplicate')
     for route in ['/field-notes/alpha/','/about/']:
         ids=[n.attrs['id'] for n in nodes(out,route).all() if 'id' in n.attrs]
@@ -188,21 +188,20 @@ pageRef='/about'
     assert 'class="menu-group"' in text and 'href="mailto:hello@example.org"' in text
     assert text.index('href="https://example.org/"') < text.index('href="mailto:hello@example.org"')
     # Actual native taxonomy pages only; no G index/term template claim.
-    tax=source('taxonomies',"[taxonomies]\nblog_tag='blog_tags'\nblog_category='blog_categories'\n[params.sidera]\nleft=['blog-taxonomies']\nblog_taxonomies=['categories','tags']")
-    replace(tax,'hugo.toml',"disableKinds = ['taxonomy', 'term', 'RSS']","disableKinds = ['RSS']")
-    # F consumes site-provided native indexes; the theme G templates are deliberately absent.
-    write(tax,'layouts/taxonomy.html','{{ define "main" }}<main><h1>{{ .Title }}</h1></main>{{ end }}')
+    tax=source('taxonomies',"[params.sidera]\nleft=['site-taxonomies']\ntaxonomy_navigation=['categories','tags']")
     out=check(tax,'taxonomies')
     links=[n.attrs['href'] for n in region(out,'/journal/','left').all() if n.tag=='a']
-    assert links==['/','/blog_categories/','/blog_tags/'],links
+    assert links==['/','/categories/','/tags/'],links
     # Native hooks receive resolved context; disabled region suppresses its hook.
     hook=source('hook',"[params.sidera]\nleft=false\nright=['text']")
     for side in ['left','right']:
         write(hook,'layouts/_partials/sidera/'+side+'-extra.html','<p data-hook="{{ .Region }}">{{ .Page.Title }} / {{ with .Owner }}{{ .Title }}{{ end }} / {{ .Settings.recent_count }}</p>')
     out=check(hook,'hook'); assert not region(out,'/','left') and region(out,'/','right')
     assert 'data-hook="right"' in html(out,'/').read_text() and 'data-hook="left"' not in html(out,'/').read_text()
-    check(source('raw-html',"[params.sidera]\nleft=['text']\ntext='<script>alert(1)</script>'"),'raw-html','Raw HTML omitted')
-    bad=[("left=true",'not true'),("right='toc'",'must be an array'),("left=['menu','menu']",'duplicate left'),("right=['evil']",'invalid right'),("recent_count=0",'recent_count'),("recent_count=2.5",'recent_count'),("recent_count='5'",'recent_count'),("text=false",'text must be'),("profile='bad'",'profile must be'),("icons='yes'",'icons must be'),("blog_taxonomies=['other']",'invalid blog_taxonomies'),("tag_icons={science='<svg/>'}",'unknown icon')]
+    raw=source('raw-html')
+    replace(raw,'content/about.md',"title = 'About this proof'", "title = 'About this proof'\n[params.sidera]\nleft=['text']\ntext='<script>alert(1)</script>'")
+    check(raw,'raw-html','Raw HTML omitted')
+    bad=[("left=true",'not true'),("right='toc'",'must be an array'),("left=['menu','menu']",'duplicate left'),("right=['evil']",'invalid right'),("recent_count=0",'recent_count'),("recent_count=2.5",'recent_count'),("recent_count='5'",'recent_count'),("text=false",'text must be'),("profile='bad'",'profile must be'),("icons='yes'",'icons must be'),("taxonomy_navigation=['other']",'invalid taxonomy_navigation'),("tag_icons={science='<svg/>'}",'unknown icon')]
     for i,(config,diagnostic) in enumerate(bad): check(source('bad'+str(i),'[params.sidera]\n'+config),'bad'+str(i),diagnostic)
     for i,url in enumerate(['javascript:alert(1)','data:text/html,hi','java\tscript:alert(1)']):
         check(source('url'+str(i),'[[menus.primary]]\nname="Unsafe"\nurl='+json.dumps(url)),'url'+str(i),'unsafe URL')

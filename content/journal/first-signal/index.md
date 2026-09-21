@@ -2,8 +2,10 @@
 title = 'First signal'
 date = 2024-01-01T09:00:00+08:00
 lastmod = 2024-03-10T09:00:00+08:00
-[params.sidera]
 tags = ["shared"]
+categories = ['learning/experiments']
+[params.sidera]
+
 +++
 This is the synthetic **First signal** article in `journal`.
 

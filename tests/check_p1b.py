@@ -50,11 +50,11 @@ class View(HTMLParser):
         if tag == 'nav':
             if a.get('data-tree-scope') == 'owner': self.full_tree = True
             self.current_nav = a.get('aria-label')
-            if self.current_nav == 'Notes tags':
+            if self.current_nav in ('Notes tags', 'Tags'):
                 self.current_nav = 'Notebook tags'
             if self.chinese:
                 # Presentation-only mapping; full existing link/count assertions remain.
-                self.current_nav = {'所属合集': 'Collection', '笔记标签': 'Notebook tags', '笔记本标签': 'Notebook tags',
+                self.current_nav = {'所属合集': 'Collection', '笔记标签': 'Notebook tags', '标签': 'Notebook tags', '笔记本标签': 'Notebook tags',
                                     '标签层级路径': 'Tag ancestors'}.get(self.current_nav, self.current_nav)
             self.nav[self.current_nav] = []
         if tag == 'a' and self.pending_tag:
@@ -77,8 +77,14 @@ def build(source, run, label, diagnostic=None, flags=()):
     cmd = ['hugo', '--source', str(source), '--destination', str(out),
            '--cacheDir', str(run / (label + '-cache')), '--panicOnWarning',
            '--printPathWarnings', *flags]
-    result = subprocess.run(cmd, text=True, stdout=subprocess.PIPE,
-                            stderr=subprocess.STDOUT, timeout=60)
+    try:
+        result = subprocess.run(cmd, text=True, stdout=subprocess.PIPE,
+                                stderr=subprocess.STDOUT, timeout=60)
+    except subprocess.TimeoutExpired as error:
+        output = error.stdout or b''
+        if isinstance(output, bytes): output = output.decode(errors='replace')
+        (run / (label + '.log')).write_text(output + '\nTIMEOUT after 60 seconds\n')
+        raise
     (run / (label + '.log')).write_text(result.stdout)
     if diagnostic:
         assert result.returncode != 0, (label, 'invalid input unexpectedly built')
@@ -102,8 +108,8 @@ def copy_site(run, label):
 def write_note(source, path, tags, extra=''):
     file = source / 'content' / path
     file.parent.mkdir(parents=True, exist_ok=True)
-    file.write_text('+++\ntitle = "Edge note"\n' + extra + '\n[params.sidera]\ntags = '
-                    + json.dumps(tags, ensure_ascii=False) + '\n+++\nSynthetic edge.\n')
+    file.write_text('+++\ntitle = "Edge note"\n' + extra + '\ntags = '
+                    + json.dumps(tags, ensure_ascii=False) + '\n[params.sidera]\n+++\nSynthetic edge.\n')
 
 
 FIELD = {
@@ -239,7 +245,7 @@ def main():
         note = Page(html(baseline, owner + '/alpha'))
         assert f'../../{target}/alpha/' in note.assets
         same_links(Page(html(baseline, target + '/alpha')).collection_links, [f'/{target}/'])
-    assert not (baseline / 'tags').exists() and not (baseline / 'journal/tags').exists()
+    assert (baseline / 'tags/index.html').is_file() and (baseline / 'journal/tags/index.html').is_file()
     expected_routes = {f'{owner}/tags/{slug + "/" if slug else ""}index.html'
                        for owner, terms in [('field-notes', FIELD), ('lab-notes', LAB)]
                        for slug in ['', *terms]}
@@ -247,7 +253,7 @@ def main():
                             'field-notes/tags/page/3/index.html',
                             'lab-notes/tags/page/2/index.html'})
     actual_routes = {p.relative_to(baseline).as_posix() for p in baseline.rglob('*.html')
-                     if View(p).owner is not None}
+                     if View(p).owner in ('/field-notes/', '/lab-notes/') and '/tags/' in p.relative_to(baseline).as_posix()}
     assert actual_routes == expected_routes, (actual_routes, expected_routes)
     second = build(ROOT, run, 'determinism')
     assert snapshot(baseline) == snapshot(second), 'Outputs differ between fresh builds'
@@ -264,14 +270,14 @@ def main():
     source = copy_site(run, 'positive')
     shutil.copytree(ROOT / 'tests/fixtures/annex', source / 'content/lab-notes/annex')
     file = source / 'content/lab-notes/annex/storage/probe/index.md'
-    file.write_text(file.read_text().replace('\n+++\nA content', '\n[params.sidera]\ntags = ["science/quantum/basics", "shared"]\n+++\nA content'))
+    file.write_text(file.read_text().replace('\n+++\nA content', '\ntags = ["science/quantum/basics", "shared"]\n+++\nA content'))
     # Namespace separation: ordinary article/section names can equal tag labels.
     write_note(source, 'field-notes/science/index.md', ['science', 'tags', 'shared/basics'])
     write_note(source, 'field-notes/storage/tags/index.md', ['shared/basics'])
     (source / 'content/field-notes/storage/_index.md').write_text('+++\ntitle = "Storage"\n+++\n')
-    (source / 'content/field-notes/alpha/resource-note.md').write_text('+++\n[params.sidera]\ntags = ["resource/only"]\n+++\nLeaf resource, not a note.\n')
+    (source / 'content/field-notes/alpha/resource-note.md').write_text('+++\ntags = ["resource/only"]\n+++\nLeaf resource, not a note.\n')
     # A YAML note exercises the other native metadata syntax, including whitespace normalization.
-    (source / 'content/field-notes/yaml.md').write_text('---\ntitle: YAML edge\nparams:\n  sidera:\n    tags: [" FIELD WORK / lab "]\n---\nSynthetic.\n')
+    (source / 'content/field-notes/yaml.md').write_text('---\ntitle: YAML edge\ntags: [" FIELD WORK / lab "]\n---\nSynthetic.\n')
     write_note(source, 'field-notes/unicode.md', ['café', 'cafe\u0301'])
     positive = build(source, run, 'positive')
     ext = {k: list(v) for k, v in FIELD.items()}
@@ -351,7 +357,7 @@ def main():
     root.write_text(root.read_text().replace("title = 'Field notes'", "title = 'Field notes'\nurl = '/elsewhere/'"))
     build(source, run, 'owner-route', 'P1B notebook route must follow its content path')
     source = copy_site(run, 'unsupported-frontmatter')
-    (source / 'content/field-notes/json.md').write_text('{"title": "JSON note", "params": {"tags": ["new"]}}\nBody')
+    (source / 'content/field-notes/json.md').write_text('{"title": "JSON note", "tags": ["new"]}\nBody')
     build(source, run, 'unsupported-frontmatter', 'P1B discovery requires TOML or YAML front matter')
 
     # Reproduce the adapter lifecycle constraint without relying on prose alone.

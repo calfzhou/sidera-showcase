@@ -10,8 +10,8 @@ from check_p1b import copy_site
 
 def apply(source):
     values = {
-        'field-notes/_index.md': "left=['menu','notes-tags']\nright=['recent','profile']\nrecent_count=2\nprofile={title='Field notebook', text='A collection-local profile, replacing the site profile completely.'}\n",
-        'field-notes/alpha/index.md': "left=['notes-tags']\nright=['text']\ntext='This page replaces the collection’s right region.'\n",
+        'field-notes/_index.md': "left=['menu','taxonomies']\nright=['recent','profile']\nrecent_count=2\nprofile={title='Field notebook', text='A collection-local profile, replacing the site profile completely.'}\n",
+        'field-notes/alpha/index.md': "left=['taxonomies']\nright=['text']\ntext='This page replaces the collection’s right region.'\n",
     }
     for name, settings in values.items():
         p=source/'content'/name

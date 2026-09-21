@@ -161,7 +161,7 @@ def main():
     replace(edges,'content/guidebook/_index.md', "order = ['getting-started', 'reference']", "order = ['hidden', 'getting-started', 'reference']")
     # A docs owner nested inside notes must stop discovery and native note membership.
     branch(edges,'field-notes/manual','Nested manual',"[params.sidera]\ncollection='docs'")
-    write(edges,'content/field-notes/manual/leaf.md', '+++\ntitle="Not a note"\n[params.sidera]\ntags=["not-a-note//invalid-as-note"]\n+++\nA regular docs leaf, never tag-adapter input.\n')
+    write(edges,'content/field-notes/manual/leaf.md', '+++\ntitle="Not a note"\ntags=["not-a-note/doc-topic"]\n+++\nA regular docs leaf, never tag-adapter input.\n')
     out = check(edges,'edges')
     assert Docs(html(out,'/field-notes/manual/')).children == ['/field-notes/manual/leaf/']
     assert Page(html(out,'/field-notes/manual/leaf/')).article['data-collection'] == '/field-notes/manual/'
@@ -174,7 +174,8 @@ def main():
     assert Page(html(out,'/guidebook/getting-started/setup/')).article == Page(html(baseline,'/guidebook/getting-started/setup/')).article
     tag_checks(out,'field-notes',FIELD,['alpha','beta','gamma','delta','epsilon'])
     tag_checks(out,'lab-notes',LAB,['alpha','beta','gamma','delta','storage/epsilon'])
-    assert not (out/'guidebook/tags').exists()
+    assert (out/'guidebook/tags/index.html').is_file()
+    assert not (out/'guidebook/tags/not-a-note').exists() # independently owned document
 
     defaults = docs_site(run,'defaults')
     replace(defaults,'content/guidebook/_index.md', "order = ['getting-started', 'reference']", 'order = []')

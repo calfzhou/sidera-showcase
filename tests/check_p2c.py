@@ -45,17 +45,17 @@ def translated_fixture(source):
             tags = ['science/local'] if name == 'alpha' else ['中文/专属']
             f.write_text('+++\ntitle = "Chinese fixture ' + name + '"\n'
                          'date = 2024-02-03T09:00:00+08:00\n'
-                         'lastmod = 2024-04-05T09:00:00+08:00\n[params.sidera]\n'
-                         'pinned = ' + ('true' if name == 'zh-only' else 'false') + '\n'
-                         'tags = ' + json.dumps(tags, ensure_ascii=False) + '\n+++\n'
+                         'lastmod = 2024-04-05T09:00:00+08:00\n'
+                         'tags = ' + json.dumps(tags, ensure_ascii=False) + '\n[params.sidera]\n'
+                         'pinned = ' + ('true' if name == 'zh-only' else 'false') + '\n+++\n'
                          'Synthetic Chinese-language page; authored text stays untouched.\n\n'
                          '## Reading\n\n普通中文与 English prose。\n')
     # Chinese-only leaf: default-language Markdown resource must NOT become an EN note.
-    (c / 'field-notes/zh-only/resource.md').write_text('+++\n[params.sidera]\ntags=["resource-leak"]\n+++\nResource.\n')
+    (c / 'field-notes/zh-only/resource.md').write_text('+++\ntags=["resource-leak"]\n+++\nResource.\n')
     # A translated nested owner must not leak into its outer collection.
     f = c / 'lab-notes/annex/_index.zh.md'; f.parent.mkdir(parents=True)
     f.write_text('+++\ntitle="Nested Chinese notebook"\n[params.sidera]\ncollection="notebook"\n+++\n')
-    (f.parent / 'only.zh.md').write_text('---\ntitle: Nested note\nparams:\n  sidera:\n    tags: [science/local]\n---\n')
+    (f.parent / 'only.zh.md').write_text('---\ntitle: Nested note\ntags: [science/local]\n---\n')
     # English explicit language suffix exercises both explicit and default filenames.
     f = c / 'field-notes/beta/index.md'
     f.rename(f.with_suffix('.en.md'))
@@ -142,7 +142,7 @@ def main():
     zh_catalog = (ROOT / THEME / 'i18n/zh-CN.toml').read_text()
     keys = set(re.findall(r'^\[([^]]+)\]', en_catalog, re.M))
     assert keys == set(re.findall(r'^\[([^]]+)\]', zh_catalog, re.M))
-    assert len(keys) == 59, keys # Deliberate UI inventory: update alongside I18N.md.
+    assert len(keys) == 57, keys # Deliberate UI inventory: update alongside I18N.md.
     assert en_catalog.count('other = ') == zh_catalog.count('other = ') == len(keys)
     # Literal call sites plus the four deliberately native dynamic message groups.
     implementation = '\n'.join(p.read_text() for directory in ['layouts', 'content']
@@ -150,7 +150,7 @@ def main():
     used = set(re.findall(r'\bT "([a-z_]+)"', implementation))
     used.update(['collection_blog', 'collection_notebook', 'collection_docs', 'order_publication', 'order_modification',
                  'order_title', 'date_published', 'date_modified', 'date_updated', 'published_undated',
-                 'modified_undated', 'notes_all', 'notes_subtags', 'categories'])
+                 'modified_undated', 'tags', 'categories', 'article_count'])
     assert keys == used, (keys-used, used-keys)
     css = (ROOT / THEME / 'assets/css/sidera.css').read_text()
     assert all(not value.strip(" \"'") for value in re.findall(r'(?:^|[;{])\s*content\s*:\s*([^;}]*)', css)), 'CSS must not generate untranslated text'
@@ -200,9 +200,8 @@ def main():
             number = f'{count:,}'
             expected = f'{number} 篇文章' if lang == 'chinese' else f'{number} article' + ('' if count == 1 else 's')
             assert messages.messages['article_count', str(count)] == expected
-            noun = 'note' if count == 1 else 'notes'
-            for k, suffix, chinese_suffix in [('notes_all', 'untagged notes', '未标记标签的笔记'), ('notes_subtags', 'subtags', '子标签')]:
-                assert messages.messages[k, str(count)] == (f'共 {number} 篇笔记（含{chinese_suffix}）。' if lang == 'chinese' else f'{number} {noun}, including {suffix}.')
+            expected_taxonomy = f'{number} 个页面' if lang == 'chinese' else f'{number} page' + ('' if count == 1 else 's')
+            assert messages.messages['taxonomy_count', str(count)] == expected_taxonomy
             assert HOSTILE in messages.messages['all_tags_in', str(count)]
             assert HOSTILE in messages.messages['toggle_branch', str(count)]
         assert messages.messages['page_summary','1'] == ('第 1,234 页，共 12,345 页' if lang == 'chinese' else 'Page 1,234 of 12,345')
@@ -228,11 +227,11 @@ def main():
     build(override, run, 'missing-key', diagnostic='p2c_intentionally_missing', flags=cfg + ('--printI18nWarnings',))
     # Chinese-language structural validation is still strict, including drafts.
     for label, metadata, diagnostic in [
-        ('draft-invalid', 'draft=true\n[params.sidera]\ntags=["bad//tag"]', 'P1B'),
-        ('draft-collision', 'draft=true\n[params.sidera]\ntags=["a b", "a-b"]', 'tag slug collision'),
-        ('reserved-source', '[params.sidera]\ntags=[]', 'reserved notebook source namespace'),
-        ('reserved-alias', 'aliases=["/field-notes/tags/science/"]\n[params.sidera]\ntags=[]', 'alias in reserved notebook route namespace'),
-        ('reserved-route', 'url="/zh/field-notes/tags/science/"\n[params.sidera]\ntags=[]', 'reserved notebook route namespace'),
+        ('draft-invalid', 'draft=true\ntags=["bad//tag"]', 'P1B'),
+        ('draft-collision', 'draft=true\ntags=["a b", "a-b"]', 'tag slug collision'),
+        ('reserved-source', 'tags=[]', 'reserved notebook source namespace'),
+        ('reserved-alias', 'aliases=["/field-notes/tags/science/"]\ntags=[]', 'alias in reserved notebook route namespace'),
+        ('reserved-route', 'url="/zh/field-notes/tags/science/"\ntags=[]', 'reserved notebook route namespace'),
     ]:
         s = copy_site(run, label); cfg = configure(s, 'bilingual'); translated_fixture(s)
         name = 'tags' if label == 'reserved-source' else 'invalid'
