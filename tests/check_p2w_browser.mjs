@@ -34,6 +34,11 @@ await runBrowser(async ({run,version,errors,requests,origin,call,evaluate,naviga
   for(let i=0;i<50 && !(await evaluate(`location.pathname==='/guidebook/page/2/' && document.readyState==='complete'`));i++) await new Promise(r=>setTimeout(r,50));
   assert.equal(await evaluate('location.pathname'),'/guidebook/page/2/');
   assert.equal(await evaluate(`document.querySelectorAll('#doc-children li').length`),2);
+  // Active-branch navigation now collapses unrelated branches. Open the real
+  // parent disclosure before focusing its child; do not focus a hidden link.
+  await evaluate(`document.querySelector('.docs-navigation a[data-doc-path="/guidebook/getting-started"]').closest('li').querySelector('details > summary').focus()`);
+  await key('Enter','Enter',13);
+  assert(await evaluate(`document.querySelector('.docs-navigation a[data-doc-path="/guidebook/getting-started"]').closest('li').querySelector('details').open`));
   await evaluate(`document.querySelector('.docs-navigation a[data-doc-path="/guidebook/getting-started/setup"]').focus()`);
   await key('Enter','Enter',13);
   for(let i=0;i<50 && !(await evaluate(`location.pathname==='/guidebook/getting-started/setup/' && document.readyState==='complete'`));i++) await new Promise(r=>setTimeout(r,50));
