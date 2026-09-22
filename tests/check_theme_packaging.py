@@ -5,7 +5,6 @@ No downloads; only synthetic .checks copies are modified.
 from html.parser import HTMLParser
 from pathlib import Path
 import json
-import re
 import subprocess
 import sys
 import tempfile
@@ -100,23 +99,8 @@ def skeleton_checks(out, samples):
             'missing_local_targets': missing, 'home_anchors_without_href': home.empty_anchors}
 
 
-def original_scope(source):
-    """Omit ONLY new P2-W inputs for frozen themes; preserve their exact P1 proof."""
-    for file in (source/'content').rglob('*.md'):
-        text=file.read_text().replace('[params.sidera]', '[params]').replace('[cascade.params.sidera]', '[cascade.params]')
-        # Frozen discovery reads raw params.tags, unlike current native input.
-        tags=re.search(r'^tags\s*=.*$',text,re.M)
-        if tags:
-            text=text[:tags.start()]+text[tags.end()+1:]
-            if '[params]\n' in text: text=text.replace('[params]\n','[params]\n'+tags[0]+'\n',1)
-            else: text=text.replace('\n+++\n','\n[params]\n'+tags[0]+'\n+++\n',1)
-        # Historic root defaults were native cascade. Do not alter frozen theme readers.
-        if file.name=='_index.md':
-            fields=re.findall(r"^(?:byline|show_updated) = [^\n]+\n",text,re.M)
-            if fields:
-                text=re.sub(r"^(?:byline|show_updated) = [^\n]+\n",'',text,flags=re.M)
-                text=text.replace('\n+++\n',"\n[cascade.target]\nkind='page'\n[cascade.params]\n"+''.join(fields)+'+++\n',1)
-        file.write_text(text)
+def skeleton_scope(source):
+    """Keep the original P1 comparison corpus; never back-convert authored metadata."""
     config = source / 'hugo.toml'
     text = config.read_text().split('# Consumer opt-in only;')[0].replace("disableKinds = ['RSS']", "disableKinds = ['taxonomy', 'term', 'RSS']")
     config.write_text(text + "\n[[module.mounts]]\nsource='content'\ntarget='content'\nfiles=['! guidebook/**']\n")
@@ -124,28 +108,19 @@ def original_scope(source):
 
 def main():
     (ROOT / '.checks').mkdir(exist_ok=True)
-    run = Path(tempfile.mkdtemp(prefix='poc-theme-', dir=ROOT / '.checks'))
+    run = Path(tempfile.mkdtemp(prefix='theme-packaging-', dir=ROOT / '.checks'))
     print('Retained run:', run, flush=True)
     (run / 'version.txt').write_text(subprocess.check_output(['hugo', 'version'], text=True, timeout=10))
     assert not (ROOT / 'layouts').exists(), 'Site templates would mask theme coverage'
     assert not (ROOT / 'content/_content.gotmpl').exists()
     skeleton_before = snapshot(ROOT / 'themes/skeleton')
-    baseline = build(ROOT, run, 'poc')
+    baseline = build(ROOT, run, 'sidera')
     check_baseline(baseline)
 
-    # D-015: visual-byte equality was a one-time seed check (bd5dd82).
-    # Preserve the untouched PoC as evidence; compare behavior, not its old UI.
-    poc_before = snapshot(ROOT / 'themes/poc')
-    legacy_source = copy_site(run, 'legacy-poc')
-    original_scope(legacy_source)
-    legacy = build(legacy_source, run, 'legacy-poc', flags=('--theme', 'poc'))
-    for output in (baseline, legacy):
-        check_baseline(output, docs=(output == baseline))
-        baseline_checks(output)  # exact ordering/pager chains, policies, local targets
-        tag_checks(output, 'field-notes', FIELD, COLLECTIONS['field-notes'][2])
-        tag_checks(output, 'lab-notes', LAB, COLLECTIONS['lab-notes'][2])
-    assert {p for p in snapshot(baseline) if p.endswith('.html') and not p.startswith(('guidebook/', 'sidera/', 'tags/', 'categories/')) and not any(p.startswith(o+'/categories/') for o in COLLECTIONS) and not p.startswith(('journal/tags/', 'dispatches/tags/'))} == {
-        p for p in snapshot(legacy) if p.endswith('.html')}, 'Theme changed HTML routes'
+    # Retain every active-theme semantic assertion from the former comparison.
+    baseline_checks(baseline)
+    tag_checks(baseline, 'field-notes', FIELD, COLLECTIONS['field-notes'][2])
+    tag_checks(baseline, 'lab-notes', LAB, COLLECTIONS['lab-notes'][2])
 
     # A theme working-tree edit must affect output without Git commit/push.
     edited = copy_site(run, 'local-theme-edit')
@@ -179,17 +154,16 @@ def main():
     assert snapshot(override / THEME) == snapshot(ROOT / THEME)
 
     stock = copy_site(run, 'skeleton-stock')
-    original_scope(stock)
+    skeleton_scope(stock)
     stock_out = build(stock, run, 'skeleton-stock', flags=('--theme', 'skeleton'))
-    results = {'packaging_byte_identical': True, 'retained_poc_functional_invariants': True,
-               'seed_visual_equality': 'retired intentionally in P2-A; historical bd5dd82 evidence retained',
+    results = {'packaging_byte_identical': True, 'active_functional_invariants': True,
                'local_theme_edits_effective': True, 'optional_site_override': True,
                'skeleton_stock': skeleton_checks(stock_out, samples=True)}
 
     # Park starter demo content outside this scratch source; never delete it or edit the original theme.
     clean = copy_site(run, 'skeleton-content-only')
     (clean / 'themes/skeleton/content').rename(run / 'retained-skeleton-demo-content')
-    original_scope(clean)
+    skeleton_scope(clean)
     clean_out = build(clean, run, 'skeleton-content-only', flags=('--theme', 'skeleton'))
     results['skeleton_content_only'] = skeleton_checks(clean_out, samples=False)
 
@@ -204,9 +178,8 @@ def main():
     results['native_tags'] = {'basics_members': basics, 'implicit_science_ancestor': False}
     http_smoke(clean_out, run, routes=['/', '/about/', '/field-notes/alpha/', '/lab-notes/storage/epsilon/'])
     assert snapshot(ROOT / 'themes/skeleton') == skeleton_before
-    assert snapshot(ROOT / 'themes/poc') == poc_before
     (run / 'results.json').write_text(json.dumps(results, indent=2, ensure_ascii=False))
-    print('PASS Sidera/PoC functional invariants, local theme edits, packaging, optional override and measured skeleton gaps.')
+    print('PASS Sidera functional invariants, local theme edits, packaging, optional override and measured skeleton gaps.')
 
 
 if __name__ == '__main__':

@@ -13,7 +13,7 @@ sys.dont_write_bytecode = True
 from check_p1a import ROOT, THEME, DOC_ROUTES, check_baseline, snapshot, Page
 from check_p1b import build, copy_site, html, tag_checks, FIELD, LAB
 from check_p1c import baseline_checks
-from check_poc_theme import missing_targets
+from check_theme_packaging import missing_targets
 
 class Docs(HTMLParser):
     def __init__(self, file):
@@ -289,7 +289,7 @@ def main():
 
 def missing_targets_with_prefix(out, prefix):
     # Reuse complete link scan; do not weaken original no-prefix link checks.
-    from check_poc_theme import Scan
+    from check_theme_packaging import Scan
     from urllib.parse import urljoin,urlparse,unquote
     missing=[]
     for file in out.rglob('*.html'):

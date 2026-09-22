@@ -17,7 +17,3 @@ hugo.linux
 
 # Python integration-check bytecode (checks themselves disable new writes)
 /tests/__pycache__/
-
-# These are source templates, not a globally ignored ctags file.
-!/themes/poc/layouts/_partials/tags/
-!/themes/poc/layouts/_partials/tags/**

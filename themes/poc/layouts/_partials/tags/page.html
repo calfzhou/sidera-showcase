@@ -1,5 +1,0 @@
-{{- $path := printf "%s/tags" .owner.Path -}}
-{{- with .slug -}}{{- $path = printf "%s/%s" $path . -}}{{- end -}}
-{{- $page := site.GetPage $path -}}
-{{- if not $page -}}{{- errorf "P1B missing generated tag page %s; tags must be literal note params.tags" $path -}}{{- end -}}
-{{- return $page -}}

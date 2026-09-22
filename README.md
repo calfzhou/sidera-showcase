@@ -4,7 +4,8 @@ This repository is `calfzhou/sidera-showcase`; its local folder is still named
 `hugo-showcase`. The active theme is **Sidera**, a Git submodule at
 `themes/sidera`. That nested checkout is also the main theme-development checkout.
 The former sibling clone was moved here, not deleted or recreated. The retained
-`themes/poc` and `themes/skeleton` are inactive reference/comparison fixtures.
+`themes/skeleton` is an inactive reference/comparison fixture. The obsolete PoC
+source was retired under D-035; its Git history and historical reports remain.
 
 P2-A/B/C provide the responsive theme, dark/light/system reading experience and
 native English/Chinese UI over the closed P1 proof. P2-D consolidates documentation
@@ -57,7 +58,7 @@ From this repository:
 uv run --no-project --no-managed-python python3 tests/check_p1a.py
 uv run --no-project --no-managed-python python3 tests/check_p1b.py
 uv run --no-project --no-managed-python python3 tests/check_p1c.py
-uv run --no-project --no-managed-python python3 tests/check_poc_theme.py
+uv run --no-project --no-managed-python python3 tests/check_theme_packaging.py
 uv run --no-project --no-managed-python python3 tests/check_journal_urls.py
 
 # Standalone build, isolated from any pre-existing public/ output:
@@ -336,23 +337,23 @@ These diagnostic probes are expected invalid-input rejections under D-013; no dr
 for the user's clarified scope, evidence and future investigation leads.
 
 
-## Historical PoC packaging and current regression comparison
+## Active-theme packaging and retained skeleton comparison
 
-The original P1-D experiment is retained for reference. Sidera supplies the organization implementation plus its independent visual shell through a submodule. [PoC theme guide](themes/poc/README.md) and
-[comparison report](../migration-project/P1-D-THEME.md) explain the boundary.
-All 18 templates and the tag adapter moved unchanged into the theme. Native Hugo
-theme lookup/content mounting supplies them; site content and policies remain
-here. Moving the adapter too prevents a switch to skeleton from leaving behind a
-site adapter calling unavailable PoC helpers. No custom mount setup was added.
+Sidera supplies the implementation through its pinned submodule. The obsolete
+inactive PoC source and its dedicated comparison were retired under D-035; the
+[historical comparison report](../migration-project/P1-D-THEME.md) and Git history
+remain intact. No historic fixture-schema back-conversion is required.
 
-`check_poc_theme.py` now runs eight strict isolated builds: active Sidera, retained PoC functional comparison, uncommitted local theme edit, reconstructed
-former in-place layout, optional site-template override, untouched skeleton,
-skeleton with its demo content parked outside a scratch copy, and a native-global-
-taxonomy contrast. It asserts whole-output byte equivalence between **active Sidera and its in-place
-reconstruction**, including CSS/JS assets, then checks the known skeleton gaps rather than pretending feature parity. The helper
-retains sources, published outputs, logs and `results.json` under `.checks/poc-theme-*`.
-It also serves four skeleton routes on its own available explicit loopback port
-and stops the server. No original skeleton file is edited or deleted.
+`check_theme_packaging.py` runs seven strict isolated builds: active Sidera,
+uncommitted local theme edit, reconstructed in-place layout, optional site-template
+override, untouched skeleton, skeleton without its sample posts in a scratch copy,
+and a native-global-taxonomy contrast. It preserves active ownership/defaults,
+ordering/pagers/tags/assets assertions and whole-output byte equivalence between
+**active Sidera and its in-place reconstruction**, including CSS/JS assets.
+Its shared HTML/link helpers are also used by docs tests. Results remain in
+`.checks/theme-packaging-*`; its bounded four-route HTTP server always stops.
+No original skeleton file is edited or deleted. For committed reproduction use an
+exact initialized submodule checkout, not a plain archive (see above).
 
 For a direct switch experiment without changing saved configuration:
 
@@ -372,9 +373,8 @@ a source-only variant (demo content moved within the scratch run, not deleted).
 Skeleton renders all 17 showcase article/standalone routes and their local assets,
 but offers a global homepage stream and immediate-section lists instead of the
 collection/notebook contract. It ignores the custom owner list policies, pins,
-recent-update widget, byline/update display and scoped tag navigation. With the
-site's current config it has no taxonomies; enabling them in scratch gives **global
-flat assignments**, not notebook-scoped ancestor unions. It also emits a zero date
+recent-update widget, byline/update display and scoped tag navigation. The comparison disables taxonomies for its stock cases; enabling them again gives
+**global flat assignments**, not notebook-scoped ancestor unions. It also emits a zero date
 on About and breaks relative bundle image/download URLs in list summaries (not on
 the article). Its default Home/Posts/Tags menu needs site-specific configuration.
 No other third-party theme was downloaded or tested; skeleton is a bundled Hugo
