@@ -27,6 +27,7 @@ await runBrowser(async ({navigate,viewport,evaluate,call,screenshot,errors,reque
     await navigate('/one/a/');
     assert.deepEqual(await evaluate('[...document.querySelectorAll("#assigned-authors a")].map(a=>a.getAttribute("href"))'),['/authors/bob/','/authors/alice/']);
     assert.equal(await evaluate('document.querySelector("[data-series-next]").getAttribute("href")'),'/one/b/');
+    assert(await evaluate('document.querySelector("[data-series]").textContent.includes(" · ")'));
     await screenshot(`model-authors-${mode}-${width}`);
     await evaluate('document.querySelector("[data-series-next]").click()');
     await arrived('/one/b/');
