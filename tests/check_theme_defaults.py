@@ -27,6 +27,7 @@ def add_probe(source):
 
 
 def main():
+    (ROOT/'.checks').mkdir(exist_ok=True)
     run = Path(os.environ.get('SIDERA_CHECK_DIR') or tempfile.mkdtemp(prefix='theme-defaults-', dir=ROOT/'.checks')).resolve()
     run.mkdir(parents=True, exist_ok=True)
     print('Retained run:', run, flush=True)
