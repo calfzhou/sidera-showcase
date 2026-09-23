@@ -349,7 +349,7 @@ uncommitted local theme edit, reconstructed in-place layout, optional site-templ
 override, untouched skeleton, skeleton without its sample posts in a scratch copy,
 and a native-global-taxonomy contrast. It preserves active ownership/defaults,
 ordering/pagers/tags/assets assertions and whole-output byte equivalence between
-**active Sidera and its in-place reconstruction**, including CSS/JS assets.
+**active Sidera and its in-place reconstruction**, including CSS/JS assets, bundled preset data/content and native theme configuration.
 Its shared HTML/link helpers are also used by docs tests. Results remain in
 `.checks/theme-packaging-*`; its bounded four-route HTTP server always stops.
 No original skeleton file is edited or deleted. For committed reproduction use an
@@ -769,3 +769,24 @@ URLs. Browser checks cover index/term/empty/scoped/docs views in EN/ZH and both
 palettes, keyboard/pagers, no-JS, flat mode and subpaths. This implements the affected
 theme path, not only sidebars; it does not declare remaining card/footer polish or
 whole-P2 completion, universal loaders, deployment or real-site migration.
+
+
+## P2-M implementation prerequisite — theme-owned defaults
+
+Sidera now owns the `tags`, `categories`, `authors`, `series`, and `preset` definitions
+and their native term URL defaults. The showcase supplies only category-specific
+`_merge = 'shallow'` permission; it does not redefine those taxonomies or bundle copies
+of blog/notes/docs preset terms. [Theme guide](themes/sidera/PRESETS.md).
+
+Native public preset term Pages and global author/series groups are available. Site
+overrides, custom fourth preset/additional taxonomy and EN/ZH isolation are checked by:
+
+```sh
+uv run --no-project --no-managed-python python3 tests/check_theme_defaults.py
+```
+
+**The full P2-M migration is not complete.** Existing collection markers and namespaced
+consumer settings still drive current pages; preset defaults are metadata awaiting the
+new resolver. Scoped authors/series and attribution/sequence consumers remain to implement.
+Do not replace current markers prematurely. Bundled docs still default off; the docs
+preset term is configuration/classification content, not publication of the docs sample.

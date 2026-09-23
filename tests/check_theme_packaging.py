@@ -5,6 +5,7 @@ No downloads; only synthetic .checks copies are modified.
 from html.parser import HTMLParser
 from pathlib import Path
 import json
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -134,13 +135,14 @@ def main():
     # Reconstruct the previous in-place layout in a COPY, retaining all files.
     inline = copy_site(run, 'in-place')
     (inline / THEME / 'layouts').rename(inline / 'layouts')
-    (inline / THEME / 'content/_content.gotmpl').rename(inline / 'content/_content.gotmpl')
+    shutil.copytree(inline / THEME / 'content', inline / 'content', dirs_exist_ok=True)
+    (inline / THEME / 'data').rename(inline / 'data')
     # Active theme assets now participate in the packaging equivalence check too.
     (inline / THEME / 'assets').rename(inline / 'assets')
     (inline / THEME / 'i18n').rename(inline / 'i18n')
     config = inline / 'hugo.toml'
     config.write_text(config.read_text().replace("theme = 'sidera'\n", ''))
-    previous = build(inline, run, 'in-place')
+    previous = build(inline, run, 'in-place', flags=('--config', 'themes/sidera/hugo.toml,hugo.toml'))
     assert snapshot(baseline) == snapshot(previous), 'Packaging changed published bytes'
 
     # An optional site template overrides the corresponding theme template.
@@ -169,7 +171,7 @@ def main():
 
     # Config-only contrast: skeleton supports native GLOBAL tags, not notebook unions.
     config = clean / 'hugo.toml'
-    config.write_text(config.read_text().replace("disableKinds = ['taxonomy', 'term', 'RSS']", "disableKinds = ['RSS']"))
+    config.write_text(config.read_text().replace("disableKinds = ['taxonomy', 'term', 'RSS']", "disableKinds = ['RSS']").replace("[taxonomies]\n_merge = 'shallow'", "[taxonomies]\ntag = 'tags'\ncategory = 'categories'"))
     native = build(clean, run, 'skeleton-native-tags', flags=('--theme', 'skeleton'))
     basics = Scan(html(native, '/tags/science/quantum/basics/')).titles
     assert set(basics) == {'/field-notes/alpha/', '/field-notes/beta/', '/lab-notes/alpha/'}, basics

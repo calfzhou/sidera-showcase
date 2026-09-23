@@ -39,8 +39,7 @@ def main():
     assert Page(html(out,'/categories/empty/')).total==0
     assert not Page(html(out,'/categories/empty/')).pager
     remapped=copy_site(run,'remapped')
-    replace(remapped,'hugo.toml',"tags = '/tags/:slug/'", "tags = '/topics/:slug/'")
-    replace(remapped,'hugo.toml',"categories = '/categories/:slug/'", "categories = '/subjects/:slug/'")
+    replace(remapped, 'hugo.toml', "[permalinks.term]\n_merge = 'shallow'", "[permalinks.term]\n_merge = 'shallow'\ntags = '/topics/:slug/'\ncategories = '/subjects/:slug/'")
     cfg=remapped/'hugo.toml';cfg.write_text(cfg.read_text()+"\n[permalinks.taxonomy]\ntags='/topics/'\ncategories='/subjects/'\n")
     out=check(remapped,'remapped');local_links(out)
     assert set(members(out,'/topics/science/'))==science

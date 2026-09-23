@@ -2,12 +2,12 @@ baseURL = 'https://example.org/'
 locale = 'en-US'
 title = 'Sidera showcase'
 timeZone = 'Asia/Shanghai'
-# Active development checkout is a pinned Git submodule. PoC/skeleton remain fixtures.
+# Active development checkout is a pinned Git submodule; skeleton remains a reference.
 theme = 'sidera'
 disableKinds = ['RSS']
+# Import Sidera's taxonomy definitions, without redefining them here.
 [taxonomies]
-tag = 'tags'
-category = 'categories'
+_merge = 'shallow'
 
 # Explicit metadata-only fallback chains: no Git, file mtime or build clock.
 [frontmatter]
@@ -23,7 +23,6 @@ disableAliases = true
 [permalinks.page]
 journal = '/journal/:year/:month/:day/:slugorcontentbasename/'
 
-# Native term URLs honor adapter-provided filesystem-safe Unicode slugs.
+# Import only the theme's term URL defaults; site rules still take precedence.
 [permalinks.term]
-tags = '/tags/:slug/'
-categories = '/categories/:slug/'
+_merge = 'shallow'
