@@ -1,9 +1,11 @@
 +++
+authors = ['demo-editor']
+series = 'model-workshop'
 title = 'Second signal'
 date = 2024-01-02T09:00:00+08:00
 lastmod = 2024-01-03T09:00:00+08:00
 tags = ["shared"]
-[params.sidera]
+[params]
 pinned = true
 byline = 'Guest editor'
 show_updated = true

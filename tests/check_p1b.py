@@ -109,7 +109,7 @@ def write_note(source, path, tags, extra=''):
     file = source / 'content' / path
     file.parent.mkdir(parents=True, exist_ok=True)
     file.write_text('+++\ntitle = "Edge note"\n' + extra + '\ntags = '
-                    + json.dumps(tags, ensure_ascii=False) + '\n[params.sidera]\n+++\nSynthetic edge.\n')
+                    + json.dumps(tags, ensure_ascii=False) + '\n[params]\n+++\nSynthetic edge.\n')
 
 
 FIELD = {
@@ -334,13 +334,13 @@ def main():
                         ('page-source-conflict', 'field-notes/page/index.md')]:
         source = copy_site(run, label)
         write_note(source, path, [])
-        build(source, run, label, 'P1B reserved notebook source namespace')
+        build(source, run, label, 'P1B reserved scoped source namespace')
     for label, extra, diagnostic in [
-        ('url-conflict', 'url = "/field-notes/tags/science/"', 'reserved notebook route namespace'),
-        ('alias-conflict', 'aliases = ["/field-notes/tags/science/"]', 'alias in reserved notebook route namespace'),
-        ('relative-alias-conflict', 'aliases = ["../field-notes/tags/unclaimed/"]', 'alias in reserved notebook route namespace'),
-        ('slug-conflict', 'slug = "tags"', 'reserved notebook route namespace'),
-        ('page-url-conflict', 'url = "/field-notes/page/2/"', 'reserved notebook route namespace'),
+        ('url-conflict', 'url = "/field-notes/tags/science/"', 'reserved scoped route namespace'),
+        ('alias-conflict', 'aliases = ["/field-notes/tags/science/"]', 'alias in reserved scoped route namespace'),
+        ('relative-alias-conflict', 'aliases = ["../field-notes/tags/unclaimed/"]', 'alias in reserved scoped route namespace'),
+        ('slug-conflict', 'slug = "tags"', 'reserved scoped route namespace'),
+        ('page-url-conflict', 'url = "/field-notes/page/2/"', 'reserved scoped route namespace'),
     ]:
         source = copy_site(run, label)
         write_note(source, 'lab-notes/conflict.md', [], extra)
@@ -350,12 +350,12 @@ def main():
     conflict = source / 'static/field-notes/tags/science/index.html'
     conflict.parent.mkdir(parents=True)
     conflict.write_text('Must not overwrite a tag view')
-    build(source, run, 'static-conflict', 'P1B reserved notebook static namespace')
+    build(source, run, 'static-conflict', 'P1B reserved scoped static namespace')
 
     source = copy_site(run, 'owner-route')
     root = source / 'content/field-notes/_index.md'
     root.write_text(root.read_text().replace("title = 'Field notes'", "title = 'Field notes'\nurl = '/elsewhere/'"))
-    build(source, run, 'owner-route', 'P1B notebook route must follow its content path')
+    build(source, run, 'owner-route', 'P1B scoped route must follow its content path')
     source = copy_site(run, 'unsupported-frontmatter')
     (source / 'content/field-notes/json.md').write_text('{"title": "JSON note", "tags": ["new"]}\nBody')
     build(source, run, 'unsupported-frontmatter', 'P1B discovery requires TOML or YAML front matter')

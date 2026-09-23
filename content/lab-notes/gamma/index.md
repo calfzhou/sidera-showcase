@@ -3,7 +3,7 @@ title = 'Gamma note'
 date = 2024-01-03T09:00:00+08:00
 lastmod = 2024-03-01T09:00:00+08:00
 tags = ["shared"]
-[params.sidera]
+[params]
 pinned = true
 +++
 This is the synthetic **Gamma note** article in `lab-notes`.

@@ -1,6 +1,6 @@
 # hugo server --config hugo.toml,examples/taxonomies.toml
 # These are Sidera presentation policies, not alternate taxonomy assignments.
-[params.sidera]
+[params]
 menu = 'taxonomy-demo'
 taxonomy_navigation = ['tags', 'categories']
 taxonomy_hierarchy = ['tags', 'categories']

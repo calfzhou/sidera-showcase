@@ -1,8 +1,16 @@
 +++
+preset = 'notes'
 title = 'Annex notes'
-[params.sidera]
+[params]
+taxonomy_hierarchy = ['tags', 'categories']
+scope_root = true
 byline = 'Annex team'
 show_updated = true
-collection = 'notebook'
+
+[cascade.target]
+kind = 'page'
+[cascade.params]
+byline = 'Annex team'
+show_updated = true
 +++
 A fifth collection, added only in an isolated test copy under Lab notes.

@@ -15,6 +15,7 @@ def main():
         out=build(source,run,name,diagnostic,('--printI18nWarnings',*flags));(rejected if diagnostic else passed).append(name);return out
     def members(out,route):return all_articles(out,route)
     base=copy_site(run,'shared')
+    cfg=base/'hugo.toml';cfg.write_text(cfg.read_text()+"\n[params]\ntaxonomy_hierarchy=['tags','categories']\n")
     # Terms overlap across kinds, including a native body-bearing docs branch.
     out=check(base,'shared');local_links(out)
     science={'/field-notes/alpha/','/field-notes/beta/','/lab-notes/alpha/','/lab-notes/beta/','/guidebook/getting-started/setup/'}
@@ -30,7 +31,7 @@ def main():
     # Native authored empty term and native Page.GetTerms, no theme-specific assignments.
     write(base,'content/categories/empty/_index.md','+++\ntitle="Empty category"\nslug="empty"\n+++\nAn intentionally empty native term.')
     write(base,'layouts/_partials/sidera/head-extra.html','{{ range .Page.GetTerms "tags" }}<meta name="native-tag" content="{{ .RelPermalink }}">{{ end }}')
-    config=base/'hugo.toml';config.write_text(config.read_text()+"\n[params.sidera]\ntaxonomy_page_size=2\n")
+    config=base/'hugo.toml';config.write_text(config.read_text()+"taxonomy_page_size=2\n")
     out=check(base,'parent-paged');local_links(out)
     assert set(members(out,'/tags/science/'))==science|{'/field-notes/parent/'}
     assert len(members(out,'/tags/science/'))==6
@@ -39,6 +40,7 @@ def main():
     assert Page(html(out,'/categories/empty/')).total==0
     assert not Page(html(out,'/categories/empty/')).pager
     remapped=copy_site(run,'remapped')
+    cfg=remapped/'hugo.toml';cfg.write_text(cfg.read_text()+"\n[params]\ntaxonomy_hierarchy=['tags','categories']\n")
     replace(remapped, 'hugo.toml', "[permalinks.term]\n_merge = 'shallow'", "[permalinks.term]\n_merge = 'shallow'\ntags = '/topics/:slug/'\ncategories = '/subjects/:slug/'")
     cfg=remapped/'hugo.toml';cfg.write_text(cfg.read_text()+"\n[permalinks.taxonomy]\ntags='/topics/'\ncategories='/subjects/'\n")
     out=check(remapped,'remapped');local_links(out)
@@ -47,21 +49,22 @@ def main():
     assert (out/'topics/u-e9878fe5ad90/index.html').exists()
     assert '/topics/' in html(out,'/field-notes/tags/').read_text()
     # Flat interpretation uses exact assignments even when native parent .Pages is recursive.
-    config.write_text(config.read_text()+"taxonomy_hierarchy=[]\n")
+    config.write_text(config.read_text().replace("taxonomy_hierarchy=['tags','categories']", "taxonomy_hierarchy=[]"))
+    replace(base,'content/field-notes/_index.md',"taxonomy_hierarchy = ['tags', 'categories']",'taxonomy_hierarchy=[]')
     out=check(base,'flat')
     assert members(out,'/tags/science/')==['/field-notes/parent/']
     assert members(out,'/categories/learning/')==['/field-notes/parent/']
     assert set(members(out,'/tags/science/quantum/'))=={'/field-notes/beta/','/guidebook/getting-started/setup/','/field-notes/parent/'}
     assert not any(n.attrs.get('class')=='tree-branch' for n in nodes(out,'/field-notes/tags/science/').all())
     # Collection hierarchy overrides site choice independently for tags and categories.
-    replace(base,'content/field-notes/_index.md','[params.sidera]',"[params.sidera]\ntaxonomy_hierarchy=['tags']")
+    replace(base,'content/field-notes/_index.md','taxonomy_hierarchy=[]',"taxonomy_hierarchy=['tags']")
     out=check(base,'owner-hierarchy')
     assert set(members(out,'/field-notes/tags/science/'))=={'/field-notes/alpha/','/field-notes/beta/','/field-notes/parent/'}
     assert members(out,'/field-notes/categories/learning/')==['/field-notes/parent/']
     assert members(out,'/tags/science/')==['/field-notes/parent/']
     # Restore site hierarchy; move one actual bundle between all three collections.
-    moving=copy_site(run,'moving');bundle=moving/'content/field-notes/traveller';bundle.mkdir()
-    document='+++\ntitle="Travelling page"\ndate=2024-03-04T10:00:00Z\ntags=["movement/shared"]\ncategories=["practice/examples"]\n[params.sidera]\npinned=true\nshow_updated=false\n+++\n![Local image](sample.svg)\n\n## Unchanged content\n\nOne source document.'
+    moving=copy_site(run,'moving');cfg=moving/'hugo.toml';cfg.write_text(cfg.read_text()+"\n[params]\ntaxonomy_hierarchy=['tags','categories']\n");bundle=moving/'content/field-notes/traveller';bundle.mkdir()
+    document='+++\ntitle="Travelling page"\ndate=2024-03-04T10:00:00Z\ntags=["movement/shared"]\ncategories=["practice/examples"]\n[params]\npinned=true\nshow_updated=false\n+++\n![Local image](sample.svg)\n\n## Unchanged content\n\nOne source document.'
     (bundle/'index.md').write_text(document);shutil.copy2(ROOT/'content/field-notes/alpha/sample.svg',bundle/'sample.svg')
     old=None
     for owner,route in [('field-notes','/field-notes/traveller/'),('journal','/journal/2024/03/04/traveller/'),('guidebook','/guidebook/traveller/')]:
@@ -80,7 +83,7 @@ def main():
     out=check(moving,'subpath',flags=('--baseURL','https://example.org/preview/'))
     local_links(out,'/preview');assert members(out,'/tags/movement/')==['/preview/guidebook/traveller/']
     write(moving,'locale.toml',"defaultContentLanguage='en'\ndefaultContentLanguageInSubdir=true\n[languages.en]\nlocale='en-US'\n[languages.zh]\nlocale='zh-CN'\n")
-    write(moving,'content/guidebook/_index.zh.md','+++\ntitle="手册"\n[params.sidera]\ncollection="docs"\n+++\n中文文档。')
+    write(moving,'content/guidebook/_index.zh.md','+++\ntitle="手册"\npreset="docs"\n[params]\nscope_root=true\n\n+++\n中文文档。')
     write(moving,'content/guidebook/traveller/index.zh.md',document.replace('Travelling page','移动文档'))
     out=check(moving,'bilingual',flags=('--config','hugo.toml,locale.toml','--baseURL','https://example.org/preview/'))
     local_links(out,'/preview')
@@ -93,7 +96,7 @@ def main():
         write(bad,'content/'+owner+'/invalid.md','+++\ntitle="Invalid"\ndraft=true\ncategories=["bad//category"]\n+++\nUnpublished.')
         check(bad,'bad-'+owner,'malformed tag segment')
     for name,value in [('hierarchy',"taxonomy_hierarchy=['unknown']"),('duplicate',"taxonomy_hierarchy=['tags','tags']"),('size','taxonomy_page_size=0')]:
-        bad=copy_site(run,'bad-'+name);cfg=bad/'hugo.toml';cfg.write_text(cfg.read_text()+'\n[params.sidera]\n'+value+'\n')
+        bad=copy_site(run,'bad-'+name);cfg=bad/'hugo.toml';cfg.write_text(cfg.read_text()+'\n[params]\n'+value+'\n')
         check(bad,'bad-'+name,'Sidera')
     (run/'results.json').write_text(json.dumps({'passed':passed,'rejected':rejected,'unchanged_front_matter_moves':3,'native_assignment_source':True},indent=2))
     print(f'PASS taxonomies: {len(passed)} strict builds, {len(rejected)} rejections; native global/scoped hierarchies and unchanged moves')

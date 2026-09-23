@@ -1,13 +1,16 @@
 +++
+preset = 'docs'
 title = "Workshop handbook"
-[params.sidera]
-collection = 'docs'
-[params.sidera.children]
+[params]
+taxonomy_hierarchy = ['tags', 'categories']
+scope_root = true
+[params.children]
 order = ['getting-started', 'reference']
 page_size = 2
-[cascade.params.sidera.children]
+[cascade.params.children]
 sort = 'title'
 page_size = 2
+
 +++
 
 This site-owned demo describes a fictional workshop. Each chapter is a document with its own body, even when it has children.

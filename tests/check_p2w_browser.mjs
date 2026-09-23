@@ -20,7 +20,7 @@ await runBrowser(async ({run,version,errors,requests,origin,call,evaluate,naviga
       assert(!state.overflow,JSON.stringify({route,width,state}));
       assert(state.tree && state.loaded && state.article==='shared-article');
       assert.equal(state.prose,!route.includes('/page/2/'));
-      if(prefix) assert(state.text.includes('文档目录'));
+      if(prefix) assert(state.text.includes('页面目录'));
       if(route==='/guidebook/') assert.equal(state.list,2);
       if(route==='/guidebook/reference/') assert.equal(state.list,0);
       if(route==='/guidebook/' && width===390) await screenshot(`docs-${prefix?'zh':'en'}-${mode}-${width}`);

@@ -3,7 +3,7 @@ title = 'Beta note'
 date = 2024-01-02T09:00:00+08:00
 lastmod = 2024-03-03T09:00:00+08:00
 tags = [" Science / QUANTUM ", "science/quantum/basics", "science/quantum/basics"]
-[params.sidera]
+[params]
 byline = 'Visiting naturalist'
 show_updated = false
 +++

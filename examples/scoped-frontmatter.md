@@ -1,13 +1,13 @@
 # Collection and page overrides
 
-All Sidera settings live in the same `params.sidera` table. Add the following
+Public custom settings live under native `params`. Add the following
 keys **inside the existing table**, rather than declaring a duplicate TOML table.
 
 For the Field notes root:
 
 ```toml
-[params.sidera]
-# Keep existing collection/byline/show_updated/list_order/page_size here.
+[params]
+# Keep existing scope_root/list_order/page_size here; preset is native top-level.
 left = ['menu', 'taxonomies']
 right = ['recent', 'profile']
 recent_count = 2
@@ -17,8 +17,8 @@ profile = {title = 'Field notebook', text = 'A collection-local profile.'}
 For Alpha's existing front matter:
 
 ```toml
-[params.sidera]
-# Keep existing tags and pinned here.
+[params]
+# Keep pinned here; tags/categories/authors/series are native top-level.
 left = ['taxonomies']
 right = ['text']
 text = 'This page replaces the collection’s right region.'
@@ -27,7 +27,7 @@ text = 'This page replaces the collection’s right region.'
 For the standalone About page:
 
 ```toml
-[params.sidera]
+[params]
 left = false
 right = []
 ```
@@ -44,7 +44,6 @@ hugo server --source "$PWD/.checks/scoped-preview/example-source" \
 
 Choose a new output folder/available port; stop your foreground server with Ctrl-C.
 The helper applies these same owner/page overrides; it is showcase tooling, not a
-runtime setting engine. Native cascading is still available but a local `sidera`
-table replaces the cascaded table. `examples/scoped.toml` demonstrates it only on
-About, which has no local table in the normal source. Do not expect native cascade
-to inject individual shell fields into a note's existing native `tags` table.
+runtime setting engine. Native cascade is evaluated before preset fallback. Flat scalar
+params inherit independently; a local nested map replaces that cascaded map. Ordinary root
+params affect that root only—put intended descendant defaults under `cascade.params`.

@@ -85,7 +85,7 @@ def replace(source, path, old, new):
 def root(source, owner, kind='blog', params=''):
     f = source / 'content' / owner / '_index.md'
     f.parent.mkdir(parents=True, exist_ok=True)
-    f.write_text(f'+++\ntitle = "{owner}"\n[params.sidera]\ncollection = "{kind}"\n{params}\n+++\n')
+    f.write_text(f'+++\ntitle = "{owner}"\npreset = "{ {"notebook":"notes","wiki":"docs"}.get(kind,kind) }"\n[params]\nscope_root=true\n{params}\n+++\n')
 
 
 def date_probe(source):
@@ -105,7 +105,7 @@ def date_probe(source):
     for name, metadata in notes.items():
         write_note(source, f'dates/{name}.md', [], metadata)
     f = source / 'content/dates/e.md'
-    f.write_text(f.read_text().replace('[params.sidera]', '[params.sidera]\nlist_order = "title"\npage_size = 99\npinned = false'))
+    f.write_text(f.read_text().replace('[params]', '[params]\nlist_order = "title"\npage_size = 99\npinned = false'))
     # Observe all three native Page values without changing production markup.
     template = source / THEME / 'layouts/_partials/article.html'
     template.write_text(template.read_text().replace('    <h1>', '''    <p data-date="{{ .Date.Format "2006-01-02" }}" data-publication="{{ .PublishDate.Format "2006-01-02" }}" data-modification="{{ .Lastmod.Format "2006-01-02" }}"></p>
@@ -130,11 +130,13 @@ def main():
         write_note(source, f'field-notes/{name}.md', ['science/quantum/basics'],
                    f'date = 2024-01-02T09:00:00+08:00\nlastmod = 2024-03-03T09:00:00+08:00\nweight = {weight}')
         replace(source, f'content/field-notes/{name}.md', 'title = "Edge note"', 'title = "Beta note"')
-        replace(source, f'content/field-notes/{name}.md', '[params.sidera]', '[params.sidera]\npinned = true')
-    replace(source, 'content/field-notes/gamma/index.md', '[params.sidera]', '[params.sidera]\npinned = true')
+        replace(source, f'content/field-notes/{name}.md', '[params]', '[params]\npinned = true')
+    replace(source, 'content/field-notes/gamma/index.md', '[params]', '[params]\npinned = true')
     shutil.copytree(ROOT / 'tests/fixtures/annex', source / 'content/lab-notes/annex')
-    replace(source, 'content/lab-notes/annex/_index.md', "collection = 'notebook'",
-            "collection = 'notebook'\nlist_order = 'publication'\npage_size = 1")
+    replace(source, 'content/lab-notes/annex/_index.md', "[params]",
+            "[params]\nlist_order = 'publication'\npage_size = 1")
+    replace(source, 'content/lab-notes/annex/_index.md', "[cascade.target]", "[[cascade]]\n[cascade.target]")
+    replace(source, 'content/lab-notes/annex/_index.md', "\n+++\n", "\n[[cascade]]\n[cascade.target]\nkind='section'\n[cascade.params]\nlist_order='publication'\npage_size=1\n+++\n")
     for name, date in [('a', '02'), ('b', '03')]:
         write_note(source, f'lab-notes/annex/storage/{name}.md', ['science/quantum/basics'],
                    f'date = 2024-01-{date}T09:00:00+08:00\nlastmod = 2024-01-01T09:00:00+08:00')
@@ -144,7 +146,7 @@ def main():
     # YAML integer policy, useful title order even on a blog; exact title ties.
     yaml = source / 'content/titles/_index.md'
     yaml.parent.mkdir()
-    yaml.write_text('---\ntitle: Titles\nparams:\n  sidera:\n    collection: blog\n    list_order: title\n    page_size: 1\n---\n')
+    yaml.write_text('---\ntitle: Titles\npreset: blog\nparams:\n  scope_root: true\n  list_order: title\n  page_size: 1\n---\n')
     for name, title in [('a', 'Same'), ('b', 'Same'), ('z', 'Before')]:
         write_note(source, f'titles/{name}.md', [], 'date = 2024-01-01T00:00:00Z')
         replace(source, f'content/titles/{name}.md', 'Edge note', title)
@@ -223,10 +225,10 @@ def main():
         source = copy_site(run, label)
         old = "list_order = 'publication'" if key == 'list_order' else 'page_size = 2'
         replace(source, 'content/journal/_index.md', old, f'{key} = {value}')
-        build(source, run, label, 'P1C '+diagnostic)
+        build(source, run, label, ('P1C ' if key=='list_order' else 'Sidera ')+diagnostic)
     source = copy_site(run, 'pin-type')
     replace(source, 'content/journal/second-signal/index.md', 'pinned = true', 'pinned = "true"')
-    build(source, run, 'pin-type', 'P1C pinned must be boolean')
+    build(source, run, 'pin-type', 'Sidera pinned must be boolean')
     for label, path, extra, diagnostic in [
         # Journal's dated permalink otherwise moves this source away from /page/2/.
         ('blog-page', 'journal/page/2.md', 'url = "/journal/page/2/"', 'reserved pagination route'),
@@ -248,7 +250,7 @@ def main():
     calls = [(p.relative_to(ROOT).as_posix(), line.strip())
              for p in (ROOT/THEME/'layouts').rglob('*.html') for line in p.read_text().splitlines()
              if '{{' in line and '/*' not in line and ('.Paginate ' in line or '.Paginator' in line)]
-    assert len(calls) == 4 and {p.split('/_partials/')[-1] for p, _ in calls} == {'lists/render.html', 'docs/render.html', 'views/taxonomy.html', 'views/native-taxonomy.html'}, calls
+    assert len(calls) == 5 and {p.split('/_partials/')[-1] for p, _ in calls} == {'lists/render.html', 'docs/render.html', 'views/taxonomy.html', 'views/native-taxonomy.html', 'views/taxonomy-scope.html'}, calls
     summary = ('PASS P1-C: explicit sequences, native date fallback/aliases/offsets, ties, pins once/overflow, '
                'all pager navigation/counts, empty/single/multiple results, independent recent updates/sizes, '
                'nested owners, full tag unions/trees, subpath links, repeat builds and 13 invalid-input rejections.\n')

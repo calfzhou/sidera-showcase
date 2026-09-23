@@ -1,11 +1,10 @@
-# Native cascade demonstration on About, which has no local params.sidera table.
+# Native Page.Params cascade supplies scoped overrides before preset defaults.
 # hugo server --config hugo.toml,examples/full-shell.toml,examples/scoped.toml
 # Collection/article front-matter examples: examples/scoped-frontmatter.md.
-# Hugo does not merge this table into an existing page-local sidera table.
 [[cascade]]
 [cascade.target]
 path = '/about'
 kind = 'page'
-[cascade.params.sidera]
+[cascade.params]
 left = false
 right = []

@@ -1,11 +1,11 @@
 # hugo server --config hugo.toml,examples/full-shell.toml
 # Omitted regions retain page-kind defaults. No footer/home APIs implied.
-[params.sidera]
+[params]
 menu = 'primary'
-[params.sidera.identity]
+[params.identity]
 subtitle = 'A place for evolving ideas'
 image = 'images/sidera-mark.svg'
-[params.sidera.profile]
+[params.profile]
 title = 'The publishing notebook'
 text = 'Blogs, evolving notes, and a small **handbook**. One native reading space.'
 menu = 'profile'

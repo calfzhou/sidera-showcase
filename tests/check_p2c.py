@@ -46,7 +46,7 @@ def translated_fixture(source):
             f.write_text('+++\ntitle = "Chinese fixture ' + name + '"\n'
                          'date = 2024-02-03T09:00:00+08:00\n'
                          'lastmod = 2024-04-05T09:00:00+08:00\n'
-                         'tags = ' + json.dumps(tags, ensure_ascii=False) + '\n[params.sidera]\n'
+                         'tags = ' + json.dumps(tags, ensure_ascii=False) + '\n[params]\n'
                          'pinned = ' + ('true' if name == 'zh-only' else 'false') + '\n+++\n'
                          'Synthetic Chinese-language page; authored text stays untouched.\n\n'
                          '## Reading\n\n普通中文与 English prose。\n')
@@ -54,7 +54,7 @@ def translated_fixture(source):
     (c / 'field-notes/zh-only/resource.md').write_text('+++\ntags=["resource-leak"]\n+++\nResource.\n')
     # A translated nested owner must not leak into its outer collection.
     f = c / 'lab-notes/annex/_index.zh.md'; f.parent.mkdir(parents=True)
-    f.write_text('+++\ntitle="Nested Chinese notebook"\n[params.sidera]\ncollection="notebook"\n+++\n')
+    f.write_text('+++\ntitle="Nested Chinese notebook"\npreset="notes"\n[params]\nscope_root=true\n\n+++\n')
     (f.parent / 'only.zh.md').write_text('---\ntitle: Nested note\ntags: [science/local]\n---\n')
     # English explicit language suffix exercises both explicit and default filenames.
     f = c / 'field-notes/beta/index.md'
@@ -142,7 +142,7 @@ def main():
     zh_catalog = (ROOT / THEME / 'i18n/zh-CN.toml').read_text()
     keys = set(re.findall(r'^\[([^]]+)\]', en_catalog, re.M))
     assert keys == set(re.findall(r'^\[([^]]+)\]', zh_catalog, re.M))
-    assert len(keys) == 60, keys # Deliberate UI inventory: update alongside I18N.md.
+    assert len(keys) == 63, keys # Deliberate UI inventory: update alongside I18N.md.
     assert en_catalog.count('other = ') == zh_catalog.count('other = ') == len(keys)
     # Literal call sites plus the four deliberately native dynamic message groups.
     implementation = '\n'.join(p.read_text() for directory in ['layouts', 'content']
@@ -150,7 +150,7 @@ def main():
     used = set(re.findall(r'\bT "([a-z_]+)"', implementation))
     used.update(['collection_blog', 'collection_notebook', 'collection_docs', 'order_publication', 'order_modification',
                  'order_title', 'date_published', 'date_modified', 'date_updated', 'published_undated',
-                 'modified_undated', 'tags', 'categories', 'authors', 'series', 'preset', 'article_count'])
+                 'series_order_publication','series_order_weight', 'modified_undated', 'tags', 'categories', 'authors', 'series', 'preset', 'article_count'])
     assert keys == used, (keys-used, used-keys)
     css = (ROOT / THEME / 'assets/css/sidera.css').read_text()
     assert all(not value.strip(" \"'") for value in re.findall(r'(?:^|[;{])\s*content\s*:\s*([^;}]*)', css)), 'CSS must not generate untranslated text'
@@ -229,9 +229,9 @@ def main():
     for label, metadata, diagnostic in [
         ('draft-invalid', 'draft=true\ntags=["bad//tag"]', 'P1B'),
         ('draft-collision', 'draft=true\ntags=["a b", "a-b"]', 'tag slug collision'),
-        ('reserved-source', 'tags=[]', 'reserved notebook source namespace'),
-        ('reserved-alias', 'aliases=["/field-notes/tags/science/"]\ntags=[]', 'alias in reserved notebook route namespace'),
-        ('reserved-route', 'url="/zh/field-notes/tags/science/"\ntags=[]', 'reserved notebook route namespace'),
+        ('reserved-source', 'tags=[]', 'reserved scoped source namespace'),
+        ('reserved-alias', 'aliases=["/field-notes/tags/science/"]\ntags=[]', 'alias in reserved scoped route namespace'),
+        ('reserved-route', 'url="/zh/field-notes/tags/science/"\ntags=[]', 'reserved scoped route namespace'),
     ]:
         s = copy_site(run, label); cfg = configure(s, 'bilingual'); translated_fixture(s)
         name = 'tags' if label == 'reserved-source' else 'invalid'

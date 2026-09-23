@@ -1,4 +1,4 @@
 # Standard native metadata stays unchanged; only taxonomy interpretation changes.
-[params.sidera]
+[params]
 taxonomy_hierarchy = []
 taxonomy_page_size = 2

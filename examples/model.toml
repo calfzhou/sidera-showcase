@@ -1,0 +1,7 @@
+# Same native content; expose all four contextual taxonomy components.
+# hugo server --config hugo.toml,examples/model.toml
+[cascade.params]
+taxonomy_navigation = ['tags', 'categories', 'authors', 'series']
+[cascade.params.taxonomy_links]
+authors = 'section'
+series = 'section'

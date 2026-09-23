@@ -56,7 +56,7 @@ def main():
     assert components(baseline,'/about/','left')==['menu']
     assert components(baseline,'/about/','right')==['toc']
     assert components(baseline,'/field-notes/alpha/','left')==['menu','taxonomies','recent']
-    assert components(baseline,'/guidebook/','left')==['menu','docs-tree','taxonomies']
+    assert components(baseline,'/guidebook/','left')==['menu','page-tree','taxonomies']
     assert not region(baseline,'/guidebook/page/2/','right')
     assert not (baseline/'sidera').exists()
     # Complete owner tree; active ancestors open; body-bearing parent link distinct from summary.
@@ -76,24 +76,24 @@ def main():
     # Native config tables cannot be redefined in a single TOML file: use layered config, like the documented command.
     write(two,'two.toml',(ROOT/'examples/two-regions.toml').read_text())
     out=check(two,'two',flags=('--config','hugo.toml,two.toml'))
-    assert components(out,'/field-notes/','left')==['menu','taxonomies']
+    assert components(out,'/field-notes/','left')==['menu','taxonomies','page-tree']
     assert components(out,'/field-notes/','right')==['recent','profile']
     recent=next(n for n in region(out,'/field-notes/','right').all() if 'data-recent' in n.attrs)
     assert len([n for n in recent.all() if n.tag=='a'])==3
     assert components(out,'/about/','right')==['toc','recent','profile']
     # Per-key Page > owner > site. Complete map/array replacement, false/[]/''.
-    scoped=source('scoped',"""[params.sidera]
+    scoped=source('scoped',"""[params]
 left=['menu','profile']
 right=['recent']
 recent_count=4
 text='Site text'
-[params.sidera.profile]
+[params.profile]
 title='Site profile'
 text='Must not leak through replacement'
 """)
-    replace(scoped,'content/field-notes/_index.md','[params.sidera]',"[params.sidera]\nleft=['taxonomies','text']\nright=['recent','profile']\nrecent_count=2\ntext='Owner text'\nprofile={title='Owner profile'}")
-    replace(scoped,'content/field-notes/alpha/index.md','[params.sidera]',"[params.sidera]\nleft=false\nright=['profile','toc']\ntext=''\nprofile={text='Page profile'}")
-    replace(scoped,'content/about.md',"title = 'About this proof'", "title = 'About this proof'\n[params.sidera]\nleft=[]\nright=false")
+    replace(scoped,'content/field-notes/_index.md','[params]',"[params]\nleft=['taxonomies','text']\nright=['recent','profile']\nrecent_count=2\ntext='Owner text'\nprofile={title='Owner profile'}")
+    replace(scoped,'content/field-notes/alpha/index.md','[params]',"[params]\nleft=false\nright=['profile','toc']\ntext=''\nprofile={text='Page profile'}")
+    replace(scoped,'content/about.md',"title = 'About this proof'", "title = 'About this proof'\n[params]\nleft=[]\nright=false")
     with (scoped/'content/field-notes/alpha/index.md').open('a') as f: f.write('\n## Local heading\n\nA scoped page.\n')
     out=check(scoped,'scoped')
     assert components(out,'/field-notes/','left')==['taxonomies','text']
@@ -120,13 +120,13 @@ text='Must not leak through replacement'
 defaultContentLanguageInSubdir=true
 [languages.en]
 locale='en-US'
-[languages.en.params.sidera]
+[languages.en.params]
 left=['text']
 right=false
 text='English shell'
 [languages.zh]
 locale='zh-CN'
-[languages.zh.params.sidera]
+[languages.zh.params]
 left=['text']
 right=false
 text='中文外壳'
@@ -136,31 +136,34 @@ text='中文外壳'
     assert 'English shell' in region(out,'/en/about/','left').words()
     assert '中文外壳' in region(out,'/zh/about/','left').words()
     assert 'English shell' not in html(out,'/zh/about/').read_text()
-    # Page-local sidera replaces the native cascaded table; owner/site fallback is per key.
-    cascade=source('cascade',"[params.sidera]\nleft=['text']\nright=false\ntext='Site text'")
-    replace(cascade,'content/field-notes/_index.md','[params.sidera]',"[params.sidera]\ntext='Owner text'\nright=['recent']")
-    replace(cascade,'content/field-notes/_index.md','\n+++\n',"\n[cascade.params.sidera]\nleft=['profile']\ntext='Cascade text'\n[cascade.params.sidera.profile]\ntitle='Cascaded profile'\n+++\n")
+    # Native scalar params cascade independently; a local nested map replaces that map only.
+    cascade=source('cascade',"[params]\nleft=['text']\nright=false\ntext='Site text'")
+    replace(cascade,'content/field-notes/_index.md','[params]',"[params]\ntext='Owner text'\nright=['recent']")
+    replace(cascade,'content/field-notes/_index.md','[cascade.params]',"[cascade.params]\nleft=['profile']\ntext='Cascade text'\n")
+    replace(cascade,'content/field-notes/_index.md','\n+++\n',"\n[cascade.params.profile]\ntitle='Cascaded profile'\nmenu='primary'\n+++\n")
     write(cascade,'content/field-notes/no-local.md','+++\ntitle="No local table"\n+++\nA note without local params.')
-    replace(cascade,'content/field-notes/alpha/index.md','[params.sidera]',"[params.sidera]\ntext=''")
+    replace(cascade,'content/field-notes/alpha/index.md','[params]',"[params]\ntext=''\nprofile={title='Local profile'}")
     out=check(cascade,'cascade')
-    assert not region(out,'/field-notes/alpha/','left') # local table dropped cascaded profile; empty text clears
-    assert components(out,'/field-notes/alpha/','right')==['recent'] # owner fallback, not a truthy default
+    assert components(out,'/field-notes/alpha/','left')==['profile']
+    assert 'Local profile' in region(out,'/field-notes/alpha/','left').words()
+    assert 'Cascaded profile' not in html(out,'/field-notes/alpha/').read_text()
+    assert not region(out,'/field-notes/alpha/','right') # no implicit owner params inheritance; TOC has no headings
     assert components(out,'/field-notes/no-local/','left')==['profile'] # no local table, cascade intentionally applies
     # Empty/inapplicable components and deliberately repeated cross-region components.
-    empty=source('empty',"[params.sidera]\nleft=['text','links','profile','docs-tree','taxonomies']\nright=['text','links','profile']\ntext=''\nlinks_menu='missing'\n[params.sidera.profile]\nmenu='missing'")
+    empty=source('empty',"[params]\nleft=['text','links','profile','page-tree','taxonomies']\nright=['text','links','profile']\ntext=''\nlinks_menu='missing'\n[params.profile]\nmenu='missing'")
     out=check(empty,'empty'); assert not region(out,'/about/','left') and not region(out,'/about/','right')
-    duplicate=source('duplicate',"[params.sidera]\nleft=['toc','taxonomies','recent']\nright=['toc','taxonomies','recent']")
+    duplicate=source('duplicate',"[params]\nleft=['toc','taxonomies','recent']\nright=['toc','taxonomies','recent']")
     out=check(duplicate,'duplicate')
     for route in ['/field-notes/alpha/','/about/']:
         ids=[n.attrs['id'] for n in nodes(out,route).all() if 'id' in n.attrs]
         assert len(ids)==len(set(ids)),ids
     # Safe authored text, local resource and native heading/external menus.
-    safe=source('safe',"""[params.sidera]
+    safe=source('safe',"""[params]
 left=['menu','text','links','profile','collections']
 menu='test'
 links_menu='links'
 text='**Markdown** [bad](javascript:alert(1))'
-[params.sidera.profile]
+[params.profile]
 title='<img src=x onerror=alert(1)>'
 image='images/sidera-mark.svg'
 [[menus.test]]
@@ -188,25 +191,25 @@ pageRef='/about'
     assert 'class="menu-group"' in text and 'href="mailto:hello@example.org"' in text
     assert text.index('href="https://example.org/"') < text.index('href="mailto:hello@example.org"')
     # Actual native taxonomy pages only; no G index/term template claim.
-    tax=source('taxonomies',"[params.sidera]\nleft=['site-taxonomies']\ntaxonomy_navigation=['categories','tags']")
+    tax=source('taxonomies',"[cascade.params]\nleft=['site-taxonomies']\ntaxonomy_navigation=['categories','tags']")
     out=check(tax,'taxonomies')
     links=[n.attrs['href'] for n in region(out,'/journal/','left').all() if n.tag=='a']
     assert links==['/','/categories/','/tags/'],links
     # Native hooks receive resolved context; disabled region suppresses its hook.
-    hook=source('hook',"[params.sidera]\nleft=false\nright=['text']")
+    hook=source('hook',"[params]\nleft=false\nright=['text']")
     for side in ['left','right']:
         write(hook,'layouts/_partials/sidera/'+side+'-extra.html','<p data-hook="{{ .Region }}">{{ .Page.Title }} / {{ with .Owner }}{{ .Title }}{{ end }} / {{ .Settings.recent_count }}</p>')
     out=check(hook,'hook'); assert not region(out,'/','left') and region(out,'/','right')
     assert 'data-hook="right"' in html(out,'/').read_text() and 'data-hook="left"' not in html(out,'/').read_text()
     raw=source('raw-html')
-    replace(raw,'content/about.md',"title = 'About this proof'", "title = 'About this proof'\n[params.sidera]\nleft=['text']\ntext='<script>alert(1)</script>'")
+    replace(raw,'content/about.md',"title = 'About this proof'", "title = 'About this proof'\n[params]\nleft=['text']\ntext='<script>alert(1)</script>'")
     check(raw,'raw-html','Raw HTML omitted')
     bad=[("left=true",'not true'),("right='toc'",'must be an array'),("left=['menu','menu']",'duplicate left'),("right=['evil']",'invalid right'),("recent_count=0",'recent_count'),("recent_count=2.5",'recent_count'),("recent_count='5'",'recent_count'),("text=false",'text must be'),("profile='bad'",'profile must be'),("icons='yes'",'icons must be'),("taxonomy_navigation=['other']",'invalid taxonomy_navigation'),("tag_icons={science='<svg/>'}",'unknown icon')]
-    for i,(config,diagnostic) in enumerate(bad): check(source('bad'+str(i),'[params.sidera]\n'+config),'bad'+str(i),diagnostic)
+    for i,(config,diagnostic) in enumerate(bad): check(source('bad'+str(i),'[params]\n'+config),'bad'+str(i),diagnostic)
     for i,url in enumerate(['javascript:alert(1)','data:text/html,hi','java\tscript:alert(1)']):
         check(source('url'+str(i),'[[menus.primary]]\nname="Unsafe"\nurl='+json.dumps(url)),'url'+str(i),'unsafe URL')
-    check(source('missing-image',"[params.sidera.profile]\nimage='missing.png'"),'missing-image','missing local image')
-    check(source('remote-image',"[params.sidera.identity]\nimage='https://example.org/x.png'"),'remote-image','local resource/path')
+    check(source('missing-image',"[params.profile]\nimage='missing.png'"),'missing-image','missing local image')
+    check(source('remote-image',"[params.identity]\nimage='https://example.org/x.png'"),'remote-image','local resource/path')
     check(source('missing-page',"[[menus.primary]]\nname='Lost'\npageRef='/does-not-exist'"),'missing-page','unresolved pageRef')
     deep="[[menus.primary]]\nidentifier='a'\nname='A'\n[[menus.primary]]\nidentifier='b'\nparent='a'\nname='B'\n[[menus.primary]]\nparent='b'\nname='C'\npageRef='/about'"
     check(source('deep',deep),'deep','exceeds two levels')

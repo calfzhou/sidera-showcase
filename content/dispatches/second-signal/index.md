@@ -4,7 +4,7 @@ date = 2024-01-02T09:00:00+08:00
 lastmod = 2024-01-03T09:00:00+08:00
 tags = []
 categories = ['learning/experiments']
-[params.sidera]
+[params]
 
 +++
 This is the synthetic **Second signal** article in `dispatches`.

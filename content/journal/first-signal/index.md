@@ -1,10 +1,12 @@
 +++
+authors = ['demo-editor', 'demo-researcher']
+series = 'model-workshop'
 title = 'First signal'
 date = 2024-01-01T09:00:00+08:00
 lastmod = 2024-03-10T09:00:00+08:00
 tags = ["shared"]
 categories = ['learning/experiments']
-[params.sidera]
+[params]
 
 +++
 This is the synthetic **First signal** article in `journal`.

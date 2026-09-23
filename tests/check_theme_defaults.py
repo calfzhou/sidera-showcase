@@ -52,11 +52,11 @@ def main():
     assert initial['docs']['defaults']['cascade']['params']['list_mode']=='children'
     assert not (out/'sidera').exists() and not (out/'preset/_index.zh').exists()
     for name in ('authors','series','preset'):assert html(out,'/'+name+'/').exists()
-    # Literal native associations; preset defaults are NOT consumed by current runtime yet.
-    replace(source,'content/journal/_index.md','[params.sidera]','preset="blog"\n[params.sidera]')
-    replace(source,'content/journal/first-signal/index.md','[params.sidera]','authors=["alice","bob"]\nseries="learning-hugo"\n[params.sidera]')
+    # Literal native associations coexist with the now-active preset resolver.
+    replace(source,'content/journal/first-signal/index.md',"authors = ['demo-editor', 'demo-researcher']",'authors=["alice","bob"]')
+    replace(source,'content/journal/first-signal/index.md',"series = 'model-workshop'",'series="learning-hugo"')
     out=check(source,'assignments')
-    assert all_articles(out,'/preset/blog/')==['/journal/']
+    assert set(all_articles(out,'/preset/blog/'))=={'/journal/','/dispatches/'}
     for route in ('/authors/alice/','/authors/bob/','/series/learning-hugo/'):
         assert all_articles(out,route)==['/journal/2024/01/01/first-signal/']
     # A native site-authored term fully overrides a same-path theme adapter Page.
@@ -71,7 +71,7 @@ Site-owned term content.''')
     override=probe(out)['presets']['blog']
     assert override['title']=='Site blog' and override['defaults']=={'params':{'list_order':'title'}}
     assert 'Site-owned term content.' in html(out,'/preset/blog/').read_text()
-    assert all_articles(out,'/preset/blog/')==['/journal/']
+    assert set(all_articles(out,'/preset/blog/'))=={'/journal/','/dispatches/'}
     # Site taxonomy addition and fourth user preset need no theme enum change.
     replace(source,'hugo.toml',"[taxonomies]\n_merge = 'shallow'", "[taxonomies]\n_merge = 'shallow'\nsubject = 'subjects'")
     write(source,'content/preset/field-guide/_index.md','''+++
@@ -81,7 +81,7 @@ slug="field-guide"
 list_order="title"
 +++
 Custom preset.''')
-    replace(source,'content/dispatches/_index.md','[params.sidera]','preset="field-guide"\nsubjects=["research"]\n[params.sidera]')
+    replace(source,'content/dispatches/_index.md',"preset = 'blog'",'preset="field-guide"\nsubjects=["research"]')
     out=check(source,'site-extension')
     assert all_articles(out,'/preset/field-guide/')==['/dispatches/']
     assert all_articles(out,'/subjects/research/')==['/dispatches/']
@@ -111,7 +111,7 @@ list_order="title"
     assert probe(out,'/zh/preset/blog/')['presets']['notes']['defaults']=={'params':{'list_order':'title'}}
     assert probe(out,'/zh/preset/blog/')['presets']['notes']['title']=='本地笔记预设'
     assert not (out/'en/sidera').exists() and not (out/'zh/sidera').exists()
-    (run/'results.json').write_text(json.dumps({'successful_builds':len(passed),'passed':passed,'no_showcase_taxonomy_redefinition':True,'preset_resolution_not_yet_implemented':True},indent=2))
+    (run/'results.json').write_text(json.dumps({'successful_builds':len(passed),'passed':passed,'no_showcase_taxonomy_redefinition':True,'preset_resolution_implemented':True},indent=2))
     print('PASS theme defaults:',len(passed),'strict builds; native overrides/additions, fourth preset and EN/ZH isolation')
 
 

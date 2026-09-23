@@ -1,10 +1,12 @@
 +++
+authors = ['demo-researcher']
+series = 'model-workshop'
 title = 'Alpha note'
 date = 2024-01-01T09:00:00+08:00
 lastmod = 2024-03-01T09:00:00+08:00
 tags = ["science/quantum/basics", "science/quantum/experiments", "science/quantum/experiments"]
 categories = ['learning/experiments']
-[params.sidera]
+[params]
 pinned = true
 +++
 This is the synthetic **Alpha note** article in `field-notes`.

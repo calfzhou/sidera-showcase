@@ -15,10 +15,10 @@ def apply(source):
     }
     for name, settings in values.items():
         p=source/'content'/name
-        text=p.read_text(); assert '[params.sidera]' in text
-        p.write_text(text.replace('[params.sidera]\n','[params.sidera]\n'+settings,1))
+        text=p.read_text(); assert '[params]' in text
+        p.write_text(text.replace('[params]\n','[params]\n'+settings,1))
     p=source/'content/about.md'
-    p.write_text(p.read_text().replace("title = 'About this proof'", "title = 'About this proof'\n[params.sidera]\nleft=false\nright=[]",1))
+    p.write_text(p.read_text().replace("title = 'About this proof'", "title = 'About this proof'\n[params]\nleft=false\nright=[]",1))
 
 if __name__=='__main__':
     run=Path(sys.argv[1]).resolve();run.mkdir(parents=True,exist_ok=False)
