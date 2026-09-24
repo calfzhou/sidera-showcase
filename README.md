@@ -213,8 +213,8 @@ heading-rich body, and switch Light/System or narrow the window. All content is 
 
 Use `examples/compact-footer.toml` last for the contrasting no-sidebar/no-article-footer,
 text-first/credit-off composition. This is an explicit override, not a standalone limitation.
-The default home remains collection overview; selected-home and whole-page/Markdown finishing
-are H. The examples do not assign a content license or require theme template edits.
+The default home remains collection overview; whole-site/non-content finishing is superseded by the corrective P2-GR section below;
+selected-home and detailed Markdown work remain separate. The examples do not assign a content license or require theme template edits.
 Footer arrays/text/menu selectors are public params with existing preset/cascade precedence;
 see the theme SHELL/CONTRACT guides for defaults, empty behavior and small native hooks.
 
@@ -231,3 +231,40 @@ The browser check samples components/states rather than reproducing every histor
 It uses explicit free local ports (SIDERA_HTTP_PORT/SIDERA_CDP_PORT can override defaults),
 a fresh owned Chrome profile, blocks HTTPS, and stops its services at completion. No server
 is left for review. Stop your own preview with Ctrl-C. Fresh builds remain authoritative.
+
+
+## P2-GR — Stellar-like normal presentation
+
+The live theme now uses the Stellar-led composition across the default showcase as well as
+normal sites: bounded reading track/inset cards, full-height left rail, banner-like headers,
+quiet TOC/footer hierarchy, local Solar icons, fine-pointer spotlight/tilt and narrow-screen
+drawers. Native Hugo scope/preset/author/series and all optional cover/footer controls remain.
+
+For a normal text-first example, see [Fieldbook](examples/notebook/README.md):
+
+```sh
+hugo server --source examples/notebook --bind 127.0.0.1 --port 14420 --disableFastRender
+```
+
+This is a real site source consuming the same submodule, not static target HTML. Inspect
+`/notes/`, `/notes/package-management/`, `/`, taxonomies, authors/series, handbook and About.
+The original default showcase and full-components/compact variants still work. The sole new
+presentation setting is `params.list_header` (true by default): false removes a redundant
+recursive section intro while retaining an accessible title, full counts and paginator.
+
+Narrow screens now use native auto-popovers (right ≤1180px, left ≤667px), with Escape,
+light-dismiss, explicit close and focus return. No-JS/unsupported browsers retain open in-flow
+navigation. Local/system fonts only; see theme THIRD-PARTY-NOTICES for Solar CC BY 4.0,
+Stellar MIT and the React Bits-derived hover notice. No license is assigned to site content.
+
+Focused corrective checks:
+
+```sh
+uv run --no-project --no-managed-python python3 tests/check_p2gr.py
+nvm use
+node tests/check_p2gr_browser.mjs /absolute/path/to/printed/run
+```
+
+The browser harness creates a fresh profile even on rerun and stops its owned services.
+The corrective browser suite covers normal page types and live hover, TOC, drawers, keyboard,
+no-JS, reduced motion and configurable layouts. This is not cross-browser/production certification.

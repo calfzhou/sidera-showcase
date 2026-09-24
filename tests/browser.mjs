@@ -13,7 +13,7 @@ const run = resolve(process.argv[2]);
 const port = Number(process.env.SIDERA_HTTP_PORT || 14378);
 const debugPort = Number(process.env.SIDERA_CDP_PORT || 14379);
 const chromePath = process.env.CHROME_BIN || '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
-const profile = resolve(run, 'chrome-profile');
+const profile = resolve(run, `chrome-profile-${Date.now()}`);
 const origin = `http://127.0.0.1:${port}`;
 const delay = ms => new Promise(r => setTimeout(r, ms));
 const mime = { '.html': 'text/html', '.css': 'text/css', '.js': 'text/javascript', '.svg': 'image/svg+xml' };

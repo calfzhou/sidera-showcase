@@ -52,14 +52,13 @@ await runBrowser(async ({run,version,navigate,viewport,evaluate,call,key,screens
   await evaluate(`document.querySelector('.article-footer').scrollIntoView({behavior:'instant',block:'start'})`);await delay(100);
   await screenshot('components-footers-desktop');
   await viewport(390);await navigate('/_chinese'+alpha);await mode('light');
-  assert.equal(await evaluate(`document.querySelector('.site-menu').open`),false);
-  await evaluate(`document.querySelector('.site-menu>summary').focus()`);await key('Enter','Enter',13);
-  assert.equal(await evaluate(`document.querySelector('.site-menu').open`),true);
-  await key('Enter','Enter',13);
-  await evaluate(`document.querySelector('.context-menu>summary').focus()`);await key('Enter','Enter',13);
-  assert.equal(await evaluate(`document.querySelector('.context-menu').open`),true);
+  await evaluate(`document.querySelector('[data-region="left"]').focus()`);await key('Enter','Enter',13);await delay(80);
+  assert(await evaluate(`document.querySelector('#left-region').matches(':popover-open')`));
+  await key('Escape','Escape',27);
+  await evaluate(`document.querySelector('[data-region="right"]').focus()`);await key('Enter','Enter',13);await delay(80);
+  assert(await evaluate(`document.querySelector('#right-region').matches(':popover-open')`));
   assert.equal(await evaluate(`document.querySelector('.toc-top').textContent`),'返回顶部');
-  await screenshot('components-light-chinese-mobile');
+  await delay(450);await screenshot('components-light-chinese-mobile');
   // Reduced motion removes both transition duration and cover zoom.
   await call('Emulation.setEmulatedMedia',{features:[{name:'prefers-reduced-motion',value:'reduce'}]});
   await navigate('/field-notes/');await evaluate(`document.querySelector('.card-title').focus()`);

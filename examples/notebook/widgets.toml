@@ -1,0 +1,4 @@
+# An ordinary two-rail variant, not required for the base presentation.
+[cascade.params]
+right = ['toc', 'profile', 'links']
+links_menu = 'primary'

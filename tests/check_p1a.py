@@ -58,7 +58,8 @@ class Page(HTMLParser):
         if tag == "a":
             if self.list_id and "data-result-owner" not in attrs and "term-badge" not in attrs.get("class", "").split():
                 self.links[self.list_id].append(attrs["href"])
-            if self.in_collection_nav:
+            # Docs consolidate their owner link into the real header breadcrumb.
+            if self.in_collection_nav or "data-collection-link" in attrs:
                 self.collection_links.append(attrs["href"])
             self.assets.append(attrs["href"])
         if tag == "img":
