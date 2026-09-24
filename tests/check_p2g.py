@@ -42,6 +42,9 @@ def main():
     assert any(n.tag=='img' and n.attrs.get('alt')=='' for n in nodes(full,alpha).all(id='assigned-authors')[0].all())
     assert nodes(full,'/field-notes/').all(**{'aria-current':'page'})
     assert 'javascript:' not in html(full,alpha).read_text()
+    icons_off=check('icons-off','[cascade.params]\nicons=false\n',flags=flags)
+    assert not any(n.tag=='svg' for n in nodes(icons_off,'/field-notes/').all())
+    assert 'Pinned' in html(icons_off,'/field-notes/').read_text()
     # Native override hooks, ordering, header term duplication and no duplicate IDs.
     for region in ('article','site'):
         write(source,'layouts/_partials/sidera/'+region+'-footer-extra.html','<p data-extra="{{ .Region }}">{{ .Page.Title }} · {{ with .Owner }}{{ .Title }}{{ end }}</p>')
