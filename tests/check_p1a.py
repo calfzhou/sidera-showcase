@@ -56,13 +56,13 @@ class Page(HTMLParser):
         if tag == "nav":
             self.in_collection_nav = attrs.get("aria-label") == self.collection_label
         if tag == "a":
-            if self.list_id and "data-result-owner" not in attrs:
+            if self.list_id and "data-result-owner" not in attrs and "term-badge" not in attrs.get("class", "").split():
                 self.links[self.list_id].append(attrs["href"])
             if self.in_collection_nav:
                 self.collection_links.append(attrs["href"])
             self.assets.append(attrs["href"])
         if tag == "img":
-            assert attrs.get("alt"), "Fixture image needs alt text"
+            assert "alt" in attrs, "Images require explicit alt (empty only for decorative images)"
             self.assets.append(attrs["src"])
         if tag == "p" and attrs.get("class") == "byline":
             self.in_byline = True

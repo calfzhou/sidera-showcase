@@ -31,7 +31,7 @@ class Docs(HTMLParser):
             if 'data-doc-path' in a:
                 self.tree.append(a['href'])
                 self.states[a['href']] = a.get('aria-current')
-            if self.in_children: self.children.append(a['href'])
+            if self.in_children and a.get('class') == 'card-title': self.children.append(a['href'])
             if a.get('data-page-link') == 'next': self.next = a['href']
     def handle_endtag(self, tag):
         if tag == 'ul': self.in_children = False

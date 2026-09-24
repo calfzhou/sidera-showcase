@@ -1,0 +1,54 @@
+# Same theme, real menus and closing panels. Combine with examples/full-shell.toml.
+[params]
+article_text = 'This is a synthetic showcase, not a migrated article or a content-license grant.'
+article_links_menu = 'article'
+footer_menu = 'footer'
+footer_text = 'An independently maintained publishing notebook.'
+
+[[menus.article]]
+name = 'About this notebook'
+pageRef = '/about'
+
+[[menus.footer]]
+identifier = 'read'
+name = 'Read'
+weight = 10
+[[menus.footer]]
+name = 'Journal'
+parent = 'read'
+pageRef = '/journal'
+weight = 10
+[[menus.footer]]
+name = 'Field notes'
+parent = 'read'
+pageRef = '/field-notes'
+weight = 20
+[[menus.footer]]
+identifier = 'explore'
+name = 'Explore'
+weight = 20
+[[menus.footer]]
+name = 'Handbook'
+parent = 'explore'
+pageRef = '/guidebook'
+weight = 10
+[[menus.footer]]
+name = 'Authors'
+parent = 'explore'
+pageRef = '/authors'
+weight = 20
+
+# Native cascade: full standalone capability, not a closed preset switch.
+[[cascade]]
+[cascade.params]
+left = ['menu', 'taxonomies', 'page-tree']
+right = ['toc', 'recent', 'profile']
+recent_count = 3
+
+# The existing local diagram demonstrates explicit cover + alt; no downloaded asset.
+[[cascade]]
+[cascade.target]
+path = '/field-notes/alpha'
+[cascade.params.cover]
+image = 'sample.svg'
+alt = 'Two connected sample nodes'

@@ -1,5 +1,5 @@
 # hugo server --config hugo.toml,examples/full-shell.toml
-# Omitted regions retain page-kind defaults. No footer/home APIs implied.
+# Omitted regions retain page-kind defaults. Footer customization: see components.toml. Home remains overview.
 [params]
 menu = 'primary'
 [params.identity]

@@ -160,13 +160,16 @@ def tag_checks(out, owner, expected, all_notes):
         for note in notes:
             a = html(out, root + note + '/')
             same_links(Page(a).collection_links, [root])
-            assert View(a).nav['Notebook tags'] == [hub]
-            for direct in Page(a).links['assigned-tags']:
+            assert hub in View(a).nav['Notebook tags'] # Empty footer terms disappear; sidebar still provides the hub.
+            direct_links = Page(a).links.get('assigned-tags', [])
+            if any(note in members for members in expected.values()):
+                assert direct_links, ('Assigned terms must remain linked', note)
+            for direct in direct_links:
                 direct = unquote(direct)
                 assert direct.startswith(hub), (note, direct)
                 assert root + note + '/' in all_articles(out, direct)
     if 'delta' in all_notes:
-        assert Page(html(out, root + 'delta/')).links['assigned-tags'] == []
+        assert Page(html(out, root + 'delta/')).links.get('assigned-tags', []) == []
 
 
 def local_links(out, prefix=""):

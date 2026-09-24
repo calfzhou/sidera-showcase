@@ -135,7 +135,7 @@ hugo server --config hugo.toml,examples/model.toml --bind 127.0.0.1 --port 14420
 Other same-theme configurations: `examples/full-shell.toml`, `two-regions.toml`, `compact.toml`,
 `empty-regions.toml`, `taxonomies.toml`, `taxonomies-flat.toml`, and the native per-page example in
 [scoped-frontmatter.md](examples/scoped-frontmatter.md). Whole-site overrides of preset values
-use native config cascade; Site.Params alone is lower-priority fallback. No footer API implied.
+use native config cascade; Site.Params alone is lower-priority fallback. Footer APIs and local covers are now documented in the theme SHELL.md.
 Default global classification is flat. The named collection fixtures explicitly retain hierarchy
 examples; taxonomy demo configs deliberately exercise global hierarchy/flat variants.
 
@@ -195,3 +195,39 @@ not arbitrary mounts/generated/cascaded vocabulary or full Hugo-loader parity. H
 inferred term pages remain tolerated during migration; privacy/public-list lifecycle needs the
 relevant production review. Historical watcher/inventory probes are optional, not prerequisites
 or permission to edit the read-only real site. License/distribution and whole-P2 acceptance remain open.
+
+
+## P2-G component and footer preview
+
+From this checkout, choose a free port and run your own foreground server:
+
+```sh
+hugo server --config hugo.toml,examples/full-shell.toml,examples/components.toml --bind 127.0.0.1 --port 14420 --disableFastRender
+```
+
+Inspect `/field-notes/` (local diagram cover + term badges), `/journal/2024/01/01/first-signal/`
+(ordered authors, scoped series and both footers), `/guidebook/getting-started/setup/`
+(tree + TOC), `/authors/demo-editor/` and a term result/pager. Hover/focus the card title,
+activate a term independently, expand a tree while retaining its parent link, scroll a
+heading-rich body, and switch Light/System or narrow the window. All content is synthetic.
+
+Use `examples/compact-footer.toml` last for the contrasting no-sidebar/no-article-footer,
+text-first/credit-off composition. This is an explicit override, not a standalone limitation.
+The default home remains collection overview; selected-home and whole-page/Markdown finishing
+are H. The examples do not assign a content license or require theme template edits.
+Footer arrays/text/menu selectors are public params with existing preset/cascade precedence;
+see the theme SHELL/CONTRACT guides for defaults, empty behavior and small native hooks.
+
+Focused checks (existing Python/Node/Chrome only):
+
+```sh
+uv run --no-project --no-managed-python python3 tests/check_p2g.py
+# Then, using the printed retained directory:
+nvm use
+node tests/check_p2g_browser.mjs /absolute/path/to/retained/run
+```
+
+The browser check samples components/states rather than reproducing every historical matrix.
+It uses explicit free local ports (SIDERA_HTTP_PORT/SIDERA_CDP_PORT can override defaults),
+a fresh owned Chrome profile, blocks HTTPS, and stops its services at completion. No server
+is left for review. Stop your own preview with Ctrl-C. Fresh builds remain authoritative.

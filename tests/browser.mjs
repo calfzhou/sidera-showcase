@@ -55,7 +55,7 @@ async function navigate(path, paint = true) {
   const url = origin + path;
   await call('Page.navigate', { url });
   for (let n = 0; n < 100; n++) {
-    if (await evaluate(`location.href === ${JSON.stringify(url)} && document.readyState === 'complete' && !!document.querySelector('.site-footer')`)) break;
+    if (await evaluate(`location.href === ${JSON.stringify(url)} && document.readyState === 'complete' && !!document.querySelector('#main')`)) break;
     assert(n < 99, 'Page readiness timeout');
     await delay(50);
   }
