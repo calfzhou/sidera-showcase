@@ -318,7 +318,7 @@ actual count values, main-menu accents, auxiliary-menu dot exclusion, mobile/pal
 
 ## Component instances and compact recent lists
 
-All four configurable regions accept plain names and per-instance config objects. Repeated
+All five configurable regions (including top) accept plain names and per-instance config objects. Repeated
 components are supported; config does not alter other instances or Page.Params. Example:
 
 ```yaml
@@ -352,4 +352,23 @@ uv run --no-project --no-managed-python python3 tests/check_recent.py
 # The recent browser test also visits the normal live example:
 hugo --source examples/notebook --destination /absolute/path/to/recent/run/normal-public --cacheDir /absolute/path/to/recent/run/normal-cache --panicOnWarning
 node tests/check_recent_browser.mjs /absolute/path/to/recent/run
+```
+
+
+## Collection browsing
+
+Blog preset sections now have the Stellar-style `collection-nav` in the new `top` instance region.
+It links the collection list, nonempty scoped Categories/Tags and a real publication-year Archive.
+Categories are wide directory trees; flat tags use chips, hierarchical tags keep a tree. Scoped
+term results remain native article lists. `taxonomy_hubs=list|index` selects the root hub view;
+blog sections default to index, other presets keep list. Native model/scope/pin/URL rules remain.
+
+Fieldbook's Journal is the normal review example. The theme SHELL/CONTRACT/PRESETS guides document
+instance items/order/disable behavior, the reserved archives route, source boundaries and dates.
+Series as a tab is deliberately left for a later refinement, not a nonworking control.
+
+```sh
+uv run --no-project --no-managed-python python3 tests/check_browsing.py
+nvm use
+node tests/check_browsing_browser.mjs /absolute/path/to/printed/run
 ```

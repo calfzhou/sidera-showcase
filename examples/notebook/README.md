@@ -33,3 +33,11 @@ Recent content: Notes chooses `{component: recent, config: {order: publication}}
 keeps `recent` (updates), and Handbook uses both orders as independent recent instances.
 Each can override count/sections while inheriting the native owner scope. Compact rows show only the title; long titles
 are ellipsized with the full text in the browser's native hover tooltip.
+
+
+Journal now demonstrates the blog browsing bar: `/journal/`, `/journal/categories/`,
+`/journal/tags/` and `/journal/archives/`. Its categories have an explicit hierarchy, while its
+tags are flat chips. Archive order is publication-based, not Lastmod or pins. Notes remains a
+hierarchical-tag notebook with its original all-notes hub. To opt another section into the
+bar/index presentation, set top=[collection-nav] and taxonomy_hubs=index. Series navigation
+remains available through its existing links; the new bar does not add a Series tab yet.

@@ -250,7 +250,7 @@ def main():
     calls = [(p.relative_to(ROOT).as_posix(), line.strip())
              for p in (ROOT/THEME/'layouts').rglob('*.html') for line in p.read_text().splitlines()
              if '{{' in line and '/*' not in line and ('.Paginate ' in line or '.Paginator' in line)]
-    assert len(calls) == 5 and {p.split('/_partials/')[-1] for p, _ in calls} == {'lists/render.html', 'docs/render.html', 'views/taxonomy.html', 'views/native-taxonomy.html', 'views/taxonomy-scope.html'}, calls
+    assert len(calls) == 6 and {p.split('/_partials/')[-1] for p, _ in calls} == {'lists/render.html', 'docs/render.html', 'taxonomies/index.html', 'views/native-taxonomy.html', 'views/taxonomy-scope.html', 'views/archive.html'}, calls
     summary = ('PASS P1-C: explicit sequences, native date fallback/aliases/offsets, ties, pins once/overflow, '
                'all pager navigation/counts, empty/single/multiple results, independent recent updates/sizes, '
                'nested owners, full tag unions/trees, subpath links, repeat builds and 13 invalid-input rejections.\n')

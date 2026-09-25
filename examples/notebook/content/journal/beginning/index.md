@@ -3,7 +3,8 @@ title: Begin with a small notebook
 date: 2026-04-10
 authors: [rowan]
 series: making-notes
-tags: [practice/notes]
+tags: [practice/notes, writing]
+categories: [notebook/practice]
 ---
 ## A small habit
 
