@@ -45,7 +45,7 @@ await runBrowser(async ({run,version,errors,requests,origin,call,evaluate,naviga
   assert.equal(await evaluate(`document.querySelector('.docs-navigation [aria-current="page"]').dataset.docPath`),'/guidebook/getting-started/setup');
   await viewport(390); await call('Emulation.setScriptExecutionDisabled',{value:true}); await navigate('/sidera/',false);
   assert.equal(await evaluate(`document.querySelector('.site-menu').open`),true);
-  assert.equal(await evaluate(`document.querySelector('.appearance').hidden`),true);
+  assert.equal(await evaluate(`[...document.querySelectorAll('[data-appearance-cycle]')].every(b=>b.hidden)`),true);
   await call('Emulation.setScriptExecutionDisabled',{value:false});
   assert.equal(errors.length,0,JSON.stringify(errors));
   assert(!requests.some(u=>u.startsWith('http')&&!u.startsWith(origin)));

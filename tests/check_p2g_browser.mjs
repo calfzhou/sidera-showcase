@@ -8,7 +8,7 @@ await runBrowser(async ({run,version,navigate,viewport,evaluate,call,key,screens
   let cases=0;
   const alpha='/field-notes/alpha/';
   async function mode(value) {
-    await evaluate(`document.querySelector('#appearance').value=${JSON.stringify(value)};document.querySelector('#appearance').dispatchEvent(new Event('change',{bubbles:true}))`);
+    await evaluate(`Sidera.setAppearance(${JSON.stringify(value)})`);
     await delay(220);
   }
   async function wait(expression) {
@@ -66,14 +66,14 @@ await runBrowser(async ({run,version,navigate,viewport,evaluate,call,key,screens
   assert.equal(await evaluate(`getComputedStyle(document.querySelector('.card-cover img')).transitionDuration`),'0s');
   await call('Emulation.setEmulatedMedia',{features:[]});
   // System preference and storage persistence use the existing appearance implementation.
-  await mode('system');await call('Emulation.setEmulatedMedia',{features:[{name:'prefers-color-scheme',value:'light'}]});
+  await mode('auto');await call('Emulation.setEmulatedMedia',{features:[{name:'prefers-color-scheme',value:'light'}]});
   await wait(`document.documentElement.dataset.appearance==='light'`);await navigate(alpha);
-  assert.equal(await evaluate(`document.querySelector('#appearance').value`),'system');
+  assert.equal(await evaluate(`document.documentElement.dataset.appearanceMode`),'auto');
   await call('Emulation.setEmulatedMedia',{features:[{name:'prefers-color-scheme',value:'dark'}]});
   await wait(`document.documentElement.dataset.appearance==='dark'`);
   // Both no-JS and denied storage stay readable. Do not make absent footers readiness markers.
   await call('Emulation.setScriptExecutionDisabled',{value:true});await navigate(alpha,false);
-  assert(await evaluate(`document.querySelector('.site-menu').open && document.querySelector('.context-menu').open && document.querySelector('.appearance').hidden`));
+  assert(await evaluate(`document.querySelector('.site-menu').open && document.querySelector('.context-menu').open && [...document.querySelectorAll('[data-appearance-cycle]')].every(b=>b.hidden)`));
   assert(await evaluate(`!!document.querySelector('.article-footer a')`));
   await call('Emulation.setScriptExecutionDisabled',{value:false});
   const injection=await call('Page.addScriptToEvaluateOnNewDocument',{source:`Object.defineProperty(window,'localStorage',{get(){throw new Error('denied')}})`});

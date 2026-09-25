@@ -6,7 +6,7 @@ await runBrowser(async b=>{
  const {evaluate:e,navigate:n,viewport:v,call,key,delay}=b;
  const routes=['/chronicle/','/chronicle/categories/','/chronicle/tags/','/chronicle/categories/learning/','/chronicle/archives/','/chronicle/archives/page/2/','/tree-scope/tags/'];
  for(const [width,palette,prefix] of [[1440,'dark',''],[390,'light',''],[390,'dark','/_chinese']]){
-  await v(width,900);await n(prefix+'/chronicle/');await e(`document.querySelector('#appearance').value='${palette}';document.querySelector('#appearance').dispatchEvent(new Event('change'))`);
+  await v(width,900);await n(prefix+'/chronicle/');await e(`Sidera.setAppearance('${palette}')`);
   for(const route of routes){
    await n(prefix+route);
    assert(await e('document.documentElement.scrollWidth<=innerWidth'));

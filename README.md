@@ -191,3 +191,20 @@ with the same uv command. Their browser counterparts consume each printed run di
 root welcome widget is reused by Home/About; Notes uses recent-published; Handbook defines its
 8-entry update widget once and references it by name. Footer links are text-first and visually
 neutral for current pages, with keyboard/hover feedback retained.
+
+
+## Social footer and visitor appearance
+
+The bottom of the left bar is a configurable `left_footer` region, defaulting to the `social`
+component. Root `menus.social` currently demonstrates Email, Code and the optional appearance
+action. The two local SVGs live in `assets/icons`; they are site-owned examples, not theme/vendor
+logos. Replace the menu destinations/assets with the site owner's choices (maximum six entries).
+
+Set `params.appearance` to `dark`, `light` or `auto` (Sidera defaults to auto; Fieldbook explicitly
+chooses dark). A saved visitor choice wins. The optional menu action uses
+`params.onclick = 'Sidera.cycleAppearance()'` and cycles dark/light/auto; removing it does not add
+a replacement selector. Source strings are not executed as arbitrary JS. See theme SHELL.md.
+
+Focused checks: `check_social.py` prepares defaults/menus/safety fixtures, then
+`node tests/check_social_browser.mjs /absolute/path/to/printed/run` exercises the actual cycle,
+storage/OS behavior, pinned footer, local icons, optional control, keyboard/mobile/no-JS behavior.

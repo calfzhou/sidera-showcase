@@ -105,7 +105,7 @@ text='Must not leak through replacement'
     assert components(out,'/field-notes/alpha/','right')==['profile','toc']
     assert 'Owner profile' not in html(out,'/field-notes/alpha/').read_text()
     assert not region(out,'/about/','left') and not region(out,'/about/','right')
-    assert 'compact-header' in html(out,'/about/').read_text() and 'id="appearance"' in html(out,'/about/').read_text()
+    assert 'compact-header' in html(out,'/about/').read_text() and 'data-appearance-default=' in html(out,'/about/').read_text()
     # Literal committed owner/page front-matter example (no cascade emulation).
     example=source('scoped-example',(ORGANIZATION/'examples/full-shell.toml').read_text())
     apply_scoped(example)

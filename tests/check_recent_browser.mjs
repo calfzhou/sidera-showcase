@@ -7,7 +7,7 @@ await runBrowser(async b=>{
  const {evaluate:e,navigate:n,viewport:v,call,key,delay}=b;
  const prefix='.left-region', pub=prefix+' [data-recent="publication"]',updates=prefix+' #recent-updates';
  for(const [width,palette,path] of [[1440,'dark','/signals/'],[1440,'light','/_chinese/signals/'],[390,'dark','/_chinese/signals/']]){
-  await v(width,960);await n(path);await e(`document.querySelector('#appearance').value='${palette}';document.querySelector('#appearance').dispatchEvent(new Event('change'))`);
+  await v(width,960);await n(path);await e(`Sidera.setAppearance('${palette}')`);
   if(width<668){await e(`document.querySelector('[data-region="left"]').click()`);await delay(430);}
   const state=await e(`(()=>{const panels=[...document.querySelectorAll('.recent-panel')];const a=document.querySelector('${pub} a');const style=getComputedStyle(a);return {headings:panels.map(p=>p.querySelector('h2').textContent),extra:panels.some(p=>p.querySelector('p,time,span')),titles:panels.every(p=>[...p.querySelectorAll('a')].every(a=>a.title===a.textContent)),overflow:a.scrollWidth>a.clientWidth,ellipsis:style.textOverflow,nowrap:style.whiteSpace,height:a.getBoundingClientRect().height,ids:[...document.querySelectorAll('[id]')].map(n=>n.id),width:document.documentElement.scrollWidth}})()`);
   const labels=path.startsWith('/_chinese')?['最近更新','最近发布','最近发布','最近更新']:['Recent updates','Recently published','Recently published','Recent updates'];

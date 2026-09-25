@@ -18,6 +18,8 @@ journal = '/journal/:year/:month/:day/:slugorcontentbasename/'
 path = 'page'
 disableAliases = true
 [params]
+# Theme default is auto; this demo deliberately starts new visitors in dark mode.
+appearance = 'dark'
 left = ['menu', 'welcome']
 footer_menu = 'footer'
 footer_text = 'A small, independent notebook. Written to be revisited.'
@@ -111,3 +113,24 @@ component = 'recent'
 [params.widgets.handbook-updates.config]
 order = 'modification'
 count = 8
+
+
+# Social images are site-owned local assets, not a required theme icon framework.
+[[menus.social]]
+name = 'Email'
+url = 'mailto:hello@example.org'
+weight = 10
+[menus.social.params]
+image = 'icons/email.svg'
+[[menus.social]]
+name = 'Code'
+url = 'https://github.com/'
+weight = 20
+[menus.social.params]
+image = 'icons/code.svg'
+[[menus.social]]
+name = 'Appearance'
+weight = 30
+[menus.social.params]
+icon = 'appearance'
+onclick = 'Sidera.cycleAppearance()'

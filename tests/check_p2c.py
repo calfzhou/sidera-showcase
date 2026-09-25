@@ -22,6 +22,11 @@ FIXTURES = ROOT / 'tests/fixtures/i18n'
 HOSTILE = 'A <img src=x onerror=alert(1)> & "quoted" \'name\' $1'
 
 
+def appearance_control(source):
+    with (source/'hugo.toml').open('a') as f:
+        f.write("\n[[menus.social]]\nname='Appearance'\n[menus.social.params]\nonclick='Sidera.cycleAppearance()'\n")
+
+
 def configure(source, name):
     (source / 'locale.toml').write_text((FIXTURES / (name + '.toml')).read_text())
     return ('--config', 'hugo.toml,locale.toml')
@@ -98,7 +103,7 @@ def bilingual_checks(out, prefix=''):
     raw = html(out, '/zh/field-notes/alpha/').read_text()
     assert '<img src=x' not in raw and HOSTILE in unescape(raw)
     assert '浏览「' + HOSTILE + '」的全部标签' in unescape(raw)
-    assert '<html lang="zh-CN">' in raw and '发表于 2024年2月3日' in raw
+    assert '<html lang="zh-CN"' in raw and '发表于 2024年2月3日' in raw
     assert '<h1>标签</h1>' in html(out, '/zh/field-notes/tags/').read_text()
     assert '<h1>Tags</h1>' in html(out, '/field-notes/tags/').read_text()
 
@@ -124,7 +129,7 @@ def catalog_probe(source):
 {{ $catalog := transform.Unmarshal (os.ReadFile "themes/sidera/i18n/en.toml") }}
 {{ range $count := slice 0 1 2 12345 }}
   {{ range $key, $message := $catalog }}
-    <p data-key="{{ $key }}" data-count="{{ $count }}">{{ T $key (dict "count" $count "number" (lang.FormatNumber 0 $count) "title" $.Site.Params.probe "tag" $.Site.Params.probe "date" (time.Format ":date_medium" (time.AsTime "2024-02-03")) "current" (lang.FormatNumber 0 1234) "total" (lang.FormatNumber 0 12345)) }}</p>
+    <p data-key="{{ $key }}" data-count="{{ $count }}">{{ T $key (dict "count" $count "number" (lang.FormatNumber 0 $count) "title" $.Site.Params.probe "tag" $.Site.Params.probe "date" (time.Format ":date_medium" (time.AsTime "2024-02-03")) "label" $.Site.Params.probe "next" $.Site.Params.probe "current" (lang.FormatNumber 0 1234) "total" (lang.FormatNumber 0 12345)) }}</p>
   {{ end }}
 {{ end }}
 {{ end }}
@@ -142,7 +147,7 @@ def main():
     zh_catalog = (ROOT / THEME / 'i18n/zh-CN.toml').read_text()
     keys = set(re.findall(r'^\[([^]]+)\]', en_catalog, re.M))
     assert keys == set(re.findall(r'^\[([^]]+)\]', zh_catalog, re.M))
-    assert len(keys) == 69, keys # Deliberate UI inventory: update alongside I18N.md.
+    assert len(keys) == 71, keys # Deliberate UI inventory: update alongside I18N.md.
     assert en_catalog.count('other = ') == zh_catalog.count('other = ') == len(keys)
     # Literal call sites plus the four deliberately native dynamic message groups.
     implementation = '\n'.join(p.read_text() for directory in ['layouts', 'content']
@@ -155,9 +160,9 @@ def main():
     css = (ROOT / THEME / 'assets/css/sidera.css').read_text()
     assert all(value.strip() == "none" or not value.strip(" \"'") for value in re.findall(r'(?:^|[;{])\s*content\s*:\s*([^;}]*)', css)), 'CSS must not generate untranslated text'
     assert 'aria-label=' not in css, 'Styles must not depend on translated labels'
-    en = copy_site(run, 'baseline')
+    en = copy_site(run, 'baseline'); appearance_control(en)
     baseline = build(en, run, 'baseline', flags=('--printI18nWarnings',))
-    zh = copy_site(run, 'chinese')
+    zh = copy_site(run, 'chinese'); appearance_control(zh)
     flags = configure(zh, 'chinese')
     chinese = build(zh, run, 'chinese', flags=flags + ('--printI18nWarnings',))
     for out in [baseline, chinese]:
@@ -168,7 +173,7 @@ def main():
     for file in baseline.rglob('*.html'):
         rel = file.relative_to(baseline)
         assert Page(file).times == Page(chinese / rel).times, rel
-    multi = copy_site(run, 'bilingual'); flags = configure(multi, 'bilingual'); translated_fixture(multi)
+    multi = copy_site(run, 'bilingual'); appearance_control(multi); flags = configure(multi, 'bilingual'); translated_fixture(multi)
     bilingual = build(multi, run, 'bilingual', flags=flags + ('--printI18nWarnings',))
     bilingual_checks(bilingual)
     subpath = build(multi, run, 'subpath', flags=flags + ('--baseURL', 'https://example.org/preview/', '--printI18nWarnings'))
@@ -209,13 +214,13 @@ def main():
         probes.append(messages.messages)
     # Each translated message really differs; no silently English Chinese entries.
     assert all(probes[0][k] != probes[1][k] for k in probes[0])
-    override = copy_site(run, 'override'); cfg = configure(override, 'bilingual'); translated_fixture(override)
+    override = copy_site(run, 'override'); appearance_control(override); cfg = configure(override, 'bilingual'); translated_fixture(override)
     (override / 'i18n').mkdir()
     (override / 'i18n/zh-CN.toml').write_text('[appearance]\nother = ' + json.dumps(HOSTILE) + '\n[tags]\nother = "自定义标签"\n')
     out = build(override, run, 'override', flags=cfg + ('--printI18nWarnings',))
     raw = html(out, '/zh/field-notes/tags/').read_text()
     assert HOSTILE in unescape(raw) and '<img src=x' not in raw and '<h1>自定义标签</h1>' in raw
-    assert '>Appearance</label>' in html(out, '/field-notes/').read_text()
+    assert 'data-appearance-default="auto"' in html(out, '/field-notes/').read_text()
     # Deliberately omit one scratch translation: native default language fallback.
     f = override / THEME / 'i18n/zh-CN.toml'
     f.write_text(re.sub(r'\[recent_updates\]\nother = [^\n]+\n', '', f.read_text()))

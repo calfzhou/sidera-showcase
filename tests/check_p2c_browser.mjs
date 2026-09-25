@@ -7,12 +7,12 @@ import { runBrowser } from './browser.mjs';
 await runBrowser(async ({ run, port, debugPort, profile, origin, version, errors, requests,
   call, evaluate, navigate, viewport, key, screenshot, delay }) => {
   const results = [];
-  const palette = () => evaluate(`document.documentElement.dataset.appearance || 'dark'`);
-  const choose = value => evaluate(`document.querySelector('#appearance').value=${JSON.stringify(value)};document.querySelector('#appearance').dispatchEvent(new Event('change',{bubbles:true}))`);
+  const palette = () => evaluate(`getComputedStyle(document.documentElement).colorScheme`);
+  const choose = value => evaluate(`Sidera.setAppearance(${JSON.stringify(value)})`);
   const os = async value => {
     await call('Emulation.setEmulatedMedia',{features:[{name:'prefers-color-scheme',value}]});
     for(let n=0;n<80;n++) {
-      if(await evaluate(`matchMedia('(prefers-color-scheme: light)').matches === ${value==='light'} && (document.querySelector('#appearance')?.value !== 'system' || document.documentElement.dataset.appearance === ${JSON.stringify(value)})`)) return;
+      if(await evaluate(`matchMedia('(prefers-color-scheme: light)').matches === ${value==='light'} && (document.documentElement.dataset.appearanceMode !== 'auto' || document.documentElement.dataset.appearance === ${JSON.stringify(value)})`)) return;
       await delay(25);
     }
     assert.fail('Native media/appearance state did not settle');
@@ -21,20 +21,18 @@ await runBrowser(async ({ run, port, debugPort, profile, origin, version, errors
     ['tag','/field-notes/tags/science/'],['blog','/journal/'],['standalone','/about/']];
   for (const lang of ['en','zh']) {
     const prefix = lang === 'zh' ? '/_chinese' : '';
-    const labels = lang === 'zh' ? ['外观','深色','浅色','跟随系统','跳至正文','网站导航'] : ['Appearance','Dark','Light','System','Skip to content','Site navigation'];
+    const labels = lang === 'zh' ? ['外观','深色','浅色','跟随系统','跳至正文','网站导航'] : ['Appearance','Dark','Light','Auto (system)','Skip to content','Site navigation'];
     await viewport(1440); await navigate(prefix+'/');
     await evaluate(`localStorage.removeItem('sidera-appearance')`); await os('light'); await navigate(prefix+'/');
-    assert.equal(await palette(),'dark');
-    // Native select type-ahead via real keyboard text, including a CJK character.
-    await evaluate(`document.querySelector('#appearance').focus()`);
-    const letter = lang === 'zh' ? '浅' : 'l';
-    await call('Input.dispatchKeyEvent',{type:'keyDown',key:letter,text:letter});
-    await call('Input.dispatchKeyEvent',{type:'keyUp',key:letter});
-    await key('Tab','Tab',9);
-    assert.equal(await palette(),'light',`${lang} native keyboard selection`);
+    assert.equal(await palette(),'light');
+    assert.equal(await evaluate('document.documentElement.dataset.appearanceMode'),'auto');
+    // Real keyboard cycle: auto -> dark -> light; the action label is localized.
+    await evaluate(`document.querySelector('[data-appearance-cycle]').focus()`);
+    await key('Enter','Enter',13);assert.equal(await palette(),'dark');
+    await key('Enter','Enter',13);assert.equal(await palette(),'light');
     await navigate(prefix+'/about/'); assert.equal(await palette(),'light');
     await os('dark'); assert.equal(await palette(),'light');
-    await choose('system'); assert.equal(await palette(),'dark');
+    await choose('auto'); assert.equal(await palette(),'dark');
     await os('light'); await delay(80); assert.equal(await palette(),'light');
     for (const mode of ['dark','light']) {
       await choose(mode);
@@ -43,8 +41,7 @@ await runBrowser(async ({ run, port, debugPort, profile, origin, version, errors
         for (const [name,path] of pages) {
           await navigate(prefix+path);
           const state = await evaluate(`({lang:document.documentElement.lang,
-            label:document.querySelector('label[for="appearance"]').textContent,
-            options:[...document.querySelector('#appearance').options].map(o=>o.textContent),
+            label:document.querySelector('[data-appearance-cycle]').getAttribute('aria-label'),
             skip:document.querySelector('.skip-link').textContent,
             nav:document.querySelector('.sidebar').getAttribute('aria-label'),
             width:innerWidth,scroll:document.documentElement.scrollWidth,
@@ -53,7 +50,8 @@ await runBrowser(async ({ run, port, debugPort, profile, origin, version, errors
             dates:[...document.querySelectorAll('.article-dates time,.card-dates time')].map(t=>t.textContent),
             ui:[...document.querySelectorAll('.list-meta,.pin-label,.recent-panel>.section-heading,.recent-panel>.muted,[data-page-number],.site-footer')].map(e=>e.textContent).join(' ')})`);
           assert.equal(state.lang,lang==='zh'?'zh-CN':'en-US');
-          assert.deepEqual([state.label,...state.options,state.skip,state.nav],labels);
+          assert(state.label.includes(labels[0])&&state.label.includes(mode==='dark'?labels[1]:labels[2]));
+          assert.deepEqual([state.skip,state.nav],labels.slice(4));
           assert.equal(await palette(),mode); assert(state.scroll<=width+1,JSON.stringify(state));
           assert.equal(state.headings,1); assert(state.images);
           if (['list','tag','blog'].includes(name)) {
@@ -76,11 +74,11 @@ await runBrowser(async ({ run, port, debugPort, profile, origin, version, errors
       await navigate(prefix+'/field-notes/'); await evaluate(`document.querySelector('[data-region="left"]').focus()`);
       assert(await evaluate(`document.activeElement.matches('[data-region="left"]')`));
       await key('Enter','Enter',13); await delay(80); assert(await evaluate(`document.querySelector('#left-region').matches(':popover-open')`));
-      for(let n=0;n<100 && await evaluate('document.activeElement.id')!=='appearance';n++) await key('Tab','Tab',9);
-      assert.equal(await evaluate('document.activeElement.id'),'appearance');
-      assert.equal(await evaluate('document.activeElement.labels[0].textContent'),labels[0]);
+      for(let n=0;n<100 && !await evaluate(`document.activeElement.matches('[data-appearance-cycle]')`);n++) await key('Tab','Tab',9);
+      assert(await evaluate(`document.activeElement.matches('[data-appearance-cycle]')`));
+      assert((await evaluate(`document.activeElement.getAttribute('aria-label')`)).includes(labels[0]));
       const tree = await call('Accessibility.getFullAXTree');
-      assert(tree.nodes.some(n=>n.role?.value==='combobox' && n.name?.value===labels[0]));
+      assert(tree.nodes.some(n=>n.role?.value==='button' && n.name?.value.includes(labels[0])));
       await screenshot(`${lang}-${mode}-navigation-320`);
       await evaluate(`document.querySelector('[data-page-link="next"]').click()`); await delay(200);
       assert.equal(await evaluate('location.pathname'),prefix+'/field-notes/page/2/');
@@ -90,14 +88,14 @@ await runBrowser(async ({ run, port, debugPort, profile, origin, version, errors
     await choose('light');
     await call('Emulation.setScriptExecutionDisabled',{value:true});
     await navigate(prefix+'/field-notes/',false);
-    assert.equal(await palette(),'dark');
-    assert(await evaluate(`document.querySelector('.site-menu').open && document.querySelector('.appearance').hidden`));
+    assert.equal(await palette(),'light');
+    assert(await evaluate(`document.querySelector('.site-menu').open && [...document.querySelectorAll('[data-appearance-cycle]')].every(b=>b.hidden)`));
     assert.equal(await evaluate(`document.querySelector('.skip-link').textContent`),labels[4]);
     await call('Emulation.setScriptExecutionDisabled',{value:false});
     let {identifier}=await call('Page.addScriptToEvaluateOnNewDocument',{source:`Object.defineProperty(window,'localStorage',{get(){throw new DOMException('Denied','SecurityError')}})`});
-    await navigate(prefix+'/'); assert.equal(await palette(),'dark');
-    await choose('light'); assert.equal(await palette(),'light');
-    await navigate(prefix+'/about/'); assert.equal(await palette(),'dark');
+    await navigate(prefix+'/'); assert.equal(await palette(),'light');
+    await choose('dark'); assert.equal(await palette(),'dark');
+    await navigate(prefix+'/about/'); assert.equal(await palette(),'light');
     await call('Page.removeScriptToEvaluateOnNewDocument',{identifier});
     ({identifier}=await call('Page.addScriptToEvaluateOnNewDocument',{source:`Storage.prototype.setItem=function(){throw new DOMException('Full','QuotaExceededError')}`}));
     await navigate(prefix+'/'); await choose('dark'); assert.equal(await palette(),'dark');
@@ -131,7 +129,7 @@ await runBrowser(async ({ run, port, debugPort, profile, origin, version, errors
   assert(requests.every(u=>u.startsWith(origin+'/')),JSON.stringify(requests));
   await writeFile(resolve(run,'browser-results.json'),JSON.stringify({browser:version.Browser,node:process.version,
     port,debugPort,profile,renderedChecks:results,bilingualCases:4,runtimeErrors:errors,
-    verified:'Both locales/palettes: labels + AX combobox, native keyboard select, skip/focus/disclosure/pager, persistence/System, no JS/denied storage, wrapping, dates; bilingual tag counts/subpath/escaping',
+    verified:'Both locales/palettes: labels + AX button, native keyboard cycle, skip/focus/disclosure/pager, persistence/Auto, no JS/denied storage, wrapping, dates; bilingual tag counts/subpath/escaping',
     limits:'Installed Chromium only; not full cross-browser/screen-reader/WCAG certification'},null,2));
   console.log(`PASS P2-C ${results.length} localized route/palette/width cases + 4 bilingual cases; keyboard, AX, modes and fallbacks`);
 });
