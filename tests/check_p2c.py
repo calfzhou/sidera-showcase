@@ -145,6 +145,11 @@ def main():
     print('Retained run:', run, flush=True)
     en_catalog = (ROOT / THEME / 'i18n/en.toml').read_text()
     zh_catalog = (ROOT / THEME / 'i18n/zh-CN.toml').read_text()
+    # Concise sort captions do not repeat the still-active pin policy.
+    for catalog,labels in [(en_catalog,['Newest published','Last updated','By title']),
+                           (zh_catalog,['按发表时间降序','按更新时间降序','按标题排序'])]:
+        for key,label in zip(['order_publication','order_modification','order_title'],labels):
+            assert f'[{key}]\nother = "{label}"' in catalog
     keys = set(re.findall(r'^\[([^]]+)\]', en_catalog, re.M))
     assert keys == set(re.findall(r'^\[([^]]+)\]', zh_catalog, re.M))
     assert len(keys) == 75, keys # Deliberate UI inventory: update alongside I18N.md.

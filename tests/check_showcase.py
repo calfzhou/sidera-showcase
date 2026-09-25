@@ -20,6 +20,15 @@ def main():
         out=build(source,run,label,flags=('--config',','.join(['hugo.toml',*configs]),'--printI18nWarnings',*flags))
         passed.append(label);return out
     out=check('baseline');local_links(out)
+    for route,identifier,count in [('/journal/','articles','2'),('/notes/','articles','6'),('/handbook/','doc-children','4')]:
+        d=nodes(out,route);listing=d.all(id=identifier)[0]
+        assert listing.tag=='ul' and listing.attrs.get('aria-label')
+        assert listing.attrs.get('data-doc-total' if identifier=='doc-children' else 'data-total')==count
+        assert not d.all(**{'class':'list-meta'})
+        assert not any(n.tag=='p' and any(k in n.attrs for k in ['data-total','data-list-order','data-doc-total']) for n in d.all())
+        if identifier=='doc-children':assert d.all(id='children-heading')
+        else:assert listing.attrs.get('aria-description') and listing.attrs.get('data-list-order')
+
     roots=Page(html(out,'/')).links['collections'];assert set(roots)=={'/journal/','/notes/','/handbook/'}
     for preset,root in [('blog','journal'),('notes','notes'),('docs','handbook')]:
         assert all_articles(out,'/preset/'+preset+'/')==['/'+root+'/']

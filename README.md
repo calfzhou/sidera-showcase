@@ -261,3 +261,9 @@ retain their established all-content pagination tests; the normal showcase has n
 `check_taxonomy_hubs.py` plus `check_taxonomy_hubs_browser.mjs` cover the shared default on the live
 showcase and populated blog/notes/docs/unclassified fixtures, independent scopes, pagination,
 empty docs, hierarchy/counts and explicit list opt-in in EN/ZH/subpath and no-JS.
+
+
+Post/note lists no longer show a count/sort row, and docs child lists no longer show a separate
+child-count line. Native list accessibility metadata remains. After `check_showcase.py` builds
+its run directory, run `node tests/check_list_metadata_browser.mjs <run-directory>` to verify
+visible omission, retained headings/cards, accessible labels and keyboard/no-JS navigation.
