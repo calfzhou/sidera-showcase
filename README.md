@@ -250,3 +250,14 @@ Pager checks: set `SIDERA_CHECK_DIR` to a fresh directory and run `tests/check_p
 These prepare native 0/1/6/12-page fixtures and EN/ZH/subpath builds, verify unchanged pagination
 URLs/order, and inspect responsive windows, disabled/current/hover/focus states and no-JS links.
 The normal showcase still uses its original content/page sizes; no extra demo collection is live.
+
+
+Scoped tag/category landing pages default to term indexes for every collection (including Notes
+and Handbook), using the same renderer as Journal. Flat tags remain chips; hierarchical tags
+and categories retain their directory layout and scoped counts. A specific term still lists its
+matching pages. Use `params.taxonomy_hubs = 'list'` on an owner only to request the alternative
+all-content hub deliberately. The historical organization/annex fixtures opt into that mode to
+retain their established all-content pagination tests; the normal showcase has no such override.
+`check_taxonomy_hubs.py` plus `check_taxonomy_hubs_browser.mjs` cover the shared default on the live
+showcase and populated blog/notes/docs/unclassified fixtures, independent scopes, pagination,
+empty docs, hierarchy/counts and explicit list opt-in in EN/ZH/subpath and no-JS.

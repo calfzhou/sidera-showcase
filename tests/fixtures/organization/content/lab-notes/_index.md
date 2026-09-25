@@ -2,6 +2,8 @@
 preset = 'notes'
 title = 'Lab notes'
 [params]
+# Explicit legacy all-content hub for organization/pagination regression coverage.
+taxonomy_hubs = 'list'
 taxonomy_hierarchy = ['tags', 'categories']
 scope_root = true
 byline = 'Lab team'

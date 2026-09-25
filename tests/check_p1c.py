@@ -85,7 +85,7 @@ def replace(source, path, old, new):
 def root(source, owner, kind='blog', params=''):
     f = source / 'content' / owner / '_index.md'
     f.parent.mkdir(parents=True, exist_ok=True)
-    f.write_text(f'+++\ntitle = "{owner}"\npreset = "{ {"notebook":"notes","wiki":"docs"}.get(kind,kind) }"\n[params]\nscope_root=true\n{params}\n+++\n')
+    f.write_text(f'+++\ntitle = "{owner}"\npreset = "{ {"notebook":"notes","wiki":"docs"}.get(kind,kind) }"\n[params]\nscope_root=true\ntaxonomy_hubs="list"\n{params}\n+++\n')
 
 
 def date_probe(source):

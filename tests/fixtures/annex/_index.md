@@ -2,6 +2,7 @@
 preset = 'notes'
 title = 'Annex notes'
 [params]
+taxonomy_hubs = 'list'
 taxonomy_hierarchy = ['tags', 'categories']
 scope_root = true
 byline = 'Annex team'
