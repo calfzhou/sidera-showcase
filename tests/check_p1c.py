@@ -38,7 +38,7 @@ def check_list(out, route, expected, order, size, prefix='', recent=None):
         return prefix + route + (f'page/{n}/' if n > 1 else '')
     for n, (actual_route, p) in enumerate(entries, 1):
         assert actual_route == url(n), (actual_route, url(n))
-        assert p.pagination == (n, count if expected else 0), (route, p.pagination)
+        assert p.pagination == (None if count == 1 and expected else (n, count if expected else 0)), (route, p.pagination)
         assert (p.order, p.size, p.total) == (order, size, len(expected)), route
         assert p.links['articles'] == expected[(n-1)*size:n*size], (actual_route, p.links)
         nav = {}

@@ -11,7 +11,7 @@ await runBrowser(async b=>{
    await n(prefix+route);
    assert(await e('document.documentElement.scrollWidth<=innerWidth'));
    assert.equal(await e(`document.querySelectorAll('.collection-nav-tabs').length`),1);
-   assert.equal(await e(`document.querySelectorAll('.pagination').length`),route==='/chronicle/categories/'||route==='/tree-scope/tags/'?0:1);
+   assert.equal(await e(`document.querySelectorAll('.pagination').length`),['/chronicle/categories/','/chronicle/categories/learning/','/tree-scope/tags/'].includes(route)?0:1);
    assert(await e(`(()=>{const ids=[...document.querySelectorAll('[id]')].map(e=>e.id);return ids.length===new Set(ids).size})()`));
   }
  }

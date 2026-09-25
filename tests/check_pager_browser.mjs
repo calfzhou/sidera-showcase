@@ -6,6 +6,9 @@ await runBrowser(async b=>{
  const {evaluate:e,navigate:n,viewport:v,call,key,delay}=b;
  for(const [width,mode,prefix] of [[1440,'dark',''],[1440,'light',''],[390,'dark',''],[320,'light','/_chinese'],[390,'light','/preview']]){
   await v(width,960);
+  for(const route of ['/pager-single/','/journal/','/handbook/']){
+   await n(prefix+route);assert.equal(await e(`document.querySelectorAll('.pagination').length`),0);
+  }
   for(const [section,page] of [['pager-demo',1],['pager-demo',2],['pager-demo',6],['pager-long',6],['pager-long',12]]){
    await n(prefix+'/'+section+'/'+(page>1?`page/${page}/`:''));await e(`Sidera.setColorMode('${mode}')`);
    const state=await e(`(()=>{const bar=document.querySelector('.pagination'),visible=[...bar.querySelectorAll('.pagination-pages')].filter(n=>getComputedStyle(n).display!=='none'),pages=visible[0];return{visible:visible.length,current:pages.querySelector('[aria-current]').textContent.trim(),disabled:bar.querySelectorAll('[aria-disabled]').length,dead:[...bar.querySelectorAll('[aria-disabled]')].some(n=>n.hasAttribute('href')||n.hasAttribute('tabindex')),border:getComputedStyle(bar.querySelector('.pagination-previous')).borderRightStyle,overflow:document.documentElement.scrollWidth>innerWidth,innerOverflow:pages.scrollWidth>pages.clientWidth+1,radius:getComputedStyle(bar).borderRadius,height:bar.getBoundingClientRect().height,first:pages.querySelector('[data-page-link=first]').getAttribute('href'),last:pages.querySelector('[data-page-link=last]').getAttribute('href')};})()`);

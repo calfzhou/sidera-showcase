@@ -27,7 +27,10 @@ def main():
             assert [n.words().strip() for n in wide.children]==expected
             assert len(wide.all(**{'aria-current':'page'}))==1
             assert len(bar.all(**{'aria-disabled':'true'}))==(number in (1,6))
-        assert not nodes(out,'/pager-single/').all(**{'data-page-link':'next'})
+        for route in ['/pager-single/','/journal/','/handbook/']:
+            assert not nodes(out,route).all(**{'class':'pagination'}), route
+        assert nodes(out,'/notes/').all(**{'class':'pagination'})
+        assert nodes(out,'/pager-empty/').all(**{'class':'pagination'})[0].words().strip()
         assert not nodes(out,'/pager-empty/').all(**{'class':'pagination-pages'})
     print('PASS native pager first/previous/next/last URLs, order, 0/1/6/12 pages, windows/gaps, EN/ZH/subpath; retained',run)
 if __name__=='__main__':main()
