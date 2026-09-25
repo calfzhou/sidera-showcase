@@ -23,6 +23,18 @@ await runBrowser(async b=>{
  assert(await e(`document.querySelector('.left-region .native-menu a[aria-current] .icon')!==null`));
  await call('Emulation.setScriptExecutionDisabled',{value:true});await n('/about/',false);assert.equal(await e(`document.querySelectorAll('.site-footer .icon').length`),0);
  await call('Emulation.setScriptExecutionDisabled',{value:false});
+ // Markdown credit keeps compact typography and native keyboard links at both widths.
+ for(const [prefix,width] of [['/_credit',1440],['/_credit',390],['/_credit-zh',390]]){
+  await v(width,960);await n(prefix+'/about/');
+  const state=await e(`(()=>{const c=document.querySelector('.theme-credit');return{size:getComputedStyle(c).fontSize,links:c.querySelectorAll('a').length,strong:c.querySelector('strong')?.textContent,margin:getComputedStyle(c.lastElementChild).marginBottom,overflow:document.documentElement.scrollWidth>innerWidth}})()`);
+  assert.equal(state.size,'12px');assert.equal(state.strong,'Sidera');assert(state.links>0);assert.equal(state.margin,'0px');assert(!state.overflow);
+ }
+ await n('/_credit/about/');await e(`document.querySelector('.theme-credit a[href="/about/"]').focus()`);await delay(220);
+ assert.notEqual(await e('getComputedStyle(document.activeElement).outlineStyle'),'none');
+ await key('Enter','Enter',13);await delay(120);assert.equal(await e('location.pathname'),'/about/');
+ await call('Emulation.setScriptExecutionDisabled',{value:true});await n('/_credit/about/',false);
+ assert.equal(await e(`document.querySelectorAll('.theme-credit a').length`),2);
+ await call('Emulation.setScriptExecutionDisabled',{value:false});
  assert.equal(b.errors.length,0,JSON.stringify(b.errors));assert(b.requests.every(u=>u.startsWith(b.origin+'/')));
- console.log('PASS site sitemap: no default icons/current emphasis; source-like divider/columns/type; hover/focus/native links; desktop/mobile, light/dark, Chinese and no JS');
-},{'/_chinese':'chinese-public'});
+ console.log('PASS site sitemap: no default icons/current emphasis; source-like divider/columns/type; hover/focus/native links; desktop/mobile, light/dark, Chinese and no JS; Markdown credit links/type/keyboard');
+},{'/_chinese':'chinese-public','/_credit':'credit-markdown-public','/_credit-zh':'credit-chinese-public'});

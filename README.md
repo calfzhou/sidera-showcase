@@ -235,3 +235,11 @@ Public naming migration: use color_mode in site/language params and color-mode f
 switch icon. Update onclick to Sidera.cycleColorMode(). There are no owner-config/API aliases;
 old appearance entries diagnose. Stored visitor choices are preserved through the unchanged
 private browser storage key. Theme SHELL.md also lists the renamed translation/style hooks.
+
+
+The site-footer `credit` item supports Markdown in the native `built_with` translation override
+(`i18n/en.toml` or `i18n/zh-CN.toml`). For example:
+`other = 'Built with [Hugo](https://gohugo.io/) · **Sidera**'` under `[built_with]`.
+It uses the same native Markdown/raw-HTML policy as `footer_text`; the default wording stays
+unchanged. `check_site_footer.py` and `check_site_footer_browser.mjs` cover translated Markdown,
+HTML policy, compact typography and native keyboard links as well as the sitemap defaults.
