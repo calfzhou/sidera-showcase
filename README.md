@@ -39,7 +39,12 @@ hugo --destination "$run/public" --cacheDir "$run/cache" \
 |---|---|---|
 | `/journal/` | blog | Publication stream, category tree/tag chips, archives, native author and series links |
 | `/notes/` | notes | Evolving notes, hierarchical tags, pins, pagination, publication-order sidebar |
-| `/handbook/` | docs | Body-bearing parent/leaf documents, page tree, two independent recent instances |
+| `/handbook/` | docs | Three levels below the root, sibling branches, ordered parent/leaf pages, two recent instances |
+
+The page-tree review path `/handbook/workflows/writing/outline/` has three levels **below**
+Handbook. Writing and Research are sibling branches; Reference is a separate top-level branch.
+Parents have their own content and explicit child ordering, so both navigation and disclosure
+behavior can be examined without changing the theme.
 
 The overview home remains the default. Shared author `/authors/rowan/`, series
 `/series/making-notes/`, taxonomy views and `/about/` complete the example. Content/dates/identity

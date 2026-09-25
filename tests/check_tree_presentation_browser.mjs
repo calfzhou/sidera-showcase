@@ -33,6 +33,22 @@ await runBrowser(async b=>{
  await noDots(tree+' a[aria-current]');
  await n('/notes/tags/');await noDots(tree+' .all-tags[aria-current]');
  await n('/handbook/start/');await noDots('.docs-navigation a[aria-current]');
+ // The live handbook's three-level branch opens the active path, not its siblings.
+ await n('/handbook/workflows/writing/outline/');
+ for(const path of ['/handbook/workflows','/handbook/workflows/writing']){
+  assert(await e(`document.querySelector('.docs-navigation a[data-doc-path="${path}"]').closest('li').querySelector(':scope > details').open`));
+ }
+ const writing='.docs-navigation a[data-doc-path="/handbook/workflows/writing"]';
+ const research='.docs-navigation a[data-doc-path="/handbook/workflows/research"]';
+ assert(!await e(`document.querySelector('${research}').closest('li').querySelector(':scope > details').open`));
+ await e(`document.querySelector('${writing}').closest('li').querySelector(':scope > details > summary').focus()`);await key('Enter','Enter',13);
+ assert(!await e(`document.querySelector('${writing}').closest('li').querySelector(':scope > details').open`));
+ await e(`document.querySelector('${research}').closest('li').querySelector(':scope > details > summary').focus()`);await key('Enter','Enter',13);
+ assert(await e(`document.querySelector('${research}').closest('li').querySelector(':scope > details').open`));
+ assert(!await e(`document.querySelector('${writing}').closest('li').querySelector(':scope > details').open`));
+ await e(`document.querySelector('${writing}').focus()`);await key('Enter','Enter',13);await delay(150);
+ assert.equal(await e('location.pathname'),'/handbook/workflows/writing/');
+
  // Original nested docs tree still has independently usable body links and disclosures.
  await n('/_generic/guidebook/getting-started/setup/');await noDots('.docs-navigation a[aria-current]');
  assert.deepEqual(await dots('.left-region .collection-nav a[aria-current]'),['""']);

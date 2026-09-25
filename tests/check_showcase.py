@@ -28,7 +28,16 @@ def main():
     for old in ['/journal/beginning/','/journal/returning/','/field-notes/','/lab-notes/','/dispatches/','/guidebook/','/sidera/']:
         assert not html(out,old).exists(),old
     assert len(all_articles(out,'/notes/'))==6
-    assert set(a.attrs['href'] for a in nodes(out,'/handbook/').all(id='doc-children')[0].all() if a.tag=='a' and 'card-title' in a.attrs.get('class',''))=={'/handbook/start/','/handbook/review/'}
+    assert set(a.attrs['href'] for a in nodes(out,'/handbook/').all(id='doc-children')[0].all() if a.tag=='a' and 'card-title' in a.attrs.get('class',''))=={'/handbook/start/','/handbook/workflows/','/handbook/review/','/handbook/reference/'}
+    # The live handbook has three levels below its root, with exact native parent ordering.
+    for route,children in [('/handbook/workflows/',['writing','research']),('/handbook/workflows/writing/',['outline','draft']),('/handbook/workflows/research/',['sources','evaluate']),('/handbook/reference/',['frontmatter'])]:
+        links=[a.attrs['href'] for a in nodes(out,route).all(id='doc-children')[0].all() if a.tag=='a' and 'card-title' in a.attrs.get('class','')]
+        assert links==[route+child+'/' for child in children]
+    leaf=nodes(out,'/handbook/workflows/writing/outline/')
+    for path in ['/handbook/workflows','/handbook/workflows/writing','/handbook/workflows/writing/outline']:
+        link=leaf.all(**{'data-doc-path':path})[0]
+        assert link.attrs['aria-current']==('page' if path.endswith('/outline') else 'location')
+    assert Page(html(out,'/handbook/workflows/writing/outline/')).article['data-collection']=='/handbook/'
     assert any(a.attrs.get('href')==JOURNAL[0] for a in nodes(out,JOURNAL[1]).all() if 'data-series-next' in a.attrs)
     assert nodes(out,JOURNAL[1]).all(href='/authors/rowan/')
     for config in sorted((source/'examples').glob('*.toml')):
