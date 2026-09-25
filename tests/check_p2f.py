@@ -204,7 +204,7 @@ pageRef='/about'
     raw=source('raw-html')
     replace(raw,'content/about.md',"title = 'About this proof'", "title = 'About this proof'\n[params]\nleft=['text']\ntext='<script>alert(1)</script>'")
     check(raw,'raw-html','Raw HTML omitted')
-    bad=[("left=true",'not true'),("right='toc'",'must be an array'),("left=['menu','menu']",'duplicate left'),("right=['evil']",'invalid right'),("recent_count=0",'recent_count'),("recent_count=2.5",'recent_count'),("recent_count='5'",'recent_count'),("text=false",'text must be'),("profile='bad'",'profile must be'),("icons='yes'",'icons must be'),("taxonomy_navigation=['other']",'invalid taxonomy_navigation'),("tag_icons={science='<svg/>'}",'unknown icon')]
+    bad=[("left=true",'not true'),("right='toc'",'must be an array'),("left=[{component='menu',config={unknown=true}}]",'unknown menu config option'),("right=['evil']",'invalid right'),("recent_count=0",'recent_count'),("recent_count=2.5",'recent_count'),("recent_count='5'",'recent_count'),("text=false",'text must be'),("profile='bad'",'profile must be'),("icons='yes'",'icons must be'),("taxonomy_navigation=['other']",'invalid taxonomy_navigation'),("tag_icons={science='<svg/>'}",'unknown icon')]
     for i,(config,diagnostic) in enumerate(bad): check(source('bad'+str(i),'[params]\n'+config),'bad'+str(i),diagnostic)
     for i,url in enumerate(['javascript:alert(1)','data:text/html,hi','java\tscript:alert(1)']):
         check(source('url'+str(i),'[[menus.primary]]\nname="Unsafe"\nurl='+json.dumps(url)),'url'+str(i),'unsafe URL')

@@ -142,7 +142,7 @@ def main():
     zh_catalog = (ROOT / THEME / 'i18n/zh-CN.toml').read_text()
     keys = set(re.findall(r'^\[([^]]+)\]', en_catalog, re.M))
     assert keys == set(re.findall(r'^\[([^]]+)\]', zh_catalog, re.M))
-    assert len(keys) == 67, keys # Deliberate UI inventory: update alongside I18N.md.
+    assert len(keys) == 65, keys # Deliberate UI inventory: update alongside I18N.md.
     assert en_catalog.count('other = ') == zh_catalog.count('other = ') == len(keys)
     # Literal call sites plus the four deliberately native dynamic message groups.
     implementation = '\n'.join(p.read_text() for directory in ['layouts', 'content']
@@ -218,9 +218,9 @@ def main():
     assert '>Appearance</label>' in html(out, '/field-notes/').read_text()
     # Deliberately omit one scratch translation: native default language fallback.
     f = override / THEME / 'i18n/zh-CN.toml'
-    f.write_text(re.sub(r'\[recent_explanation\]\nother = [^\n]+\n', '', f.read_text()))
+    f.write_text(re.sub(r'\[recent_updates\]\nother = [^\n]+\n', '', f.read_text()))
     fallback = build(override, run, 'fallback', flags=cfg)
-    assert 'Across this collection, independent of pins.' in html(fallback, '/zh/field-notes/').read_text()
+    assert 'Recent updates' in html(fallback, '/zh/field-notes/').read_text()
     # Missing-key diagnostic is expected, NOT a weakened strict production build.
     p = override / 'layouts/home.html'; p.parent.mkdir(exist_ok=True)
     p.write_text('{{ define "main" }}{{ T "p2c_intentionally_missing" }}{{ end }}')

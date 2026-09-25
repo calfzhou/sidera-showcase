@@ -2,7 +2,7 @@
 title: Keeping Python projects reproducible
 description: "A practical routine for dependencies: declare intent, lock a working environment, and make updates a deliberate step rather than a surprise."
 date: 2026-05-18
-lastmod: 2026-06-18
+lastmod: 2026-06-24
 tags: [tools/python]
 authors: [rowan]
 params:

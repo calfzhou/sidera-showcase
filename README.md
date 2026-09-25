@@ -314,3 +314,42 @@ node tests/check_tree_presentation_browser.mjs "$run"
 
 The browser check retains native parent links/disclosure behavior, current-row highlighting,
 actual count values, main-menu accents, auxiliary-menu dot exclusion, mobile/palette/no-JS behavior.
+
+
+## Component instances and compact recent lists
+
+All four configurable regions accept plain names and per-instance config objects. Repeated
+components are supported; config does not alter other instances or Page.Params. Example:
+
+```yaml
+params:
+  right:
+    - toc
+    - component: recent
+      config: {order: publication, count: 5}
+    - component: recent
+      config: {order: modification, count: 8}
+    - component: links
+      config: {menu: primary, icons: false}
+```
+
+The theme SHELL.md lists the exact options for menu, collections, taxonomy navigation, page-tree,
+TOC, recent, profile, text, links and footer items. Unknown fields and unsafe values diagnose;
+strings are shorthand for defaults. The previous duplicate-component rejection is intentionally
+replaced by independent instances and unique IDs, not silently suppressed validation.
+
+Fieldbook Notes explicitly uses publication-order recent links; Handbook demonstrates both
+orders. Existing bundled preset choices stay unchanged. Recent rows now show only an ellipsized
+title with a full native tooltip; taxonomy captions no longer repeat the collection name.
+
+Focused verification (fresh output directories printed by each Python check):
+
+```sh
+uv run --no-project --no-managed-python python3 tests/check_instances.py
+nvm use
+node tests/check_instances_browser.mjs /absolute/path/to/instances/run
+uv run --no-project --no-managed-python python3 tests/check_recent.py
+# The recent browser test also visits the normal live example:
+hugo --source examples/notebook --destination /absolute/path/to/recent/run/normal-public --cacheDir /absolute/path/to/recent/run/normal-cache --panicOnWarning
+node tests/check_recent_browser.mjs /absolute/path/to/recent/run
+```

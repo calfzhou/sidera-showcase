@@ -28,3 +28,8 @@ the rotating rainbow ring; hover/focus the text box to reveal the second half of
 Menu accents: Notes uses `menus.primary.params.color = '#3dc550'`, Journal uses
 `'#ffbd2b'`. Omit/clear the entry color for the theme default. Hover/focus accents the icon;
 current pages and their menu ancestors also show the matching 8px dot. Labels stay neutral.
+
+Recent content: Notes chooses `{component: recent, config: {order: publication}}`, Journal
+keeps `recent` (updates), and Handbook uses both orders as independent recent instances.
+Each can override count/sections while inheriting the native owner scope. Compact rows show only the title; long titles
+are ellipsized with the full text in the browser's native hover tooltip.

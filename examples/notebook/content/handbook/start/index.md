@@ -1,5 +1,7 @@
 ---
 title: Starting a note
+date: 2026-04-01
+lastmod: 2026-06-12
 ---
 ## Capture the question
 

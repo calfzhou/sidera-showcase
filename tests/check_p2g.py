@@ -111,8 +111,8 @@ article_text='Preset closing'
     for label,config,diagnostic in [
       ('footer-raw-html','[params]\narticle_text="<script>alert(1)</script>"','Raw HTML omitted'),
       ('footer-type','[params]\nsite_footer=true','accepts false or an array'),
-      ('footer-duplicate','[params]\narticle_footer=["terms","terms"]','duplicate article_footer'),
-      ('footer-item','[params]\nsite_footer=["share"]','invalid site_footer'),
+      ('footer-config','[params]\narticle_footer=[{component="terms",config={unknown=true}}]','unknown terms config option'),
+      ('footer-item','[params]\nsite_footer=["share"]','invalid site-footer'),
       ('footer-text-type','[params]\narticle_text=9','article_text must be a string'),
       ('header-type','[params]\nterms_in_header="yes"','terms_in_header must be boolean'),
       ('footer-url','[params]\nfooter_menu="unsafe"\n[[menus.unsafe]]\nname="Bad"\nurl="javascript:alert(1)"','unsafe URL'),
@@ -123,7 +123,7 @@ article_text='Preset closing'
     draft.write_text('+++\ntitle="Cover"\n[params]\ncover={image="https://example.org/x.svg",alt="x"}\n+++\n');check('cover-url','','image must be a local resource/path')
     draft.write_text('+++\ntitle="Cover"\n[params]\ncover={image="missing.svg",alt="x"}\n+++\n');check('cover-missing','','missing local image')
     draft.write_text('+++\ntitle="Cover"\ndraft=true\n+++\n')
-    write(source,'content/preset/unused/_index.md','+++\ntitle="Unused"\n[params.defaults.params]\narticle_footer=["search"]\n+++\n');check('unused-preset','','invalid article_footer')
+    write(source,'content/preset/unused/_index.md','+++\ntitle="Unused"\n[params.defaults.params]\narticle_footer=["search"]\n+++\n');check('unused-preset','','invalid article-footer')
     (run/'results.json').write_text(json.dumps({'passed':passed,'rejected':rejected},indent=2))
     print('PASS G configuration:',len(passed),'builds,',len(rejected),'expected rejections; retained',run)
 if __name__=='__main__':main()

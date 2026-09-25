@@ -1,5 +1,7 @@
 ---
 title: Reviewing a note
+date: 2026-05-01
+lastmod: 2026-06-01
 ---
 ## Check the premise
 
