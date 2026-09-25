@@ -1,4 +1,4 @@
-"""Native header dates: scope order, visibility opt-out, missing values and no default footer repeat."""
+"""Native header dates: page priority, visibility opt-out, missing values and no default footer repeat."""
 from pathlib import Path
 import os,sys
 sys.dont_write_bytecode=True
@@ -29,7 +29,7 @@ def main():
     assert not times(baseline,'/date-probe/none/')
     for label,extra in [('chinese',"defaultContentLanguage='zh'\nlocale='zh-CN'\nbaseURL='https://example.org/_chinese/'\n"),('title',"[cascade.params]\nlist_order='title'\n"),('modified',"[cascade.params]\nlist_order='modification'\n")]:
         out=check(label,extra)
-        expected=['updated','published'] if label=='modified' else ['published','updated']
+        expected=['published','updated'] # Sort changes do not change the page's primary_date.
         assert [t.attrs['class'] for t in times(out,'/date-probe/both/')]==expected
         assert not any('Modified' in t.words() or '修改' in t.words() for t in times(out,'/notes/package-management/'))
     missing=check('missing',"[frontmatter]\nlastmod=['lastmod']\npublishDate=['publishDate']\ndate=['date']\n")
@@ -39,5 +39,5 @@ def main():
         assert 'tabindex' not in row.attrs and not row.all(**{'class':'date-secondary'})
     explicit=check('explicit-footer',"[cascade.params]\narticle_footer=['meta']\n")
     assert nodes(explicit,'/date-probe/both/').all(**{'class':'article-footer'}) # Owner opt-in is still supported.
-    print('PASS article dates: primary by scope order, native timestamps, equal/missing dates, show_updated false, EN/ZH, default footer omission and explicit meta opt-in; retained',run)
+    print('PASS article dates: page priority independent of sort, native timestamps, equal/missing dates, show_updated false, EN/ZH, default footer omission and explicit meta opt-in; retained',run)
 if __name__=='__main__':main()

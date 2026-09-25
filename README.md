@@ -271,6 +271,15 @@ visible omission, retained headings/cards, accessible labels and keyboard/no-JS 
 
 Header-date checks: run `tests/check_article_dates.py` with `SIDERA_CHECK_DIR` pointing to a fresh
 run directory, then `node tests/check_article_dates_browser.mjs <same-directory>`. Native fixture
-builds cover date order/absence/equality and show_updated opt-out; the isolated browser checks
+builds cover date priority/absence/equality and show_updated opt-out; the isolated browser checks
 hover/focus, no reflow, touch/no-JS and default footer omission. Timestamp and language rules remain
 native Hugo. The optional footer meta component remains available only when explicitly selected.
+
+
+`params.primary_date` now controls both card and article-header dates independently of sorting:
+Blog defaults published; Notes/Handbook default updated. Notes can use list_order=publication
+without changing its displayed date. For collection-wide overrides, use cascade.params for
+children and params for the section itself (see theme SHELL.md). Explicit show_updated=false
+still suppresses the update date; missing dates fall back to the other available enabled date.
+`check_primary_date.py` and `check_primary_date_browser.mjs` verify presets, per-page/cascade/site/
+language precedence, mixed global/scoped listings, unchanged list/child order and validation.
