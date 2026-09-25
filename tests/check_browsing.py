@@ -49,9 +49,9 @@ def main():
             if not next:return found
             route=next[0].attrs['href']
     out=check('baseline');local_links(out);baseline_checks(out)
-    assert [a.words() for a in tabs(out,'/chronicle/')]==['Recently published','Categories','Tags','Archive']
-    assert [a.words() for a in tabs(out,'/bare/')]==['Recently published','Archive']
-    assert [a.words() for a in tabs(out,'/tree-scope/')]==['Tags','Recent updates','Archive']
+    assert [a.words() for a in tabs(out,'/chronicle/')]==['All posts','Categories','Tags','Archive']
+    assert [a.words() for a in tabs(out,'/bare/')]==['All posts','Archive']
+    assert [a.words() for a in tabs(out,'/tree-scope/')]==['Tags','All posts','Archive']
     assert not tabs(out,'/chronicle/new/') and not tabs(out,'/about/')
     for path,current in [('','/chronicle/'),('categories/','/chronicle/categories/'),('tags/','/chronicle/tags/'),('archives/','/chronicle/archives/')]:
         assert [a.attrs['href'] for a in tabs(out,'/chronicle/'+path) if a.attrs.get('aria-current')]==[current]
@@ -75,9 +75,15 @@ def main():
     assert 'All categories' in html(out,'/chronicle/').read_text()
     assert nodes(out,'/chronicle/tags/').all(**{'data-page-link':'next'}) # root taxonomy pagination
     out=check('chinese',"defaultContentLanguage='zh'\nlocale='zh-CN'\nbaseURL='https://example.org/_chinese/'\n")
-    assert [a.words() for a in tabs(out,'/chronicle/')]==['最近发布','分类','标签','归档']
+    assert [a.words() for a in tabs(out,'/chronicle/')]==['全部文章','分类','标签','归档']
     assert tabs(out,'/chronicle/')[3].attrs['href']=='/_chinese/chronicle/archives/'
     assert '所有分类' in html(out,'/chronicle/').read_text()
+    # The owner tab describes all posts, not whichever sort order the owner selects.
+    for order in ['publication','modification','title']:
+        ordered=check('label-'+order,"[cascade.params]\nlist_order='"+order+"'\n")
+        assert tabs(ordered,'/chronicle/')[0].words()=='All posts'
+        assert nodes(ordered,'/chronicle/').all(**{'data-list-order':order})
+        assert tabs(ordered,'/chronicle/')[0].attrs['href']=='/chronicle/'
     out=check('off',"[cascade.params]\ntop=false\n")
     assert not tabs(out,'/chronicle/') and html(out,'/chronicle/archives/').exists()
     out=check('repeated',"[cascade.params]\ntop=[{component='collection-nav',config={items=['archive','recent']}},{component='collection-nav',config={items=['tags']}}]\n")

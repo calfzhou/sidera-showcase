@@ -59,7 +59,7 @@ def translated_fixture(source):
     (c / 'field-notes/zh-only/resource.md').write_text('+++\ntags=["resource-leak"]\n+++\nResource.\n')
     # A translated nested owner must not leak into its outer collection.
     f = c / 'lab-notes/annex/_index.zh.md'; f.parent.mkdir(parents=True)
-    f.write_text('+++\ntitle="Nested Chinese notebook"\npreset="notes"\n[params]\nscope_root=true\n\n+++\n')
+    f.write_text('+++\ntitle="Nested Chinese notebook"\npreset="notes"\n[params]\nscope_root=true\ntaxonomy_hubs="list"\n\n+++\n')
     (f.parent / 'only.zh.md').write_text('---\ntitle: Nested note\ntags: [science/local]\n---\n')
     # English explicit language suffix exercises both explicit and default filenames.
     f = c / 'field-notes/beta/index.md'
@@ -147,7 +147,7 @@ def main():
     zh_catalog = (ROOT / THEME / 'i18n/zh-CN.toml').read_text()
     keys = set(re.findall(r'^\[([^]]+)\]', en_catalog, re.M))
     assert keys == set(re.findall(r'^\[([^]]+)\]', zh_catalog, re.M))
-    assert len(keys) == 74, keys # Deliberate UI inventory: update alongside I18N.md.
+    assert len(keys) == 75, keys # Deliberate UI inventory: update alongside I18N.md.
     assert en_catalog.count('other = ') == zh_catalog.count('other = ') == len(keys)
     # Literal call sites plus the four deliberately native dynamic message groups.
     implementation = '\n'.join(p.read_text() for directory in ['layouts', 'content']
