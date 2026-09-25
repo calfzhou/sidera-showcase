@@ -10,7 +10,7 @@ await runBrowser(async b=>{
   await v(width,960);await n(path);await e(`Sidera.setColorMode('${palette}')`);
   if(width<668){await e(`document.querySelector('[data-region="left"]').click()`);await delay(430);}
   const state=await e(`(()=>{const panels=[...document.querySelectorAll('.recent-panel')];const a=document.querySelector('${pub} a');const style=getComputedStyle(a);return {headings:panels.map(p=>p.querySelector('h2').textContent),extra:panels.some(p=>p.querySelector('p,time,span')),titles:panels.every(p=>[...p.querySelectorAll('a')].every(a=>a.title===a.textContent)),overflow:a.scrollWidth>a.clientWidth,ellipsis:style.textOverflow,nowrap:style.whiteSpace,height:a.getBoundingClientRect().height,ids:[...document.querySelectorAll('[id]')].map(n=>n.id),width:document.documentElement.scrollWidth}})()`);
-  const labels=path.startsWith('/_chinese')?['最近更新','最近发布','最近发布','最近更新']:['Recent updates','Recently published','Recently published','Recent updates'];
+  const labels=path.startsWith('/_chinese')?['最近更新','最近发布','最近发布','最近更新']:['Recently updated','Recently published','Recently published','Recently updated'];
   assert.deepEqual(state.headings,labels);assert(!state.extra&&state.titles&&state.overflow,JSON.stringify(state));assert.equal(state.ellipsis,'ellipsis');assert.equal(state.nowrap,'nowrap');assert(state.height<=32);assert.equal(new Set(state.ids).size,state.ids.length);assert(state.width<=width);
   const labelsTree=await e(`[...document.querySelectorAll('.left-region [data-component="taxonomies"] .nav-heading')].map(e=>e.textContent)`);
   assert.deepEqual(labelsTree,path.startsWith('/_chinese')?['标签','分类']:['Tags','Categories']);
@@ -33,7 +33,7 @@ await runBrowser(async b=>{
  await e(`document.querySelector('.left-region .recent-panel').scrollIntoView({behavior:'instant',block:'center'})`);await delay(60);
  const r=await e(`(()=>{const r=document.querySelector('.left-region .recent-panel').getBoundingClientRect();return {x:r.x+scrollX,y:r.y+scrollY,width:r.width,height:r.height}})()`);
  const {data}=await call('Page.captureScreenshot',{format:'png',clip:{x:r.x,y:r.y,width:r.width,height:r.height,scale:2}});await writeFile(resolve(b.run,'recent-published.png'),Buffer.from(data,'base64'));
- await n('/_normal/handbook/');assert.deepEqual(await e(`[...document.querySelectorAll('.left-region .recent-panel h2')].map(e=>e.textContent)`),['Recent updates','Recently published']);
+ await n('/_normal/handbook/');assert.deepEqual(await e(`[...document.querySelectorAll('.left-region .recent-panel h2')].map(e=>e.textContent)`),['Recently updated','Recently published']);
  assert.equal(b.errors.length,0,JSON.stringify(b.errors));assert(b.requests.every(u=>u.startsWith(b.origin+'/')));
  console.log('PASS recent UI: compact single-line rows, ellipsis/full native title attributes, hover/focus links, EN/ZH headings, both orders/regions, pager independence, mobile/palettes/no-JS, normal notebook/docs choices');
 },{'/_chinese':'chinese-public','/_normal':'normal-public'});

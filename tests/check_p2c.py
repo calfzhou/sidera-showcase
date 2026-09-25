@@ -225,7 +225,7 @@ def main():
     f = override / THEME / 'i18n/zh-CN.toml'
     f.write_text(re.sub(r'\[recent_updates\]\nother = [^\n]+\n', '', f.read_text()))
     fallback = build(override, run, 'fallback', flags=cfg)
-    assert 'Recent updates' in html(fallback, '/zh/field-notes/').read_text()
+    assert 'Recently updated' in html(fallback, '/zh/field-notes/').read_text()
     # Missing-key diagnostic is expected, NOT a weakened strict production build.
     p = override / 'layouts/home.html'; p.parent.mkdir(exist_ok=True)
     p.write_text('{{ define "main" }}{{ T "p2c_intentionally_missing" }}{{ end }}')

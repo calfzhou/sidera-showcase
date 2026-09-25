@@ -59,7 +59,7 @@ await runBrowser(async ({ run, port, debugPort, profile, origin, version, errors
             assert(await evaluate(`[...document.querySelectorAll('[data-page-link]')].every(a=>parseFloat(getComputedStyle(a).paddingTop)>0 && getComputedStyle(a.closest('.pagination')).backgroundColor !== 'rgba(0, 0, 0, 0)')`));
           }
           if(lang==='zh') {
-            assert(!/Published|Modified|Updated|articles|Pins first|Page \d|Built with|Recent updates/.test(state.ui+state.dates.join(' ')),state.ui);
+            assert(!/Published|Modified|Updated|articles|Pins first|Page \d|Built with|Recently updated/.test(state.ui+state.dates.join(' ')),state.ui);
             assert(state.dates.every(t=>/^(发表于|修改于|更新于) \d+年\d+月\d+日$/.test(t)),state.dates);
           }
           if (name==='article') assert.equal(await evaluate(`document.querySelector('article').dataset.collection`),prefix+'/field-notes/');
