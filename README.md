@@ -277,3 +277,12 @@ uv run --no-project --no-managed-python python3 tests/check_identity.py
 nvm use
 node tests/check_identity_browser.mjs /absolute/path/to/printed/run
 ```
+
+Main-menu regression (Stellar icon/dot/row geometry, per-entry `params.color`,
+hover/focus/current states, safe hex values and config variants):
+
+```sh
+uv run --no-project --no-managed-python python3 tests/check_menu.py
+nvm use
+node tests/check_menu_browser.mjs /absolute/path/to/printed/run
+```

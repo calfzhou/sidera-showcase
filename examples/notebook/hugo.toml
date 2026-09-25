@@ -37,12 +37,14 @@ pageRef = '/notes'
 weight = 2
 [menus.primary.params]
 icon = 'notebook'
+color = '#3dc550'
 [[menus.primary]]
 name = 'Journal'
 pageRef = '/journal'
 weight = 3
 [menus.primary.params]
 icon = 'blog'
+color = '#ffbd2b'
 [[menus.primary]]
 name = 'Handbook'
 pageRef = '/handbook'

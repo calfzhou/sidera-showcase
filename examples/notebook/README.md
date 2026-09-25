@@ -24,3 +24,7 @@ Stop the foreground server with Ctrl-C. Actual bundled theme docs are not enable
 Identity: the icon and the complete title/subtitle box link home. Hover/focus the icon for
 the rotating rainbow ring; hover/focus the text box to reveal the second half of
 `params.identity.subtitle` (`first | second`). No underline or JavaScript is needed.
+
+Menu accents: Notes uses `menus.primary.params.color = '#3dc550'`, Journal uses
+`'#ffbd2b'`. Omit/clear the entry color for the theme default. Hover/focus accents the icon;
+current pages and their menu ancestors also show the matching 8px dot. Labels stay neutral.
