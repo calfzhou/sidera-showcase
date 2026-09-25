@@ -286,3 +286,16 @@ uv run --no-project --no-managed-python python3 tests/check_menu.py
 nvm use
 node tests/check_menu_browser.mjs /absolute/path/to/printed/run
 ```
+
+Sidebar scrolling regression (normal example, short desktop/mobile viewports):
+
+```sh
+mkdir -p .checks
+run=$(mktemp -d "$PWD/.checks/sidebar-scroll-XXXXXX")
+hugo --source examples/notebook --destination "$run/baseline-public" --cacheDir "$run/cache" --panicOnWarning
+nvm use
+node tests/check_sidebar_scroll_browser.mjs "$run"
+```
+
+Checks hidden sidebar/TOC/drawer scrollbar chrome while preserving actual wheel, keyboard,
+focus-reveal, emulated-touch and no-JS scrolling. The document scrollbar remains visible.
