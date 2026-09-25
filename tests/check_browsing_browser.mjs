@@ -15,6 +15,15 @@ await runBrowser(async b=>{
    assert(await e(`(()=>{const ids=[...document.querySelectorAll('[id]')].map(e=>e.id);return ids.length===new Set(ids).size})()`));
   }
  }
+ // Archive years follow the site's UI/heading typography, not its code font.
+ await v(1440,960);await n('/chronicle/archives/');
+ assert.equal(await e(`getComputedStyle(document.querySelector('.archive-year h2')).fontFamily`),await e(`getComputedStyle(document.body).fontFamily`));
+ await e(`document.documentElement.style.setProperty('--ui','Arial, sans-serif')`);
+ assert.equal(await e(`getComputedStyle(document.querySelector('.archive-year h2')).fontFamily`),'Arial, sans-serif');
+ await e(`const style=document.createElement('style');style.textContent='h2 { font-family: Georgia, serif; }';document.head.append(style)`);
+ assert.equal(await e(`getComputedStyle(document.querySelector('.archive-year h2')).fontFamily`),'Georgia, serif');
+ assert.equal(await e(`getComputedStyle(document.querySelector('.archive-year h2')).fontSize`),'20px');
+ assert.equal(await e(`getComputedStyle(document.querySelector('.archive-year h2')).fontWeight`),'700');
  await v(1440,600);await n('/chronicle/');
  const current='.collection-nav-tabs a[aria-current]';
  assert.notEqual(await e(`getComputedStyle(document.querySelector('${current}')).backgroundColor`),'rgba(0, 0, 0, 0)');
