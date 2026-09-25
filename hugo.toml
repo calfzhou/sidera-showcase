@@ -18,6 +18,7 @@ journal = '/journal/:year/:month/:day/:slugorcontentbasename/'
 path = 'page'
 disableAliases = true
 [params]
+left = ['menu', 'welcome']
 footer_menu = 'footer'
 footer_text = 'A small, independent notebook. Written to be revisited.'
 [params.identity]
@@ -92,3 +93,21 @@ parent = 'explore'
 name = 'Handbook'
 pageRef = '/handbook'
 parent = 'explore'
+
+
+# Define once, reference by name from any compatible region.
+[params.widgets.welcome]
+component = 'text'
+[params.widgets.welcome.config]
+title = 'Welcome'
+text = """
+Notes, experiments, and useful things to return to.
+
+Explore the journal, notes, and handbook.
+"""
+
+[params.widgets.handbook-updates]
+component = 'recent'
+[params.widgets.handbook-updates.config]
+order = 'modification'
+count = 8

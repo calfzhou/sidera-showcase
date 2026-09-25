@@ -5,10 +5,10 @@ preset: notes
 params:
   list_header: false
   page_size: 5
-  left: [menu, taxonomies, {component: recent, config: {order: publication}}]
+  left: [menu, taxonomies, recent-published]
   taxonomy_navigation: [tags]
 cascade:
   params:
-    left: [menu, taxonomies, {component: recent, config: {order: publication}}]
+    left: [menu, taxonomies, recent-published]
     taxonomy_navigation: [tags]
 ---

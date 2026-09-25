@@ -84,16 +84,21 @@ hugo server --config hugo.toml,examples/full-shell.toml,examples/components.toml
 
 Native Page/section settings can override a config cascade. For example, Notes explicitly selects
 its publication-order recent list; compact defaults are easiest to inspect on Home/About. Region
-arrays replace rather than append. Components support independent `{component, config}` instances:
+arrays replace rather than append. Components support independent inline instances and reusable named widgets. Define a widget
+once under site/language `params.widgets`, then use its name in a region:
 
 ```yaml
 params:
+  widgets:
+    welcome:
+      component: text
+      config:
+        title: Welcome
+        text: 'Notes, experiments, and useful things to return to.'
+  left: [menu, welcome, recent-published]
   right:
-    - toc
-    - component: recent
-      config: {order: publication, count: 5}
-    - component: recent
-      config: {order: modification, count: 8}
+    - widget: recent-updates
+      config: {count: 3}
 ```
 
 Theme-owned guides:
@@ -180,3 +185,9 @@ Wrapped tree-row alignment is checked with `tests/check_tree_alignment_browser.m
 normal root build (`baseline-public` in its run directory). It tests page/tag/category arrows
 with short and multiline labels, open/closed branches, desktop/mobile, aligned counts, native
 keyboard/accessibility state and no-JS enlarged text. Tree titles wrap; recent rows still truncate.
+
+Named-widget and footer checks: run `tests/check_widgets.py` and `tests/check_site_footer.py`
+with the same uv command. Their browser counterparts consume each printed run directory. The
+root welcome widget is reused by Home/About; Notes uses recent-published; Handbook defines its
+8-entry update widget once and references it by name. Footer links are text-first and visually
+neutral for current pages, with keyboard/hover feedback retained.

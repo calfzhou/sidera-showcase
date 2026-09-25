@@ -15,7 +15,7 @@ await runBrowser(async b=>{
  assert.equal(await style(journal,'width','::after'),'8px');assert.equal(await style(journal,'height','::after'),'8px');
  assert((await style(journal,'backgroundImage','::after')).includes('255, 189, 43'));
  assert.equal(await e(`(()=>{const a=[...document.querySelectorAll('${menu} .native-menu>ul>li>a')];return a[1].getBoundingClientRect().top-a[0].getBoundingClientRect().bottom})()`),4);
- assert.equal(await style('.site-footer .icon','width'),'16px');
+ assert.equal(await e(`document.querySelectorAll('.site-footer .icon').length`),0);
  const resting=await style(notes+' .icon','color');assert.notEqual(resting,'rgb(61, 197, 80)');
  await move(notes);assert.equal(await style(notes+' .icon','color'),'rgb(61, 197, 80)');
  assert.notEqual(await style(notes+' span','color'),'rgb(61, 197, 80)');assert.equal(await style(notes,'content','::after'),'none');
@@ -49,5 +49,5 @@ await runBrowser(async b=>{
  assert.equal(await style(journal+' .icon','color'),'rgb(255, 189, 43)');await move(notes);assert.equal(await style(notes+' .icon','color'),'rgb(61, 197, 80)');
  await call('Emulation.setScriptExecutionDisabled',{value:false});
  assert.equal(b.errors.length,0,JSON.stringify(b.errors));assert(b.requests.every(u=>u.startsWith(b.origin+'/')));
- console.log('PASS main menu: 27px icons / 4px gaps / 8px dots; real hover/focus/current/ancestor colors, neutral labels, per-entry isolation, native navigation, mobile/palettes/no-JS/icons-off, small footer icons');
+ console.log('PASS main menu: 27px icons / 4px gaps / 8px dots; real hover/focus/current/ancestor colors, neutral labels, per-entry isolation, native navigation, mobile/palettes/no-JS/icons-off, text-only site footer');
 },{'/_nested':'nested-public','/_fallback':'fallback-public','/_right':'right-menu-public','/_chinese':'chinese-public','/_off':'icons-off-public'});

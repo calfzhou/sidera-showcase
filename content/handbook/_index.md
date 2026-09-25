@@ -2,12 +2,12 @@
 title: Handbook
 preset: docs
 params:
-  left: [menu, page-tree, taxonomies, {component: recent, config: {order: modification, count: 8}}, {component: recent, config: {order: publication, count: 5}}]
+  left: [menu, page-tree, taxonomies, handbook-updates, recent-published]
   children:
     order: [start, workflows, review, reference]
 cascade:
   params:
-    left: [menu, page-tree, taxonomies, {component: recent, config: {order: modification, count: 8}}, {component: recent, config: {order: publication, count: 5}}]
+    left: [menu, page-tree, taxonomies, handbook-updates, recent-published]
 ---
 ## Start here
 
