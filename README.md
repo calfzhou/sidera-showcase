@@ -217,3 +217,16 @@ motion, safe text, rapid replacement, mobile drawer layering and reduced-motion/
 build root output as `baseline-public` plus the Chinese overlay as `chinese-public` (baseURL
 `https://example.org/_chinese/`) in a fresh run directory, then run
 `node tests/check_notifications_browser.mjs /absolute/path/to/run`.
+
+
+TOC rendering/state check:
+
+```sh
+SIDERA_CHECK_DIR="$PWD/.checks/toc-new-run" uv run --no-project --no-managed-python python3 tests/prepare_toc_browser.py
+nvm use
+node tests/check_toc_browser.mjs "$PWD/.checks/toc-new-run"
+```
+
+It uses an isolated native Markdown outline (six heading levels and long labels), not target HTML,
+and checks the shared track/current marker, source-like hierarchy, wrapping, actual anchor/scroll
+behavior, collapse/footer, repeated instances, icons-off, mobile palettes, Chinese and no-JS.
