@@ -299,3 +299,18 @@ node tests/check_sidebar_scroll_browser.mjs "$run"
 
 Checks hidden sidebar/TOC/drawer scrollbar chrome while preserving actual wheel, keyboard,
 focus-reveal, emulated-touch and no-JS scrolling. The document scrollbar remains visible.
+
+Tree-presentation regression (dots only on main menus; branch/leaf counts align):
+
+```sh
+mkdir -p .checks
+run=$(mktemp -d "$PWD/.checks/tree-presentation-XXXXXX")
+hugo --source examples/notebook --destination "$run/baseline-public" --cacheDir "$run/cache" --panicOnWarning
+hugo --destination "$run/generic-public" --cacheDir "$run/cache" --baseURL https://example.org/_generic/ --panicOnWarning
+hugo --source examples/notebook --config hugo.toml,widgets.toml --destination "$run/widgets-public" --cacheDir "$run/cache" --baseURL https://example.org/_widgets/ --panicOnWarning
+nvm use
+node tests/check_tree_presentation_browser.mjs "$run"
+```
+
+The browser check retains native parent links/disclosure behavior, current-row highlighting,
+actual count values, main-menu accents, auxiliary-menu dot exclusion, mobile/palette/no-JS behavior.
