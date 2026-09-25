@@ -129,7 +129,7 @@ weight = 20
 [menus.social.params]
 image = 'icons/code.svg'
 [[menus.social]]
-name = 'Appearance'
+name = 'Color mode'
 weight = 30
 [menus.social.params]
 icon = 'appearance'

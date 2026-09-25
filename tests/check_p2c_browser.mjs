@@ -21,7 +21,7 @@ await runBrowser(async ({ run, port, debugPort, profile, origin, version, errors
     ['tag','/field-notes/tags/science/'],['blog','/journal/'],['standalone','/about/']];
   for (const lang of ['en','zh']) {
     const prefix = lang === 'zh' ? '/_chinese' : '';
-    const labels = lang === 'zh' ? ['外观','深色','浅色','跟随系统','跳至正文','网站导航'] : ['Appearance','Dark','Light','Auto (system)','Skip to content','Site navigation'];
+    const labels = lang === 'zh' ? ['配色模式','深色','浅色','跟随系统','跳至正文','网站导航'] : ['Color mode','Dark','Light','Auto (system)','Skip to content','Site navigation'];
     await viewport(1440); await navigate(prefix+'/');
     await evaluate(`localStorage.removeItem('sidera-appearance')`); await os('light'); await navigate(prefix+'/');
     assert.equal(await palette(),'light');

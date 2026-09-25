@@ -147,7 +147,7 @@ def main():
     zh_catalog = (ROOT / THEME / 'i18n/zh-CN.toml').read_text()
     keys = set(re.findall(r'^\[([^]]+)\]', en_catalog, re.M))
     assert keys == set(re.findall(r'^\[([^]]+)\]', zh_catalog, re.M))
-    assert len(keys) == 71, keys # Deliberate UI inventory: update alongside I18N.md.
+    assert len(keys) == 74, keys # Deliberate UI inventory: update alongside I18N.md.
     assert en_catalog.count('other = ') == zh_catalog.count('other = ') == len(keys)
     # Literal call sites plus the four deliberately native dynamic message groups.
     implementation = '\n'.join(p.read_text() for directory in ['layouts', 'content']

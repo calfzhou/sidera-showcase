@@ -20,7 +20,7 @@ await runBrowser(async b=>{
   await key('Enter','Enter',13);assert.equal(await choice(),mode);assert.equal(await e(`localStorage.getItem('sidera-appearance')`),mode);
   assert(await e(`document.querySelector('[data-appearance-cycle]').getAttribute('aria-label')===document.querySelector('[data-appearance-cycle]').title`));
  }
- const ax=await call('Accessibility.getFullAXTree');assert(ax.nodes.some(n=>n.role?.value==='button'&&n.name?.value==='Appearance: Dark. Switch to Light.'));
+ const ax=await call('Accessibility.getFullAXTree');assert(ax.nodes.some(n=>n.role?.value==='button'&&n.name?.value==='Color mode: Dark. Switch to Light.'));
  // Stored preference beats a different owner's default, even with no switch in the menu.
  await n('/_light/about/');assert.equal(await choice(),'dark');await n('/_plain/about/');assert.equal(await e(`document.querySelectorAll('[data-appearance-cycle]').length`),0);assert.equal(await palette(),'dark');
  await e(`Sidera.setAppearance('auto')`);await os('dark');assert.equal(await palette(),'dark');await os('light');assert.equal(await palette(),'light');
@@ -46,7 +46,7 @@ await runBrowser(async b=>{
   assert(await e(`[...document.querySelectorAll('.social-links img')].every(i=>i.complete&&i.naturalWidth>0)`));
   if(prefix==='/_off')assert.equal(await e(`document.querySelectorAll('.social-links').length`),0);
   if(prefix==='/_six')assert.equal(await e(`document.querySelectorAll('.social-links a').length`),6);
-  if(prefix==='/_chinese')assert(await e(`document.querySelector('[data-appearance-cycle]').title.includes('外观')`));
+  if(prefix==='/_chinese')assert(await e(`document.querySelector('[data-appearance-cycle]').title.includes('配色模式')`));
  }
  // Without JS, CSS honors owner/OS defaults and only real social links remain visible.
  await call('Emulation.setScriptExecutionDisabled',{value:true});await os('light');await n('/_auto/about/',false);assert.equal(await palette(),'light');assert(await e(`[...document.querySelectorAll('[data-appearance-cycle]')].every(b=>b.hidden)`));
