@@ -12,6 +12,8 @@ await runBrowser(async b=>{
   for(const [section,page] of [['pager-demo',1],['pager-demo',2],['pager-demo',6],['pager-long',6],['pager-long',12]]){
    await n(prefix+'/'+section+'/'+(page>1?`page/${page}/`:''));await e(`Sidera.setColorMode('${mode}')`);
    const state=await e(`(()=>{const bar=document.querySelector('.pagination'),visible=[...bar.querySelectorAll('.pagination-pages')].filter(n=>getComputedStyle(n).display!=='none'),pages=visible[0];return{visible:visible.length,current:pages.querySelector('[aria-current]').textContent.trim(),disabled:bar.querySelectorAll('[aria-disabled]').length,dead:[...bar.querySelectorAll('[aria-disabled]')].some(n=>n.hasAttribute('href')||n.hasAttribute('tabindex')),border:getComputedStyle(bar.querySelector('.pagination-previous')).borderRightStyle,overflow:document.documentElement.scrollWidth>innerWidth,innerOverflow:pages.scrollWidth>pages.clientWidth+1,radius:getComputedStyle(bar).borderRadius,height:bar.getBoundingClientRect().height,first:pages.querySelector('[data-page-link=first]').getAttribute('href'),last:pages.querySelector('[data-page-link=last]').getAttribute('href')};})()`);
+   const fonts=await e(`[...document.querySelectorAll('.pagination-pages')].filter(p=>getComputedStyle(p).display!=='none').flatMap(p=>[...p.querySelectorAll('.page-number')].map(a=>{const s=getComputedStyle(a);return [s.fontFamily,s.fontSize,s.fontWeight,s.fontStyle].join('|')}))`);
+   assert.equal(new Set(fonts).size,1,'Current and other page numbers must share typography');
    assert.equal(state.visible,1);assert.equal(state.current,String(page));assert.equal(state.disabled,page===1||page===(section==='pager-demo'?6:12)?1:0);
    assert(!state.dead&&!state.overflow&&!state.innerOverflow,JSON.stringify({width,page,state}));assert.equal(state.border,'dashed');assert.equal(state.radius,'16px');assert.equal(state.height,45);assert.equal(state.first,prefix+'/'+section+'/');assert(state.last.endsWith(`/page/${section==='pager-demo'?6:12}/`));
   }
@@ -36,6 +38,15 @@ await runBrowser(async b=>{
  assert.equal(visible.radius,'1');assert.equal(visible.current,'6');assert(visible.width<=visible.client+1);
  await e(`document.querySelector('[data-page-link=previous]').focus()`);await key('Enter','Enter',13);await delay(150);assert.equal(await e('location.pathname'),'/pager-long/page/5/');
  await call('Emulation.setScriptExecutionDisabled',{value:false});
+ // Reproduce the user's two-page Notes view and keep each number's metrics stable.
+ await v(1440,960);const metrics=[];
+ for(const [route,name] of [['/notes/','notes-first'],['/notes/page/2/','notes-second']]){
+  await n(route);await e(`Sidera.setColorMode('dark');document.querySelector('.pagination').scrollIntoView({block:'center',behavior:'instant'})`);
+  await call('Input.dispatchMouseEvent',{type:'mouseMoved',x:1,y:1});await delay(240);
+  metrics.push(await e(`[...document.querySelectorAll('.pagination-pages[data-radius="2"] .page-number')].map(a=>{const s=getComputedStyle(a);return {text:a.textContent,font:s.fontFamily,size:s.fontSize,weight:s.fontWeight,width:a.getBoundingClientRect().width}})`));
+  await capture(name);
+ }
+ assert.deepEqual(metrics[0],metrics[1],'Numbers must not change typography or width when current state changes');
  assert.equal(b.errors.length,0,JSON.stringify(b.errors));assert(b.requests.every(u=>u.startsWith(b.origin+'/')));
- console.log('PASS pager: Stellar bar/number/arrow geometry, responsive windows, first/middle/last, palettes, EN/ZH/subpath, native keyboard/AX/no-JS links');
+ console.log('PASS pager: Stellar bar/number/arrow geometry, responsive windows, first/middle/last, palettes, EN/ZH/subpath, native keyboard/AX/no-JS links; uniform selected/unselected font and stable two-page metrics');
 },{'/_chinese':'chinese-public'});
