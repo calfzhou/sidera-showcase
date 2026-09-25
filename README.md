@@ -175,3 +175,8 @@ mount/generated-content or publication/privacy certification. No failed build is
 Exact-source reproduction requires initializing the pinned submodule—plain `git archive` is
 incomplete. The coordination/history repository in the sibling migration workspace is optional,
 not a build/test input; original-site/Stellar/Hugo-doc repositories remain read-only references.
+
+Wrapped tree-row alignment is checked with `tests/check_tree_alignment_browser.mjs` against a
+normal root build (`baseline-public` in its run directory). It tests page/tag/category arrows
+with short and multiline labels, open/closed branches, desktop/mobile, aligned counts, native
+keyboard/accessibility state and no-JS enlarged text. Tree titles wrap; recent rows still truncate.
