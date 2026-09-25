@@ -19,7 +19,7 @@ path = 'page'
 disableAliases = true
 [params]
 # Theme default is auto; this demo deliberately starts new visitors in dark mode.
-appearance = 'dark'
+color_mode = 'dark'
 left = ['menu', 'welcome']
 footer_menu = 'footer'
 footer_text = 'A small, independent notebook. Written to be revisited.'
@@ -132,5 +132,5 @@ image = 'icons/code.svg'
 name = 'Color mode'
 weight = 30
 [menus.social.params]
-icon = 'appearance'
-onclick = 'Sidera.cycleAppearance()'
+icon = 'color-mode'
+onclick = 'Sidera.cycleColorMode()'

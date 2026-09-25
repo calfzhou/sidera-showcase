@@ -40,7 +40,7 @@ await runBrowser(async b=>{
  await n('/_right/journal/');assert.equal(await style('.right-region [data-component="menu"] a[href="/journal/"] .icon','width'),'27px');
  await n('/_chinese/journal/');assert.equal(await style(menu+' a[href="/_chinese/journal/"] .icon','color'),'rgb(255, 189, 43)');
  for(const palette of ['dark','light']){
-  await v(390,844);await n('/journal/');await e(`Sidera.setAppearance('${palette}');document.querySelector('[data-region="left"]').click()`);await delay(430);
+  await v(390,844);await n('/journal/');await e(`Sidera.setColorMode('${palette}');document.querySelector('[data-region="left"]').click()`);await delay(430);
   assert.equal(await style(journal+' .icon','width'),'27px');assert.equal(await style(journal+' .icon','color'),'rgb(255, 189, 43)');assert(await e('document.documentElement.scrollWidth<=innerWidth'));
  }
  await n('/_off/journal/');await e(`document.querySelector('[data-region="left"]').click()`);await delay(430);

@@ -32,7 +32,7 @@ await runBrowser(async ({run,version,errors,requests,origin,call,evaluate,naviga
  await navigate('/_stress/tags/science/quantum/');assert.equal(await evaluate(`document.querySelector('[data-total]').dataset.total`),'2');
  await navigate('/preview/tags/science/');assert(await evaluate(`[...document.querySelectorAll('#articles h2 a')].every(a=>a.getAttribute('href').startsWith('/preview/'))`));
  await viewport(390);await call('Emulation.setScriptExecutionDisabled',{value:true});await navigate('/categories/learning/',false);
- assert(await evaluate(`document.querySelector('.site-menu').open && [...document.querySelectorAll('[data-appearance-cycle]')].every(b=>b.hidden) && document.querySelectorAll('#articles h2 a').length===2`));
+ assert(await evaluate(`document.querySelector('.site-menu').open && [...document.querySelectorAll('[data-color-mode-cycle]')].every(b=>b.hidden) && document.querySelectorAll('#articles h2 a').length===2`));
  await screenshot('no-js-category-390');await call('Emulation.setScriptExecutionDisabled',{value:false});
  assert.equal(errors.length,0,JSON.stringify(errors));assert(requests.every(u=>u.startsWith(origin+'/')));
  await writeFile(resolve(run,'browser-results.json'),JSON.stringify({version,cases:results.length,results,keyboard:true,noJS:true,flat:true,errors},null,2));

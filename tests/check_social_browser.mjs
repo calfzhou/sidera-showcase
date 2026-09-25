@@ -5,26 +5,33 @@ import {runBrowser} from './browser.mjs';
 await runBrowser(async b=>{
  const {evaluate:e,navigate:n,viewport:v,call,key,delay}=b;
  const palette=()=>e('getComputedStyle(document.documentElement).colorScheme');
- const choice=()=>e('document.documentElement.dataset.appearanceMode');
+ const choice=()=>e('document.documentElement.dataset.colorMode');
  const os=async mode=>{await call('Emulation.setEmulatedMedia',{features:[{name:'prefers-color-scheme',value:mode}]});await delay(80);};
  const clear=()=>e(`localStorage.removeItem('sidera-appearance')`);
  await v(1440,960);await n('/');
+ assert(await e(`typeof Sidera.cycleColorMode==='function'&&typeof Sidera.setColorMode==='function'&&typeof Sidera.cycleAppearance==='undefined'&&typeof Sidera.setAppearance==='undefined'`));
  for(const system of ['dark','light']){
   await clear();await os(system);await n('/_auto/about/');assert.equal(await choice(),'auto');assert.equal(await palette(),system);
   await clear();await n('/_light/about/');assert.equal(await choice(),'light');assert.equal(await palette(),'light');
   await clear();await n('/about/');assert.equal(await choice(),'dark');assert.equal(await palette(),'dark');
  }
  // True keyboard activation follows dark -> light -> auto -> dark, saving the choice.
- await clear();await os('light');await n('/about/');await e(`document.querySelector('[data-appearance-cycle]').focus()`);
+ await clear();await os('light');await n('/about/');await e(`document.querySelector('[data-color-mode-cycle]').focus()`);
  for(const mode of ['light','auto','dark']){
   await key('Enter','Enter',13);assert.equal(await choice(),mode);assert.equal(await e(`localStorage.getItem('sidera-appearance')`),mode);
-  assert(await e(`document.querySelector('[data-appearance-cycle]').getAttribute('aria-label')===document.querySelector('[data-appearance-cycle]').title`));
+  assert(await e(`document.querySelector('[data-color-mode-cycle]').getAttribute('aria-label')===document.querySelector('[data-color-mode-cycle]').title`));
  }
  const ax=await call('Accessibility.getFullAXTree');assert(ax.nodes.some(n=>n.role?.value==='button'&&n.name?.value==='Color mode: Dark. Switch to Light.'));
  // Stored preference beats a different owner's default, even with no switch in the menu.
- await n('/_light/about/');assert.equal(await choice(),'dark');await n('/_plain/about/');assert.equal(await e(`document.querySelectorAll('[data-appearance-cycle]').length`),0);assert.equal(await palette(),'dark');
- await e(`Sidera.setAppearance('auto')`);await os('dark');assert.equal(await palette(),'dark');await os('light');assert.equal(await palette(),'light');
+ await n('/_light/about/');assert.equal(await choice(),'dark');await n('/_plain/about/');assert.equal(await e(`document.querySelectorAll('[data-color-mode-cycle]').length`),0);assert.equal(await palette(),'dark');
+ await e(`Sidera.setColorMode('auto')`);await os('dark');assert.equal(await palette(),'dark');await os('light');assert.equal(await palette(),'light');
  await n('/_plain/notes/');assert.equal(await choice(),'auto');assert.equal(await palette(),'light');
+ // Every previously persisted public mode survives the rename, overriding the owner default.
+ for(const mode of ['dark','light','auto']){
+  await e(`localStorage.setItem('sidera-appearance',${JSON.stringify(mode)})`);
+  await n('/about/');assert.equal(await choice(),mode);
+ }
+ assert(await e(`(()=>{const before=document.documentElement.dataset.colorMode;try{Sidera.setColorMode('system');return false;}catch(error){return error instanceof TypeError&&document.documentElement.dataset.colorMode===before;}})()`));
  // Former stored system choices migrate once; arbitrary invalid records fall back to the owner.
  await e(`localStorage.setItem('sidera-appearance','system')`);await n('/about/');assert.equal(await choice(),'auto');assert.equal(await e(`localStorage.getItem('sidera-appearance')`),'auto');
  await e(`localStorage.setItem('sidera-appearance','nonsense')`);await n('/_auto/about/');assert.equal(await choice(),'auto');
@@ -46,15 +53,15 @@ await runBrowser(async b=>{
   assert(await e(`[...document.querySelectorAll('.social-links img')].every(i=>i.complete&&i.naturalWidth>0)`));
   if(prefix==='/_off')assert.equal(await e(`document.querySelectorAll('.social-links').length`),0);
   if(prefix==='/_six')assert.equal(await e(`document.querySelectorAll('.social-links a').length`),6);
-  if(prefix==='/_chinese')assert(await e(`document.querySelector('[data-appearance-cycle]').title.includes('配色模式')`));
+  if(prefix==='/_chinese')assert(await e(`document.querySelector('[data-color-mode-cycle]').title.includes('配色模式')`));
  }
  // Without JS, CSS honors owner/OS defaults and only real social links remain visible.
- await call('Emulation.setScriptExecutionDisabled',{value:true});await os('light');await n('/_auto/about/',false);assert.equal(await palette(),'light');assert(await e(`[...document.querySelectorAll('[data-appearance-cycle]')].every(b=>b.hidden)`));
+ await call('Emulation.setScriptExecutionDisabled',{value:true});await os('light');await n('/_auto/about/',false);assert.equal(await palette(),'light');assert(await e(`[...document.querySelectorAll('[data-color-mode-cycle]')].every(b=>b.hidden)`));
  await os('dark');assert.equal(await palette(),'dark');await n('/_light/about/',false);assert.equal(await palette(),'light');
  await call('Emulation.setScriptExecutionDisabled',{value:false});
  const script=await call('Page.addScriptToEvaluateOnNewDocument',{source:`Object.defineProperty(window,'localStorage',{get(){throw new Error('denied')}})`});
- await os('light');await n('/_auto/about/');assert.equal(await choice(),'auto');assert.equal(await palette(),'light');await e(`Sidera.cycleAppearance()`);assert.equal(await palette(),'dark');
+ await os('light');await n('/_auto/about/');assert.equal(await choice(),'auto');assert.equal(await palette(),'light');await e(`Sidera.cycleColorMode()`);assert.equal(await palette(),'dark');
  await n('/_auto/about/');assert.equal(await choice(),'auto');await call('Page.removeScriptToEvaluateOnNewDocument',{identifier:script.identifier});
  assert.equal(b.errors.length,0,JSON.stringify(b.errors));assert(b.requests.every(u=>u.startsWith(b.origin+'/')));
- console.log('PASS social footer and appearance: owner/default auto, cycle, persistence/migration, absent control, system following, pinned/local assets, responsive/keyboard/AX, no JS and denied storage');
+ console.log('PASS social footer and color mode: owner/default auto, cycle, persistence/migration, absent control, system following, pinned/local assets, responsive/keyboard/AX, no JS and denied storage');
 },{'/_auto':'default-auto-public','/_light':'default-light-public','/_plain':'no-button-public','/_off':'off-public','/_compact':'compact-public','/_six':'six-public','/_text':'icons-off-public','/_chinese':'chinese-public'});

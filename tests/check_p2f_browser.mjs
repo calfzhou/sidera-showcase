@@ -19,7 +19,7 @@ await runBrowser(async ({run,version,errors,requests,origin,call,evaluate,naviga
             toc:[...document.querySelectorAll('[data-toc] a')].every(a=>document.getElementById(decodeURIComponent(a.hash.slice(1)))),
             images:[...document.images].every(i=>i.complete&&i.naturalWidth>0),
             components:[...document.querySelectorAll('[data-component]')].map(n=>n.dataset.component),
-            appearance:document.querySelectorAll('[data-appearance-cycle]').length,
+            appearance:document.querySelectorAll('[data-color-mode-cycle]').length,
             dead:[...document.querySelectorAll('a')].filter(a=>!a.getAttribute('href')||(!a.textContent.trim()&&!a.getAttribute('aria-label'))).length};
         })()`);
         assert(!state.overflow && state.toc && state.images && !state.dead,JSON.stringify({prefix,mode,width,route,state}));
@@ -65,13 +65,13 @@ await runBrowser(async ({run,version,errors,requests,origin,call,evaluate,naviga
   await key('Tab','Tab',9); // TOC summary remains a native independently operable disclosure.
   await evaluate(`document.querySelector('[data-toc] a').focus()`); await key('Enter','Enter',13);
   assert.equal(await evaluate('location.hash'),'#start-with-the-smallest-useful-unit');
-  await navigate('/_compact/about/'); await evaluate(`Sidera.setAppearance('light')`);
-  await navigate('/_compact/'); assert.equal(await evaluate('document.documentElement.dataset.appearance'),'light');
+  await navigate('/_compact/about/'); await evaluate(`Sidera.setColorMode('light')`);
+  await navigate('/_compact/'); assert.equal(await evaluate('document.documentElement.dataset.colorScheme'),'light');
   await viewport(1440); await navigate('/_two/field-notes/shell-1/');
   await evaluate(`document.documentElement.style.fontSize='36px'`);
   assert(await evaluate('document.documentElement.scrollWidth<=innerWidth+1'));
   await viewport(390); await call('Emulation.setScriptExecutionDisabled',{value:true}); await navigate('/_two/about/',false);
-  assert(await evaluate(`document.querySelector('.site-menu').open && document.querySelector('.context-menu').open && [...document.querySelectorAll('[data-appearance-cycle]')].every(b=>b.hidden)`));
+  assert(await evaluate(`document.querySelector('.site-menu').open && document.querySelector('.context-menu').open && [...document.querySelectorAll('[data-color-mode-cycle]')].every(b=>b.hidden)`));
   await screenshot('two-no-js-390'); await call('Emulation.setScriptExecutionDisabled',{value:false});
   assert.equal(errors.length,0,JSON.stringify(errors));
   assert(requests.every(u=>u.startsWith(origin+'/')));

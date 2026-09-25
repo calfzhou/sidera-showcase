@@ -9,14 +9,14 @@ await runBrowser(async b=>{
  const results=[];
  for(const [width,prefix,mode] of [[1440,'','dark'],[390,'','light'],[320,'/_chinese','dark']]) {
   await v(width,960);await n(prefix+'/');
-  await e(`Sidera.setAppearance('${mode}')`);
+  await e(`Sidera.setColorMode('${mode}')`);
   for(const route of routes){
    await n(prefix+route);
-   const state=await e(`({overflow:document.documentElement.scrollWidth>innerWidth,headings:document.querySelectorAll('h1').length,images:[...document.images].every(i=>i.naturalWidth>0),ids:[...document.querySelectorAll('[id]')].map(i=>i.id),mode:document.documentElement.dataset.appearance})`);
+   const state=await e(`({overflow:document.documentElement.scrollWidth>innerWidth,headings:document.querySelectorAll('h1').length,images:[...document.images].every(i=>i.naturalWidth>0),ids:[...document.querySelectorAll('[id]')].map(i=>i.id),mode:document.documentElement.dataset.colorScheme})`);
    assert(!state.overflow&&state.images&&state.headings===1,JSON.stringify({route,width,state}));assert.equal(new Set(state.ids).size,state.ids.length);assert.equal(state.mode,mode);results.push({route,width,mode});
   }
  }
- await v(1440,960);await n('/notes/');await e(`Sidera.setAppearance('dark')`);
+ await v(1440,960);await n('/notes/');await e(`Sidera.setColorMode('dark')`);
  const box=await e(`(()=>{const r=document.querySelector('.article-card').getBoundingClientRect();return{x:r.x+80,y:r.y+40}})()`);
  await call('Input.dispatchMouseEvent',{type:'mouseMoved',x:1200,y:20});await delay(50);await call('Input.dispatchMouseEvent',{type:'mouseMoved',...box});await delay(400);
  assert.equal(await e(`getComputedStyle(document.querySelector('.card-title')).backgroundSize`),'100% 10px');
@@ -53,7 +53,7 @@ await runBrowser(async b=>{
  await v(1440);await n('/notes/');await call('Emulation.setEmulatedMedia',{features:[{name:'prefers-reduced-motion',value:'reduce'}]});
  await call('Input.dispatchMouseEvent',{type:'mouseMoved',...box});await delay(60);assert.equal(await e(`getComputedStyle(document.querySelector('.article-card')).transform`),'none');
  await v(390);await call('Emulation.setScriptExecutionDisabled',{value:true});await n('/notes/package-management/',false);
- assert(await e(`document.querySelector('.site-menu').open && document.querySelector('.context-menu').open && !document.querySelector('#left-region').hasAttribute('popover') && [...document.querySelectorAll('[data-appearance-cycle]')].every(b=>b.hidden)`));
+ assert(await e(`document.querySelector('.site-menu').open && document.querySelector('.context-menu').open && !document.querySelector('#left-region').hasAttribute('popover') && [...document.querySelectorAll('[data-color-mode-cycle]')].every(b=>b.hidden)`));
  await call('Emulation.setScriptExecutionDisabled',{value:false});
  assert.equal(b.errors.length,0,JSON.stringify(b.errors));assert(b.requests.every(u=>u.startsWith(b.origin+'/')));
  await writeFile(resolve(b.run,'browser-results.json'),JSON.stringify({browser:b.version.Browser,node:process.version,views:results,checks:['hover spotlight/tilt','keyboard title/independent term','TOC scroll current','sticky rail','drawer Escape/focus/light-dismiss','tree disclosure','all breakpoints','icons-off/widgets/compact','reduced motion','no JS']},null,2));

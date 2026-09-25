@@ -193,16 +193,16 @@ root welcome widget is reused by Home/About; Notes uses recent-published; Handbo
 neutral for current pages, with keyboard/hover feedback retained.
 
 
-## Social footer and visitor appearance
+## Social footer and visitor color mode
 
 The bottom of the left bar is a configurable `left_footer` region, defaulting to the `social`
-component. Root `menus.social` currently demonstrates Email, Code and the optional appearance
+component. Root `menus.social` currently demonstrates Email, Code and the optional color-mode
 action. The two local SVGs live in `assets/icons`; they are site-owned examples, not theme/vendor
 logos. Replace the menu destinations/assets with the site owner's choices (maximum six entries).
 
-Set `params.appearance` to `dark`, `light` or `auto` (Sidera defaults to auto; Fieldbook explicitly
+Set `params.color_mode` to `dark`, `light` or `auto` (Sidera defaults to auto; Fieldbook explicitly
 chooses dark). A saved visitor choice wins. The optional menu action uses
-`params.onclick = 'Sidera.cycleAppearance()'` and cycles dark/light/auto; removing it does not add
+`params.onclick = 'Sidera.cycleColorMode()'` and cycles dark/light/auto; removing it does not add
 a replacement selector. Source strings are not executed as arbitrary JS. See theme SHELL.md.
 
 Focused checks: `check_social.py` prepares defaults/menus/safety fixtures, then
@@ -212,7 +212,7 @@ storage/OS behavior, pinned footer, local icons, optional control, keyboard/mobi
 
 Color-mode switching now uses the shared `Sidera.toast(text, duration)` feedback helper. It slides
 in from the top, waits briefly and disappears; only the explicit cycle action announces a mode
-change. UI wording is Color mode, while existing config/API identifiers are unchanged. To check
+change. Public config/API names now match Color mode: params.color_mode and Sidera.cycleColorMode/setColorMode. To check
 motion, safe text, rapid replacement, mobile drawer layering and reduced-motion/no-JS behavior,
 build root output as `baseline-public` plus the Chinese overlay as `chinese-public` (baseURL
 `https://example.org/_chinese/`) in a fresh run directory, then run
@@ -230,3 +230,8 @@ node tests/check_toc_browser.mjs "$PWD/.checks/toc-new-run"
 It uses an isolated native Markdown outline (six heading levels and long labels), not target HTML,
 and checks the shared track/current marker, source-like hierarchy, wrapping, actual anchor/scroll
 behavior, collapse/footer, repeated instances, icons-off, mobile palettes, Chinese and no-JS.
+
+Public naming migration: use color_mode in site/language params and color-mode for the fixed
+switch icon. Update onclick to Sidera.cycleColorMode(). There are no owner-config/API aliases;
+old appearance entries diagnose. Stored visitor choices are preserved through the unchanged
+private browser storage key. Theme SHELL.md also lists the renamed translation/style hooks.

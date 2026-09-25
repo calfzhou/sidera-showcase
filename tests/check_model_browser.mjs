@@ -16,12 +16,12 @@ await runBrowser(async ({navigate,viewport,evaluate,call,screenshot,errors,reque
   for (const width of [1440,390]) for (const mode of ['dark','light']) {
     await viewport(width);
     await navigate('/one/a/');
-    await evaluate(`Sidera.setAppearance(${JSON.stringify(mode)})`);
+    await evaluate(`Sidera.setColorMode(${JSON.stringify(mode)})`);
     for (const route of ['/free/','/free/styled/','/free/chapter/a/','/fourth/','/fourth/a/','/one/a/','/one/series/shared/','/one/authors/alice/','/authors/alice/','/preset/field-guide/']) {
       await navigate(route);
       assert(await evaluate('document.documentElement.scrollWidth<=innerWidth+1'),route);
       assert(await evaluate('!!document.querySelector("h1") && !!document.querySelector("main")'),route);
-      assert.equal(await evaluate('document.documentElement.dataset.appearance'),mode);
+      assert.equal(await evaluate('document.documentElement.dataset.colorScheme'),mode);
       results.push({route,width,mode});
     }
     await navigate('/one/a/');

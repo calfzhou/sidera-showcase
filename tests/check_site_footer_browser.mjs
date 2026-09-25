@@ -4,7 +4,7 @@ import {runBrowser} from './browser.mjs';
 await runBrowser(async b=>{
  const {evaluate:e,navigate:n,viewport:v,call,key,delay}=b;
  for(const [width,mode,prefix] of [[1440,'dark',''],[1440,'light',''],[390,'dark',''],[390,'light','/_chinese']]){
-  await v(width,960);await n(prefix+'/about/');await e(`Sidera.setAppearance('${mode}')`);
+  await v(width,960);await n(prefix+'/about/');await e(`Sidera.setColorMode('${mode}')`);
   await call('Input.dispatchMouseEvent',{type:'mouseMoved',x:1,y:1});await delay(200);
   for(const route of ['/about/','/notes/package-management/']){
    await n(prefix+route);
@@ -12,7 +12,7 @@ await runBrowser(async b=>{
    assert.equal(state.icons,0);assert.equal(state.current,state.other);assert.equal(state.bg,'rgba(0, 0, 0, 0)');assert.equal(state.shadow,'none');assert.equal(state.border,'1px');assert.equal(state.weight,'500');assert(!state.overflow);
   }
  }
- await v(1440,960);await n('/about/');await e(`Sidera.setAppearance('dark');document.querySelector('.site-footer').scrollIntoView({behavior:'instant',block:'center'})`);await delay(150);
+ await v(1440,960);await n('/about/');await e(`Sidera.setColorMode('dark');document.querySelector('.site-footer').scrollIntoView({behavior:'instant',block:'center'})`);await delay(150);
  const r=await e(`(()=>{const r=document.querySelector('.site-footer').getBoundingClientRect();return{x:r.x+scrollX,y:r.y+scrollY,width:r.width,height:r.height}})()`);
  const {data}=await call('Page.captureScreenshot',{format:'png',clip:{...r,scale:2}});await writeFile(resolve(b.run,'site-footer.png'),Buffer.from(data,'base64'));
  const target='.site-footer .native-menu a[href="/notes/"]';

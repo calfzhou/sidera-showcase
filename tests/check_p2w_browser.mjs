@@ -11,7 +11,7 @@ await runBrowser(async ({run,version,errors,requests,origin,call,evaluate,naviga
     for (const width of [390,1280]) for (const route of ['/guidebook/','/guidebook/page/2/','/guidebook/getting-started/setup/','/guidebook/reference/','/sidera/','/sidera/authoring/example/']) {
       await viewport(width); await navigate(prefix+route);
       const state=await evaluate(`({overflow:document.documentElement.scrollWidth>innerWidth+1,
-        mode:document.documentElement.dataset.appearance, tree:!!document.querySelector('.docs-navigation'),
+        mode:document.documentElement.dataset.colorScheme, tree:!!document.querySelector('.docs-navigation'),
         article:document.querySelector('article')?.dataset.renderer,
         list:document.querySelectorAll('#doc-children > li').length,
         prose:!!document.querySelector('article > .prose'),
@@ -45,7 +45,7 @@ await runBrowser(async ({run,version,errors,requests,origin,call,evaluate,naviga
   assert.equal(await evaluate(`document.querySelector('.docs-navigation [aria-current="page"]').dataset.docPath`),'/guidebook/getting-started/setup');
   await viewport(390); await call('Emulation.setScriptExecutionDisabled',{value:true}); await navigate('/sidera/',false);
   assert.equal(await evaluate(`document.querySelector('.site-menu').open`),true);
-  assert.equal(await evaluate(`[...document.querySelectorAll('[data-appearance-cycle]')].every(b=>b.hidden)`),true);
+  assert.equal(await evaluate(`[...document.querySelectorAll('[data-color-mode-cycle]')].every(b=>b.hidden)`),true);
   await call('Emulation.setScriptExecutionDisabled',{value:false});
   assert.equal(errors.length,0,JSON.stringify(errors));
   assert(!requests.some(u=>u.startsWith('http')&&!u.startsWith(origin)));

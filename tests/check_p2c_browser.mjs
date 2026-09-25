@@ -8,11 +8,11 @@ await runBrowser(async ({ run, port, debugPort, profile, origin, version, errors
   call, evaluate, navigate, viewport, key, screenshot, delay }) => {
   const results = [];
   const palette = () => evaluate(`getComputedStyle(document.documentElement).colorScheme`);
-  const choose = value => evaluate(`Sidera.setAppearance(${JSON.stringify(value)})`);
+  const choose = value => evaluate(`Sidera.setColorMode(${JSON.stringify(value)})`);
   const os = async value => {
     await call('Emulation.setEmulatedMedia',{features:[{name:'prefers-color-scheme',value}]});
     for(let n=0;n<80;n++) {
-      if(await evaluate(`matchMedia('(prefers-color-scheme: light)').matches === ${value==='light'} && (document.documentElement.dataset.appearanceMode !== 'auto' || document.documentElement.dataset.appearance === ${JSON.stringify(value)})`)) return;
+      if(await evaluate(`matchMedia('(prefers-color-scheme: light)').matches === ${value==='light'} && (document.documentElement.dataset.colorMode !== 'auto' || document.documentElement.dataset.colorScheme === ${JSON.stringify(value)})`)) return;
       await delay(25);
     }
     assert.fail('Native media/appearance state did not settle');
@@ -25,9 +25,9 @@ await runBrowser(async ({ run, port, debugPort, profile, origin, version, errors
     await viewport(1440); await navigate(prefix+'/');
     await evaluate(`localStorage.removeItem('sidera-appearance')`); await os('light'); await navigate(prefix+'/');
     assert.equal(await palette(),'light');
-    assert.equal(await evaluate('document.documentElement.dataset.appearanceMode'),'auto');
+    assert.equal(await evaluate('document.documentElement.dataset.colorMode'),'auto');
     // Real keyboard cycle: auto -> dark -> light; the action label is localized.
-    await evaluate(`document.querySelector('[data-appearance-cycle]').focus()`);
+    await evaluate(`document.querySelector('[data-color-mode-cycle]').focus()`);
     await key('Enter','Enter',13);assert.equal(await palette(),'dark');
     await key('Enter','Enter',13);assert.equal(await palette(),'light');
     await navigate(prefix+'/about/'); assert.equal(await palette(),'light');
@@ -41,7 +41,7 @@ await runBrowser(async ({ run, port, debugPort, profile, origin, version, errors
         for (const [name,path] of pages) {
           await navigate(prefix+path);
           const state = await evaluate(`({lang:document.documentElement.lang,
-            label:document.querySelector('[data-appearance-cycle]').getAttribute('aria-label'),
+            label:document.querySelector('[data-color-mode-cycle]').getAttribute('aria-label'),
             skip:document.querySelector('.skip-link').textContent,
             nav:document.querySelector('.sidebar').getAttribute('aria-label'),
             width:innerWidth,scroll:document.documentElement.scrollWidth,
@@ -74,8 +74,8 @@ await runBrowser(async ({ run, port, debugPort, profile, origin, version, errors
       await navigate(prefix+'/field-notes/'); await evaluate(`document.querySelector('[data-region="left"]').focus()`);
       assert(await evaluate(`document.activeElement.matches('[data-region="left"]')`));
       await key('Enter','Enter',13); await delay(80); assert(await evaluate(`document.querySelector('#left-region').matches(':popover-open')`));
-      for(let n=0;n<100 && !await evaluate(`document.activeElement.matches('[data-appearance-cycle]')`);n++) await key('Tab','Tab',9);
-      assert(await evaluate(`document.activeElement.matches('[data-appearance-cycle]')`));
+      for(let n=0;n<100 && !await evaluate(`document.activeElement.matches('[data-color-mode-cycle]')`);n++) await key('Tab','Tab',9);
+      assert(await evaluate(`document.activeElement.matches('[data-color-mode-cycle]')`));
       assert((await evaluate(`document.activeElement.getAttribute('aria-label')`)).includes(labels[0]));
       const tree = await call('Accessibility.getFullAXTree');
       assert(tree.nodes.some(n=>n.role?.value==='button' && n.name?.value.includes(labels[0])));
@@ -89,7 +89,7 @@ await runBrowser(async ({ run, port, debugPort, profile, origin, version, errors
     await call('Emulation.setScriptExecutionDisabled',{value:true});
     await navigate(prefix+'/field-notes/',false);
     assert.equal(await palette(),'light');
-    assert(await evaluate(`document.querySelector('.site-menu').open && [...document.querySelectorAll('[data-appearance-cycle]')].every(b=>b.hidden)`));
+    assert(await evaluate(`document.querySelector('.site-menu').open && [...document.querySelectorAll('[data-color-mode-cycle]')].every(b=>b.hidden)`));
     assert.equal(await evaluate(`document.querySelector('.skip-link').textContent`),labels[4]);
     await call('Emulation.setScriptExecutionDisabled',{value:false});
     let {identifier}=await call('Page.addScriptToEvaluateOnNewDocument',{source:`Object.defineProperty(window,'localStorage',{get(){throw new DOMException('Denied','SecurityError')}})`});

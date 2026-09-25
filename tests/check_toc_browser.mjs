@@ -36,7 +36,7 @@ await runBrowser(async b=>{
  assert(await e(`document.querySelector('[data-instance="right-toc-1"] details').open&&!document.querySelector('[data-instance="right-toc-2"] details').open`));
  assert.equal(await e(`document.querySelectorAll('[data-instance="right-toc-2"] svg').length`),0);
  for(const palette of ['dark','light']){
-  await v(390,844);await n('/_chinese'+route);await e(`Sidera.setAppearance('${palette}');document.querySelector('[data-region="right"]').click()`);await delay(430);
+  await v(390,844);await n('/_chinese'+route);await e(`Sidera.setColorMode('${palette}');document.querySelector('[data-region="right"]').click()`);await delay(430);
   assert(await e('document.documentElement.scrollWidth<=innerWidth'));
   assert.equal(await e(`getComputedStyle(document.querySelector('.right-region [data-toc]')).maxHeight`),'none');
   assert.equal(await e(`document.querySelector('.right-region .article-toc > summary').textContent`),'本页目录');

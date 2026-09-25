@@ -8,7 +8,7 @@ await runBrowser(async ({run,version,navigate,viewport,evaluate,call,key,screens
   let cases=0;
   const alpha='/field-notes/alpha/';
   async function mode(value) {
-    await evaluate(`Sidera.setAppearance(${JSON.stringify(value)})`);
+    await evaluate(`Sidera.setColorMode(${JSON.stringify(value)})`);
     await delay(220);
   }
   async function wait(expression) {
@@ -19,7 +19,7 @@ await runBrowser(async ({run,version,navigate,viewport,evaluate,call,key,screens
     await viewport(width);await navigate(prefix+alpha);await mode(palette);
     for(const route of [alpha,'/field-notes/','/guidebook/getting-started/setup/','/authors/demo-editor/','/journal/series/model-workshop/']) {
       await navigate(prefix+route);
-      const state=await evaluate(`({overflow:document.documentElement.scrollWidth>innerWidth+1,loaded:[...document.images].every(i=>i.naturalWidth>0),palette:document.documentElement.dataset.appearance,ids:[...document.querySelectorAll('[id]')].map(n=>n.id)})`);
+      const state=await evaluate(`({overflow:document.documentElement.scrollWidth>innerWidth+1,loaded:[...document.images].every(i=>i.naturalWidth>0),palette:document.documentElement.dataset.colorScheme,ids:[...document.querySelectorAll('[id]')].map(n=>n.id)})`);
       assert(!state.overflow && state.loaded,JSON.stringify({width,palette,route,state}));
       assert.equal(state.palette,palette);assert.equal(new Set(state.ids).size,state.ids.length);cases++;
     }
@@ -67,18 +67,18 @@ await runBrowser(async ({run,version,navigate,viewport,evaluate,call,key,screens
   await call('Emulation.setEmulatedMedia',{features:[]});
   // System preference and storage persistence use the existing appearance implementation.
   await mode('auto');await call('Emulation.setEmulatedMedia',{features:[{name:'prefers-color-scheme',value:'light'}]});
-  await wait(`document.documentElement.dataset.appearance==='light'`);await navigate(alpha);
-  assert.equal(await evaluate(`document.documentElement.dataset.appearanceMode`),'auto');
+  await wait(`document.documentElement.dataset.colorScheme==='light'`);await navigate(alpha);
+  assert.equal(await evaluate(`document.documentElement.dataset.colorMode`),'auto');
   await call('Emulation.setEmulatedMedia',{features:[{name:'prefers-color-scheme',value:'dark'}]});
-  await wait(`document.documentElement.dataset.appearance==='dark'`);
+  await wait(`document.documentElement.dataset.colorScheme==='dark'`);
   // Both no-JS and denied storage stay readable. Do not make absent footers readiness markers.
   await call('Emulation.setScriptExecutionDisabled',{value:true});await navigate(alpha,false);
-  assert(await evaluate(`document.querySelector('.site-menu').open && document.querySelector('.context-menu').open && [...document.querySelectorAll('[data-appearance-cycle]')].every(b=>b.hidden)`));
+  assert(await evaluate(`document.querySelector('.site-menu').open && document.querySelector('.context-menu').open && [...document.querySelectorAll('[data-color-mode-cycle]')].every(b=>b.hidden)`));
   assert(await evaluate(`!!document.querySelector('.article-footer a')`));
   await call('Emulation.setScriptExecutionDisabled',{value:false});
   const injection=await call('Page.addScriptToEvaluateOnNewDocument',{source:`Object.defineProperty(window,'localStorage',{get(){throw new Error('denied')}})`});
-  await navigate(alpha);assert.equal(await evaluate(`document.documentElement.dataset.appearance`),'dark');
-  await mode('light');assert.equal(await evaluate(`document.documentElement.dataset.appearance`),'light');
+  await navigate(alpha);assert.equal(await evaluate(`document.documentElement.dataset.colorScheme`),'dark');
+  await mode('light');assert.equal(await evaluate(`document.documentElement.dataset.colorScheme`),'light');
   await call('Page.removeScriptToEvaluateOnNewDocument',{identifier:injection.identifier});
   assert.equal(errors.length,0,JSON.stringify(errors));assert(requests.every(u=>u.startsWith(origin+'/')),JSON.stringify(requests));
   await writeFile(resolve(run,'browser-results.json'),JSON.stringify({cases,browser:version.Browser,node:process.version,checks:['card hover/focus','parent link/disclosure keyboard','native TOC anchor/scroll current','sticky rails','footer columns/series/authors','Chinese mobile disclosures','reduced motion','System storage','no-JS/denied storage'],limits:'Installed Chromium only; visual review not pixel parity or complete accessibility certification.'},null,2));

@@ -22,9 +22,9 @@ FIXTURES = ROOT / 'tests/fixtures/i18n'
 HOSTILE = 'A <img src=x onerror=alert(1)> & "quoted" \'name\' $1'
 
 
-def appearance_control(source):
+def color_mode_control(source):
     with (source/'hugo.toml').open('a') as f:
-        f.write("\n[[menus.social]]\nname='Appearance'\n[menus.social.params]\nonclick='Sidera.cycleAppearance()'\n")
+        f.write("\n[[menus.social]]\nname='Appearance'\n[menus.social.params]\nonclick='Sidera.cycleColorMode()'\n")
 
 
 def configure(source, name):
@@ -160,9 +160,9 @@ def main():
     css = (ROOT / THEME / 'assets/css/sidera.css').read_text()
     assert all(value.strip() == "none" or not value.strip(" \"'") for value in re.findall(r'(?:^|[;{])\s*content\s*:\s*([^;}]*)', css)), 'CSS must not generate untranslated text'
     assert 'aria-label=' not in css, 'Styles must not depend on translated labels'
-    en = copy_site(run, 'baseline'); appearance_control(en)
+    en = copy_site(run, 'baseline'); color_mode_control(en)
     baseline = build(en, run, 'baseline', flags=('--printI18nWarnings',))
-    zh = copy_site(run, 'chinese'); appearance_control(zh)
+    zh = copy_site(run, 'chinese'); color_mode_control(zh)
     flags = configure(zh, 'chinese')
     chinese = build(zh, run, 'chinese', flags=flags + ('--printI18nWarnings',))
     for out in [baseline, chinese]:
@@ -173,7 +173,7 @@ def main():
     for file in baseline.rglob('*.html'):
         rel = file.relative_to(baseline)
         assert Page(file).times == Page(chinese / rel).times, rel
-    multi = copy_site(run, 'bilingual'); appearance_control(multi); flags = configure(multi, 'bilingual'); translated_fixture(multi)
+    multi = copy_site(run, 'bilingual'); color_mode_control(multi); flags = configure(multi, 'bilingual'); translated_fixture(multi)
     bilingual = build(multi, run, 'bilingual', flags=flags + ('--printI18nWarnings',))
     bilingual_checks(bilingual)
     subpath = build(multi, run, 'subpath', flags=flags + ('--baseURL', 'https://example.org/preview/', '--printI18nWarnings'))
@@ -214,13 +214,13 @@ def main():
         probes.append(messages.messages)
     # Each translated message really differs; no silently English Chinese entries.
     assert all(probes[0][k] != probes[1][k] for k in probes[0])
-    override = copy_site(run, 'override'); appearance_control(override); cfg = configure(override, 'bilingual'); translated_fixture(override)
+    override = copy_site(run, 'override'); color_mode_control(override); cfg = configure(override, 'bilingual'); translated_fixture(override)
     (override / 'i18n').mkdir()
-    (override / 'i18n/zh-CN.toml').write_text('[appearance]\nother = ' + json.dumps(HOSTILE) + '\n[tags]\nother = "自定义标签"\n')
+    (override / 'i18n/zh-CN.toml').write_text('[color_mode]\nother = ' + json.dumps(HOSTILE) + '\n[tags]\nother = "自定义标签"\n')
     out = build(override, run, 'override', flags=cfg + ('--printI18nWarnings',))
     raw = html(out, '/zh/field-notes/tags/').read_text()
     assert HOSTILE in unescape(raw) and '<img src=x' not in raw and '<h1>自定义标签</h1>' in raw
-    assert 'data-appearance-default="auto"' in html(out, '/field-notes/').read_text()
+    assert 'data-color-mode-default="auto"' in html(out, '/field-notes/').read_text()
     # Deliberately omit one scratch translation: native default language fallback.
     f = override / THEME / 'i18n/zh-CN.toml'
     f.write_text(re.sub(r'\[recent_updates\]\nother = [^\n]+\n', '', f.read_text()))

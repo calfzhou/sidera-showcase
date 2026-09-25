@@ -58,7 +58,7 @@ await runBrowser(async b=>{
  await n('/_generic/tags/');await noDots('.fallback-menu .taxonomy-navigation a[aria-current]');
  await n('/_widgets'+tagRoute);await noDots('.right-region [data-component="links"] a[aria-current]');
  for(const palette of ['dark','light']){
-  await v(390,844);await n(tagRoute);await e(`Sidera.setAppearance('${palette}');document.querySelector('[data-region="left"]').click()`);await delay(430);
+  await v(390,844);await n(tagRoute);await e(`Sidera.setColorMode('${palette}');document.querySelector('[data-region="left"]').click()`);await delay(430);
   await noDots(tree+' a[aria-current]');await aligned();assert(await e('document.documentElement.scrollWidth<=innerWidth'));
  }
  await v(1440,960);await call('Emulation.setScriptExecutionDisabled',{value:true});await n(tagRoute,false);await aligned();await noDots(tree+' a[aria-current]');await call('Emulation.setScriptExecutionDisabled',{value:false});
