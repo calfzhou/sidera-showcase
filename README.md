@@ -243,3 +243,10 @@ The site-footer `credit` item supports Markdown in the native `built_with` trans
 It uses the same native Markdown/raw-HTML policy as `footer_text`; the default wording stays
 unchanged. `check_site_footer.py` and `check_site_footer_browser.mjs` cover translated Markdown,
 HTML policy, compact typography and native keyboard links as well as the sitemap defaults.
+
+
+Pager checks: set `SIDERA_CHECK_DIR` to a fresh directory and run `tests/check_pager.py`, then
+`node tests/check_pager_browser.mjs <same-directory>` with the documented local browser harness.
+These prepare native 0/1/6/12-page fixtures and EN/ZH/subpath builds, verify unchanged pagination
+URLs/order, and inspect responsive windows, disabled/current/hover/focus states and no-JS links.
+The normal showcase still uses its original content/page sizes; no extra demo collection is live.
