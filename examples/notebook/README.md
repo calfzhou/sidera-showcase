@@ -20,3 +20,7 @@ Use `--config hugo.toml,widgets.toml` for an authored right profile/links varian
 `--config hugo.toml,chinese.toml` for Chinese theme UI around unchanged authored English copy.
 The larger optional-cover/full-components configuration remains in the parent showcase.
 Stop the foreground server with Ctrl-C. Actual bundled theme docs are not enabled here.
+
+Identity: the icon and the complete title/subtitle box link home. Hover/focus the icon for
+the rotating rainbow ring; hover/focus the text box to reveal the second half of
+`params.identity.subtitle` (`first | second`). No underline or JavaScript is needed.

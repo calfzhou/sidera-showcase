@@ -19,7 +19,7 @@ footer_menu = 'footer'
 footer_text = 'A small, independent notebook. Written to be revisited.'
 [params.identity]
 image = 'images/sidera-mark.svg'
-subtitle = 'Notes & everyday tools'
+subtitle = 'Notes & everyday tools | Small ideas, kept close'
 [params.profile]
 title = 'A working notebook'
 text = 'Observations from the desk and the field. Small ideas, kept in one place.'

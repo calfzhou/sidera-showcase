@@ -268,3 +268,12 @@ node tests/check_p2gr_browser.mjs /absolute/path/to/printed/run
 The browser harness creates a fresh profile even on rerun and stops its owned services.
 The corrective browser suite covers normal page types and live hover, TOC, drawers, keyboard,
 no-JS, reduced motion and configurable layouts. This is not cross-browser/production certification.
+
+Identity-only regression (circular/full-box home links, rainbow rotation, subtitle flip,
+keyboard/no-JS/reduced-motion, escaping and locale-aware URLs):
+
+```sh
+uv run --no-project --no-managed-python python3 tests/check_identity.py
+nvm use
+node tests/check_identity_browser.mjs /absolute/path/to/printed/run
+```
