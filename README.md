@@ -267,3 +267,10 @@ Post/note lists no longer show a count/sort row, and docs child lists no longer 
 child-count line. Native list accessibility metadata remains. After `check_showcase.py` builds
 its run directory, run `node tests/check_list_metadata_browser.mjs <run-directory>` to verify
 visible omission, retained headings/cards, accessible labels and keyboard/no-JS navigation.
+
+
+Header-date checks: run `tests/check_article_dates.py` with `SIDERA_CHECK_DIR` pointing to a fresh
+run directory, then `node tests/check_article_dates_browser.mjs <same-directory>`. Native fixture
+builds cover date order/absence/equality and show_updated opt-out; the isolated browser checks
+hover/focus, no reflow, touch/no-JS and default footer omission. Timestamp and language rules remain
+native Hugo. The optional footer meta component remains available only when explicitly selected.

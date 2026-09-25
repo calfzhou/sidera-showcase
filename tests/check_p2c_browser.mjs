@@ -60,7 +60,7 @@ await runBrowser(async ({ run, port, debugPort, profile, origin, version, errors
           }
           if(lang==='zh') {
             assert(!/Published|Modified|Updated|articles|Pins first|Page \d|Built with|Recently updated/.test(state.ui+state.dates.join(' ')),state.ui);
-            assert(state.dates.every(t=>/^(发表于|修改于|更新于) \d+年\d+月\d+日$/.test(t)),state.dates);
+            assert(state.dates.every(t=>/^(发表于|更新于) \d+年\d+月\d+日$/.test(t)),state.dates);
           }
           if (name==='article') assert.equal(await evaluate(`document.querySelector('article').dataset.collection`),prefix+'/field-notes/');
           if (width!==320 && ['article','list','tag','standalone'].includes(name)) await screenshot(`${lang}-${mode}-${name}-${width}`);
