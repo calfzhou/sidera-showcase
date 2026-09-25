@@ -1,0 +1,5 @@
+# On home/standalone these inapplicable components collapse completely.
+# Notes/docs retain their applicable contextual tree; headings retain TOC.
+[cascade.params]
+left = ['taxonomies', 'page-tree']
+right = ['toc']

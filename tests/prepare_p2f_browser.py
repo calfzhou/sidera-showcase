@@ -2,7 +2,7 @@
 from pathlib import Path
 import os, sys, json, shutil
 sys.dont_write_bytecode=True
-from check_p1a import ROOT
+from check_p1a import ORGANIZATION, ROOT
 from check_p1b import build, copy_site
 from check_p2w import write,replace
 from check_p2c import configure
@@ -20,7 +20,7 @@ def prepare(run):
     # Baseline remains the actual defaults; the longer synthetic articles supply comparison density.
     build(source,run,'baseline')
     for variant,configs in [('full',['full-shell']),('two',['full-shell','two-regions']),('compact',['compact']),('empty',['empty-regions']),('scoped',['full-shell','scoped'])]:
-        for name in configs: write(source,name+'.toml',(ROOT/'examples'/f'{name}.toml').read_text())
+        for name in configs: write(source,name+'.toml',(ORGANIZATION/'examples'/f'{name}.toml').read_text())
         variant_source=source
         if variant=='scoped':
             variant_source=run/'scoped-source';shutil.copytree(source,variant_source)

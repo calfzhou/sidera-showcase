@@ -2,7 +2,7 @@
 from pathlib import Path
 import os,sys,tempfile,json,shutil,re
 sys.dont_write_bytecode=True
-from check_p1a import ROOT,THEME,Page,all_articles
+from check_p1a import ORGANIZATION, ROOT,THEME,Page,all_articles
 from check_p1b import copy_site,build,html,local_links
 from check_p2w import write,replace
 from check_p2f import nodes
@@ -65,7 +65,7 @@ def main():
     # Restore site hierarchy; move one actual bundle between all three collections.
     moving=copy_site(run,'moving');cfg=moving/'hugo.toml';cfg.write_text(cfg.read_text()+"\n[params]\ntaxonomy_hierarchy=['tags','categories']\n");bundle=moving/'content/field-notes/traveller';bundle.mkdir()
     document='+++\ntitle="Travelling page"\ndate=2024-03-04T10:00:00Z\ntags=["movement/shared"]\ncategories=["practice/examples"]\n[params]\npinned=true\nshow_updated=false\n+++\n![Local image](sample.svg)\n\n## Unchanged content\n\nOne source document.'
-    (bundle/'index.md').write_text(document);shutil.copy2(ROOT/'content/field-notes/alpha/sample.svg',bundle/'sample.svg')
+    (bundle/'index.md').write_text(document);shutil.copy2(ORGANIZATION/'content/field-notes/alpha/sample.svg',bundle/'sample.svg')
     old=None
     for owner,route in [('field-notes','/field-notes/traveller/'),('journal','/journal/2024/03/04/traveller/'),('guidebook','/guidebook/traveller/')]:
         dest=moving/'content'/owner/'traveller'

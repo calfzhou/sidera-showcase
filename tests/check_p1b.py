@@ -17,7 +17,7 @@ from urllib.parse import unquote, urljoin, urlparse
 
 sys.dont_write_bytecode = True
 
-from check_p1a import ROOT, THEME, Page, check_baseline, same_links, snapshot, pagers, all_articles
+from check_p1a import ROOT, THEME, ORGANIZATION, copy_source, Page, check_baseline, same_links, snapshot, pagers, all_articles
 
 
 class View(HTMLParser):
@@ -97,12 +97,13 @@ def build(source, run, label, diagnostic=None, flags=()):
 
 
 def copy_site(run, label):
-    dest = run / (label + '-source')
-    dest.mkdir()
-    shutil.copy2(ROOT / 'hugo.toml', dest / 'hugo.toml')
-    for directory in ('content', 'themes'):
-        shutil.copytree(ROOT / directory, dest / directory, ignore=shutil.ignore_patterns(".git"))
-    return dest
+    """Historical organization regression inputs, paired with the current live theme."""
+    return copy_source(run, label, ORGANIZATION)
+
+
+def copy_showcase(run, label):
+    """The single current root showcase, including its real config/assets/examples."""
+    return copy_source(run, label, ROOT)
 
 
 def write_note(source, path, tags, extra=''):
@@ -227,7 +228,8 @@ def main():
     run = Path(tempfile.mkdtemp(prefix='p1b-', dir=ROOT / '.checks'))
     print('Retained run:', run, flush=True)
     (run / 'version.txt').write_text(subprocess.check_output(['hugo', 'version'], text=True, timeout=10))
-    baseline = build(ROOT, run, 'baseline')
+    baseline_source = copy_site(run, 'baseline')
+    baseline = build(baseline_source, run, 'baseline')
     check_baseline(baseline)
     tag_checks(baseline, 'field-notes', FIELD, ['alpha', 'beta', 'gamma', 'delta', 'epsilon'])
     tag_checks(baseline, 'lab-notes', LAB, ['alpha', 'beta', 'gamma', 'delta', 'storage/epsilon'])
@@ -242,7 +244,7 @@ def main():
                       'delta': [], 'storage/epsilon': ['math/graphs']},
     }.items():
         for note, tags in direct.items():
-            actual = Page(html(baseline, owner + '/' + note)).links['assigned-tags']
+            actual = Page(html(baseline, owner + '/' + note)).links.get('assigned-tags', [])
             same_links([unquote(a) for a in actual], [f'/{owner}/tags/{t}/' for t in tags])
     for owner, target in [('field-notes', 'lab-notes'), ('lab-notes', 'field-notes')]:
         note = Page(html(baseline, owner + '/alpha'))
@@ -258,10 +260,10 @@ def main():
     actual_routes = {p.relative_to(baseline).as_posix() for p in baseline.rglob('*.html')
                      if View(p).owner in ('/field-notes/', '/lab-notes/') and '/tags/' in p.relative_to(baseline).as_posix()}
     assert actual_routes == expected_routes, (actual_routes, expected_routes)
-    second = build(ROOT, run, 'determinism')
+    second = build(baseline_source, run, 'determinism')
     assert snapshot(baseline) == snapshot(second), 'Outputs differ between fresh builds'
     http_smoke(baseline, run)
-    subpath = build(ROOT, run, 'subpath', flags=('--baseURL', 'https://example.org/preview/'))
+    subpath = build(baseline_source, run, 'subpath', flags=('--baseURL', 'https://example.org/preview/'))
     local_links(subpath, '/preview')
     view = View(html(subpath, '/field-notes/tags/science/quantum/basics/'))
     assert view.owner == '/preview/field-notes/'
@@ -297,7 +299,7 @@ def main():
     local_links(positive)
     assert not (positive / 'field-notes/tags/resource').exists()
     assert snapshot(source / THEME / 'layouts') == snapshot(ROOT / THEME / 'layouts')
-    assert (source / 'hugo.toml').read_bytes() == (ROOT / 'hugo.toml').read_bytes()
+    assert (source / 'hugo.toml').read_bytes() == (ORGANIZATION / 'hugo.toml').read_bytes()
 
     # Document, rather than hide, the route-inventory/publication boundary.
     source = copy_site(run, 'draft-boundary')

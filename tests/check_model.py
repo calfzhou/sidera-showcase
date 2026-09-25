@@ -2,7 +2,7 @@
 from pathlib import Path
 import json, os, re, sys, tempfile, shutil
 sys.dont_write_bytecode=True
-from check_p1a import ROOT, THEME, Page, all_articles
+from check_p1a import ORGANIZATION, ROOT, THEME, Page, all_articles
 from check_p1b import build, copy_site, html, local_links
 from check_p2w import write, replace
 from check_p2f import nodes
@@ -105,7 +105,7 @@ right=[]''')
     leaf(source,'one/b','date=2024-02-01T00:00:00Z\nauthors=["alice"]\nseries="shared"\nseries_weight=10\n[params]\npinned=true')
     leaf(source,'two/a','date=2024-01-15T00:00:00Z\nauthors=["alice"]\nseries="shared"')
     replace(source,'content/authors/alice/_index.md','\n+++\n',"\n[params]\navatar='portrait.svg'\n+++\n")
-    shutil.copy2(ROOT/'content/field-notes/alpha/sample.svg', source/'content/authors/alice/portrait.svg')
+    shutil.copy2(ORGANIZATION/'content/field-notes/alpha/sample.svg', source/'content/authors/alice/portrait.svg')
     out=check(source,'baseline')
     assert set(all_articles(out,'/authors/alice/'))=={'/one/a/','/one/b/','/two/a/'}
     assert '/authors/alice/portrait.svg' in html(out,'/authors/alice/').read_text()

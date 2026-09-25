@@ -12,7 +12,7 @@ pageRef = '/'
 weight = 1
 [[menus.taxonomy-demo]]
 name = 'Notes'
-pageRef = '/notes'
+pageRef = '/field-notes'
 weight = 10
 [[menus.taxonomy-demo]]
 name = 'Journal'
@@ -20,7 +20,7 @@ pageRef = '/journal'
 weight = 20
 [[menus.taxonomy-demo]]
 name = 'Handbook'
-pageRef = '/handbook'
+pageRef = '/guidebook'
 weight = 30
 [[menus.taxonomy-demo]]
 identifier = 'topics'

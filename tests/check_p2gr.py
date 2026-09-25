@@ -1,19 +1,16 @@
 """Corrective presentation: normal live site, optional regions, boolean and i18n checks."""
 from pathlib import Path
-import json, os, shutil, sys, tempfile
+import json, os, sys, tempfile
 sys.dont_write_bytecode=True
-from check_p1a import ROOT, THEME
-from check_p1b import build, html, local_links
+from check_p1a import ROOT
+from check_p1b import copy_showcase, build, html, local_links
 from check_p2f import nodes
 from check_p2w import write
 
 def main():
     run=Path(os.environ.get('SIDERA_CHECK_DIR') or tempfile.mkdtemp(prefix='p2gr-',dir=ROOT/'.checks')).resolve()
     run.mkdir(parents=True,exist_ok=True)
-    source=run/'source'
-    shutil.copytree(ROOT/'examples/notebook',source,ignore=shutil.ignore_patterns('.hugo_build.lock','public','resources'))
-    shutil.copytree(ROOT/THEME,source/THEME,ignore=shutil.ignore_patterns('.git'))
-    cfg=source/'hugo.toml';cfg.write_text(cfg.read_text().replace("themesDir = '../../themes'","themesDir = 'themes'"))
+    source=copy_showcase(run,'live')
     def check(label,extra='',diagnostic=None):
         write(source,'probe.toml',extra)
         return build(source,run,label,diagnostic,('--config','hugo.toml,probe.toml','--printI18nWarnings'))
@@ -37,7 +34,7 @@ def main():
     assert 'data-toc' not in html(hidden,'/notes/').read_text()
     page.write_text(original)
     check('chinese',"defaultContentLanguage='zh'\nlocale='zh-CN'\nbaseURL='https://example.org/_chinese/'\n")
-    check('widgets',(source/'widgets.toml').read_text())
+    check('widgets',(source/'examples/widgets.toml').read_text())
     check('right-only','[cascade.params]\nleft=false\nright=["toc","profile"]\n')
     check('compact','[cascade.params]\nleft=false\nright=false\narticle_footer=false\nsite_footer=["text"]\n')
     off=check('icons-off','[cascade.params]\nicons=false\n')

@@ -5,7 +5,7 @@ from pathlib import Path
 from html.parser import HTMLParser
 import json, os, re, shutil, sys, tempfile
 sys.dont_write_bytecode = True
-from check_p1a import ROOT, THEME, snapshot
+from check_p1a import ORGANIZATION, ROOT, THEME, snapshot
 from check_p1b import build, copy_site, html
 from check_p2w import write, replace
 from prepare_scoped_example import apply as apply_scoped
@@ -64,7 +64,7 @@ def main():
     assert any(n.attrs.get('data-doc-path')=='/guidebook/getting-started' and n.attrs.get('aria-current')=='location' for n in d.all())
     assert any(n.tag=='details' and 'open' in n.attrs and n.attrs.get('class')=='tree-branch' for n in d.all())
     assert all(not n.all(href='/guidebook/getting-started/') for n in d.all() if n.tag=='summary')
-    full=source('full',(ROOT/'examples/full-shell.toml').read_text())
+    full=source('full',(ORGANIZATION/'examples/full-shell.toml').read_text())
     out=check(full,'full')
     menu=next(n for n in nodes(out).all() if n.attrs.get('class')=='native-menu')
     assert [n.attrs['href'] for n in menu.all() if n.tag=='a']==['/','/field-notes/','/journal/','/journal/2024/01/01/first-signal/','/guidebook/','/about/']
@@ -72,9 +72,9 @@ def main():
     assert not any(n.attrs.get('href')=='/' and n.attrs.get('aria-current') for n in post.all())
     assert any(n.attrs.get('href')=='/journal/' and n.attrs.get('aria-current')=='location' for n in post.all())
     assert any(n.attrs.get('href')=='/journal/2024/01/01/first-signal/' and n.attrs.get('aria-current')=='page' for n in post.all())
-    two=source('two',(ROOT/'examples/full-shell.toml').read_text())
+    two=source('two',(ORGANIZATION/'examples/full-shell.toml').read_text())
     # Native config tables cannot be redefined in a single TOML file: use layered config, like the documented command.
-    write(two,'two.toml',(ROOT/'examples/two-regions.toml').read_text())
+    write(two,'two.toml',(ORGANIZATION/'examples/two-regions.toml').read_text())
     out=check(two,'two',flags=('--config','hugo.toml,two.toml'))
     assert components(out,'/field-notes/','left')==['menu','taxonomies','page-tree']
     assert components(out,'/field-notes/','right')==['recent','profile']
@@ -107,7 +107,7 @@ text='Must not leak through replacement'
     assert not region(out,'/about/','left') and not region(out,'/about/','right')
     assert 'compact-header' in html(out,'/about/').read_text() and 'id="appearance"' in html(out,'/about/').read_text()
     # Literal committed owner/page front-matter example (no cascade emulation).
-    example=source('scoped-example',(ROOT/'examples/full-shell.toml').read_text())
+    example=source('scoped-example',(ORGANIZATION/'examples/full-shell.toml').read_text())
     apply_scoped(example)
     out=check(example,'scoped-example')
     assert components(out,'/field-notes/','right')==['recent','profile']

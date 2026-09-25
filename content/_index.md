@@ -1,5 +1,4 @@
-+++
-title = 'Synthetic collections'
-+++
-This local organizational proof uses invented content. Blogs represent publication streams;
-notebooks represent evolving notes, not ordered documentation. This is a multi-collection Sidera demo, not the final homepage of the migrated site.
+---
+title: A place for useful ideas
+---
+Notes that evolve, stories worth keeping, and a small handbook for the next time around.

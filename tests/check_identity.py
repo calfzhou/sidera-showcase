@@ -1,19 +1,16 @@
 """Focused site-identity rendering/config cases; no changes to the real site output."""
 from pathlib import Path
-import json, os, shutil, sys, tempfile
+import json, os, sys, tempfile
 sys.dont_write_bytecode=True
-from check_p1a import ROOT, THEME
-from check_p1b import build, html
+from check_p1a import ROOT
+from check_p1b import copy_showcase, build, html
 from check_p2f import nodes
 from check_p2w import write
 
 def main():
     run=Path(os.environ.get('SIDERA_CHECK_DIR') or tempfile.mkdtemp(prefix='identity-',dir=ROOT/'.checks')).resolve()
     run.mkdir(parents=True,exist_ok=True)
-    source=run/'source'
-    shutil.copytree(ROOT/'examples/notebook',source,ignore=shutil.ignore_patterns('.hugo_build.lock','public','resources'))
-    shutil.copytree(ROOT/THEME,source/THEME,ignore=shutil.ignore_patterns('.git'))
-    cfg=source/'hugo.toml';cfg.write_text(cfg.read_text().replace("themesDir = '../../themes'","themesDir = 'themes'"))
+    source=copy_showcase(run,'live')
     def check(label,extra=''):
         write(source,'probe.toml',extra)
         return build(source,run,label,flags=('--config','hugo.toml,probe.toml','--printI18nWarnings'))

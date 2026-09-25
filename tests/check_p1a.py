@@ -9,6 +9,19 @@ from urllib.parse import unquote, urljoin, urlparse
 
 ROOT = Path(__file__).resolve().parents[1]
 THEME = Path("themes/sidera")
+ORGANIZATION = ROOT / "tests/fixtures/organization"
+
+
+def copy_source(run, label, base):
+    """Assemble test inputs with the live theme, never a frozen/duplicated theme checkout."""
+    dest = run / (label + '-source')
+    dest.mkdir()
+    for name in ('hugo.toml', 'docs-on.toml', 'docs-off.toml'):
+        if (base / name).exists(): shutil.copy2(base / name, dest / name)
+    for name in ('content', 'assets', 'data', 'i18n', 'static', 'examples'):
+        if (base / name).exists(): shutil.copytree(base / name, dest / name)
+    shutil.copytree(ROOT / 'themes', dest / 'themes', ignore=shutil.ignore_patterns('.git'))
+    return dest
 
 
 class Page(HTMLParser):
@@ -215,7 +228,7 @@ def check_baseline(output, extra=False, docs=True, theme_docs=False):
     assert actual_articles == expected_articles, (actual_articles, expected_articles)
     bundle = Path("field-notes/alpha")
     for asset in ["sample.svg", "sample.py"]:
-        assert (output / bundle / asset).read_bytes() == (ROOT / "content" / bundle / asset).read_bytes()
+        assert (output / bundle / asset).read_bytes() == (ORGANIZATION / "content" / bundle / asset).read_bytes()
     # The Markdown resource must not become a page or disappear from a branch's article count.
     assert not (output / bundle / "resource-note/index.html").exists()
     assert {"sample.svg", "sample.py"} <= set(page(output, "/field-notes/alpha/").assets)
@@ -248,22 +261,19 @@ def main():
     original_templates = snapshot(ROOT / THEME / "layouts")
     assert original_templates, "Sidera theme templates missing"
     original_adapter = (ROOT / THEME / "content/_content.gotmpl").read_bytes()
-    for source in (ROOT / "content").rglob("*.md"):
+    for source in (ORGANIZATION / "content").rglob("*.md"):
         if source.name not in ("_index.md", "resource-note.md"):
             assert "collection =" not in source.read_text(), source
             assert "notebook_id" not in source.read_text(), source
-    build(ROOT, run / "baseline", run, "baseline")
+    baseline_source = copy_source(run, "baseline", ORGANIZATION)
+    build(baseline_source, run / "baseline", run, "baseline")
     check_baseline(run / "baseline")
     print("PASS baseline: 4 independent collections, 16 articles + standalone, defaults/overrides, assets, nested section")
 
-    variant = run / "variant-source"
-    variant.mkdir()
-    shutil.copy2(ROOT / "hugo.toml", variant / "hugo.toml")
-    for directory in ["content", "themes"]:
-        shutil.copytree(ROOT / directory, variant / directory, ignore=shutil.ignore_patterns(".git"))
+    variant = copy_source(run, "variant", ORGANIZATION)
     shutil.copytree(ROOT / "tests/fixtures/annex", variant / "content/lab-notes/annex")
     assert snapshot(variant / THEME / "layouts") == original_templates
-    assert (variant / "hugo.toml").read_bytes() == (ROOT / "hugo.toml").read_bytes()
+    assert (variant / "hugo.toml").read_bytes() == (ORGANIZATION / "hugo.toml").read_bytes()
     build(variant, run / "extended", run, "extended")
     check_baseline(run / "extended", extra=True)
     assert snapshot(variant / THEME / "layouts") == original_templates == snapshot(ROOT / THEME / "layouts")

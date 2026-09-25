@@ -2,37 +2,37 @@
 [params]
 article_text = 'This is a synthetic showcase, not a migrated article or a content-license grant.'
 article_links_menu = 'article'
-footer_menu = 'component-footer'
+footer_menu = 'footer'
 footer_text = 'An independently maintained publishing notebook.'
 
 [[menus.article]]
 name = 'About this notebook'
 pageRef = '/about'
 
-[[menus.component-footer]]
+[[menus.footer]]
 identifier = 'read'
 name = 'Read'
 weight = 10
-[[menus.component-footer]]
+[[menus.footer]]
 name = 'Journal'
 parent = 'read'
 pageRef = '/journal'
 weight = 10
-[[menus.component-footer]]
-name = 'Notes'
+[[menus.footer]]
+name = 'Field notes'
 parent = 'read'
-pageRef = '/notes'
+pageRef = '/field-notes'
 weight = 20
-[[menus.component-footer]]
+[[menus.footer]]
 identifier = 'explore'
 name = 'Explore'
 weight = 20
-[[menus.component-footer]]
+[[menus.footer]]
 name = 'Handbook'
 parent = 'explore'
-pageRef = '/handbook'
+pageRef = '/guidebook'
 weight = 10
-[[menus.component-footer]]
+[[menus.footer]]
 name = 'Authors'
 parent = 'explore'
 pageRef = '/authors'
@@ -48,7 +48,7 @@ recent_count = 3
 # The existing local diagram demonstrates explicit cover + alt; no downloaded asset.
 [[cascade]]
 [cascade.target]
-path = '/notes/color'
+path = '/field-notes/alpha'
 [cascade.params.cover]
-image = 'images/sidera-mark.svg'
-alt = 'Fieldbook mark'
+image = 'sample.svg'
+alt = 'Two connected sample nodes'

@@ -1,0 +1,28 @@
+baseURL = 'https://example.org/'
+locale = 'en-US'
+title = 'Sidera showcase'
+timeZone = 'Asia/Shanghai'
+# Active development checkout is a pinned Git submodule; skeleton remains a reference.
+theme = 'sidera'
+disableKinds = ['RSS']
+# Import Sidera's taxonomy definitions, without redefining them here.
+[taxonomies]
+_merge = 'shallow'
+
+# Explicit metadata-only fallback chains: no Git, file mtime or build clock.
+[frontmatter]
+date = ['date', 'publishDate', 'pubdate', 'published']
+publishDate = ['publishDate', 'pubdate', 'published', 'date']
+lastmod = ['lastmod', 'modified', 'publishDate', 'pubdate', 'published', 'date']
+
+[pagination]
+path = 'page'
+disableAliases = true
+
+# Journal date is its publication date; preserve explicit slugs or bundle basenames.
+[permalinks.page]
+journal = '/journal/:year/:month/:day/:slugorcontentbasename/'
+
+# Import only the theme's term URL defaults; site rules still take precedence.
+[permalinks.term]
+_merge = 'shallow'

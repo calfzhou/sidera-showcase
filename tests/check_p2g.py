@@ -2,7 +2,7 @@
 from pathlib import Path
 import json, os, sys, tempfile
 sys.dont_write_bytecode = True
-from check_p1a import ROOT, check_baseline
+from check_p1a import ORGANIZATION, ROOT, check_baseline
 from check_p1b import build, copy_site, html
 from check_p2f import nodes
 from check_p2w import write
@@ -24,8 +24,8 @@ def main():
     assert items(baseline,'/','site-footer')==['credit']
     assert not items(baseline,'/about/','article-footer')
     # Use native separate config files, not duplicate TOML tables.
-    write(source,'full.toml',(ROOT/'examples/full-shell.toml').read_text())
-    write(source,'components.toml',(ROOT/'examples/components.toml').read_text())
+    write(source,'full.toml',(ORGANIZATION/'examples/full-shell.toml').read_text())
+    write(source,'components.toml',(ORGANIZATION/'examples/components.toml').read_text())
     flags=('--config','hugo.toml,full.toml,components.toml,g.toml')
     # Long ordinary content for TOC scrolling; authors/series come from existing native fixtures.
     with (source/'content/field-notes/alpha/index.md').open('a') as f:

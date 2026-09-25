@@ -1,4 +1,4 @@
-# Site-wide compact override. The identical keys may be page front matter.
+# Compact cascade default (About/Home demonstrate it). Explicit page/section settings still win.
 # hugo server --config hugo.toml,examples/compact.toml
 [cascade.params]
 left = false

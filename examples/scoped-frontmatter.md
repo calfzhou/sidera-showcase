@@ -1,49 +1,32 @@
-# Collection and page overrides
+# Page and collection overrides
 
-Public custom settings live under native `params`. Add the following
-keys **inside the existing table**, rather than declaring a duplicate TOML table.
+The root showcase is the only preview site. Its content uses YAML front matter. Merge these
+keys into the existing `params` map (do not add a second `params` block).
 
-For the Field notes root:
+For `content/notes/_index.md`:
 
-```toml
-[params]
-# Keep existing scope_root/list_order/page_size here; preset is native top-level.
-left = ['menu', 'taxonomies']
-right = ['recent', 'profile']
-recent_count = 2
-profile = {title = 'Field notebook', text = 'A collection-local profile.'}
+```yaml
+params:
+  left: [menu, taxonomies]
+  right:
+    - component: recent
+      config: {order: publication, count: 2}
+    - component: profile
+      config: {title: Notes desk, text: 'A collection-local profile.'}
 ```
 
-For Alpha's existing front matter:
+For `content/notes/package-management/index.md`:
 
-```toml
-[params]
-# Keep pinned here; tags/categories/authors/series are native top-level.
-left = ['taxonomies']
-right = ['text']
-text = 'This page replaces the collection’s right region.'
+```yaml
+params:
+  right:
+    - component: text
+      config: {text: 'A page-specific sidebar note.'}
 ```
 
-For the standalone About page:
+For `content/about.md`, `params.left: false` and `params.right: []` explicitly select a compact
+shell. Ordinary section params affect that section only; use `cascade.params` for descendants.
+Native Page values win before preset/site defaults. Instance config is local to that instance.
 
-```toml
-[params]
-left = false
-right = []
-```
-
-These are ordinary content settings—not theme edits. For a ready-to-run isolated
-copy, leaving your normal content untouched:
-
-```sh
-uv run --no-project --no-managed-python python3 tests/prepare_scoped_example.py \
-  "$PWD/.checks/scoped-preview"
-hugo server --source "$PWD/.checks/scoped-preview/example-source" \
-  --config hugo.toml,full-shell.toml --bind 127.0.0.1 --port 14420 --disableFastRender
-```
-
-Choose a new output folder/available port; stop your foreground server with Ctrl-C.
-The helper applies these same owner/page overrides; it is showcase tooling, not a
-runtime setting engine. Native cascade is evaluated before preset fallback. Flat scalar
-params inherit independently; a local nested map replaces that cascaded map. Ordinary root
-params affect that root only—put intended descendant defaults under `cascade.params`.
+The old `tests/prepare_scoped_example.py` remains an isolated **regression fixture** preparer;
+it does not modify or represent another maintained live example.

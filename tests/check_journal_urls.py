@@ -7,7 +7,7 @@ import sys
 import tempfile
 
 sys.dont_write_bytecode = True
-from check_p1a import ROOT, JOURNAL_ROUTES, Page, check_baseline, snapshot
+from check_p1a import ORGANIZATION, ROOT, JOURNAL_ROUTES, Page, check_baseline, snapshot
 from check_p1b import build, copy_site, html, local_links, http_smoke
 
 
@@ -19,7 +19,8 @@ def main():
     run = Path(tempfile.mkdtemp(prefix='journal-urls-', dir=ROOT / '.checks'))
     print('Retained run:', run, flush=True)
     (run / 'version.txt').write_text(subprocess.check_output(['hugo', 'version'], text=True, timeout=10))
-    baseline = build(ROOT, run, 'baseline')
+    baseline_source = copy_site(run, 'baseline')
+    baseline = build(baseline_source, run, 'baseline')
     check_baseline(baseline)
     for source, route in JOURNAL_ROUTES.items():
         assert html(baseline, route).exists()
@@ -61,7 +62,7 @@ lastmod = 2024-09-10T12:00:00+08:00
 Synthetic dated bundle. ![Sample](sample.svg) [Download](sample.py).
 ''')
     for name in ('sample.svg', 'sample.py'):
-        shutil.copy2(ROOT / 'content/field-notes/alpha' / name, bundle / name)
+        shutil.copy2(ORGANIZATION / 'content/field-notes/alpha' / name, bundle / name)
     (content / 'plain-source.md').write_text('''---
 title: Title must not replace filename
 date: 2024-04-05 00:15:00

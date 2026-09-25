@@ -1,28 +1,94 @@
 baseURL = 'https://example.org/'
-locale = 'en-US'
-title = 'Sidera showcase'
-timeZone = 'Asia/Shanghai'
-# Active development checkout is a pinned Git submodule; skeleton remains a reference.
+title = 'Fieldbook'
 theme = 'sidera'
+locale = 'en-US'
+timeZone = 'Asia/Shanghai'
 disableKinds = ['RSS']
-# Import Sidera's taxonomy definitions, without redefining them here.
 [taxonomies]
 _merge = 'shallow'
-
-# Explicit metadata-only fallback chains: no Git, file mtime or build clock.
+[permalinks.term]
+_merge = 'shallow'
 [frontmatter]
 date = ['date', 'publishDate', 'pubdate', 'published']
 publishDate = ['publishDate', 'pubdate', 'published', 'date']
 lastmod = ['lastmod', 'modified', 'publishDate', 'pubdate', 'published', 'date']
-
+[permalinks.page]
+journal = '/journal/:year/:month/:day/:slugorcontentbasename/'
 [pagination]
 path = 'page'
 disableAliases = true
-
-# Journal date is its publication date; preserve explicit slugs or bundle basenames.
-[permalinks.page]
-journal = '/journal/:year/:month/:day/:slugorcontentbasename/'
-
-# Import only the theme's term URL defaults; site rules still take precedence.
-[permalinks.term]
-_merge = 'shallow'
+[params]
+footer_menu = 'footer'
+footer_text = 'A small, independent notebook. Written to be revisited.'
+[params.identity]
+image = 'images/sidera-mark.svg'
+subtitle = 'Notes & everyday tools | Small ideas, kept close'
+[params.profile]
+title = 'A working notebook'
+text = 'Observations from the desk and the field. Small ideas, kept in one place.'
+[cascade.params]
+article_text = 'Have a different approach? [Get in touch](mailto:hello@example.org).'
+[[menus.primary]]
+name = 'Overview'
+pageRef = '/'
+weight = 1
+[menus.primary.params]
+icon = 'home'
+[[menus.primary]]
+name = 'Notes'
+pageRef = '/notes'
+weight = 2
+[menus.primary.params]
+icon = 'notebook'
+color = '#3dc550'
+[[menus.primary]]
+name = 'Journal'
+pageRef = '/journal'
+weight = 3
+[menus.primary.params]
+icon = 'blog'
+color = '#ffbd2b'
+[[menus.primary]]
+name = 'Handbook'
+pageRef = '/handbook'
+weight = 4
+[menus.primary.params]
+icon = 'docs'
+[[menus.primary]]
+name = 'About'
+pageRef = '/about'
+weight = 5
+[menus.primary.params]
+icon = 'star'
+[[menus.footer]]
+identifier = 'fieldbook'
+name = 'Fieldbook'
+weight = 1
+[[menus.footer]]
+name = 'About'
+pageRef = '/about'
+parent = 'fieldbook'
+[[menus.footer]]
+identifier = 'reading'
+name = 'Reading'
+weight = 2
+[[menus.footer]]
+name = 'Notes'
+pageRef = '/notes'
+parent = 'reading'
+[[menus.footer]]
+name = 'Journal'
+pageRef = '/journal'
+parent = 'reading'
+[[menus.footer]]
+identifier = 'explore'
+name = 'Explore'
+weight = 3
+[[menus.footer]]
+name = 'Topics'
+pageRef = '/tags'
+parent = 'explore'
+[[menus.footer]]
+name = 'Handbook'
+pageRef = '/handbook'
+parent = 'explore'

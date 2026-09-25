@@ -1,7 +1,7 @@
 # hugo server --config hugo.toml,examples/full-shell.toml
 # Omitted regions retain page-kind defaults. Footer customization: see components.toml. Home remains overview.
 [params]
-menu = 'expanded'
+menu = 'primary'
 [params.identity]
 subtitle = 'A place for evolving ideas'
 image = 'images/sidera-mark.svg'
@@ -10,29 +10,29 @@ title = 'The publishing notebook'
 text = 'Blogs, evolving notes, and a small **handbook**. One native reading space.'
 menu = 'profile'
 
-[[menus.expanded]]
+[[menus.primary]]
 name = 'Overview'
 pageRef = '/'
 weight = 1
-[[menus.expanded]]
-name = 'Notes'
-pageRef = '/notes'
+[[menus.primary]]
+name = 'Field notes'
+pageRef = '/field-notes'
 weight = 10
-[[menus.expanded]]
+[[menus.primary]]
 identifier = 'journal'
 name = 'Journal'
 pageRef = '/journal'
 weight = 20
-[[menus.expanded]]
-name = 'Begin with a small notebook'
-pageRef = '/journal/beginning'
+[[menus.primary]]
+name = 'First signal'
+pageRef = '/journal/first-signal'
 parent = 'journal'
 weight = 10
-[[menus.expanded]]
+[[menus.primary]]
 name = 'Handbook'
-pageRef = '/handbook'
+pageRef = '/guidebook'
 weight = 30
-[[menus.expanded]]
+[[menus.primary]]
 name = 'About'
 pageRef = '/about'
 weight = 40

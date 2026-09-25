@@ -8,7 +8,7 @@ import subprocess
 import sys
 
 sys.dont_write_bytecode = True
-from check_p1a import ROOT
+from check_p1a import ORGANIZATION, ROOT
 from check_p1b import build, copy_site, html, View
 from check_p2a import Assets
 
@@ -24,7 +24,7 @@ def main():
     bundle = stress / 'content/field-notes/reading-sample'
     bundle.mkdir()
     shutil.copy2(ROOT / 'tests/fixtures/visual/reading.md', bundle / 'index.md')
-    shutil.copy2(ROOT / 'content/field-notes/alpha/sample.svg', bundle / 'sample.svg')
+    shutil.copy2(ORGANIZATION / 'content/field-notes/alpha/sample.svg', bundle / 'sample.svg')
     stress_out = build(stress, run, 'stress', flags=('--baseURL', 'https://example.org/_stress/'))
     subpath = build(source, run, 'subpath', flags=('--baseURL', 'https://example.org/preview/'))
     # Full deep-tag union/count/owner is explicit, not inferred from screenshots.

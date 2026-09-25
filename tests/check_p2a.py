@@ -13,7 +13,7 @@ import sys
 from urllib.parse import unquote
 
 sys.dont_write_bytecode = True
-from check_p1a import ROOT, THEME
+from check_p1a import ORGANIZATION, ROOT, THEME
 from check_p1b import build, copy_site
 
 
@@ -43,7 +43,7 @@ def main():
     bundle.mkdir()
     shutil.copy2(ROOT / 'tests/fixtures/visual/article.md', bundle / 'index.md')
     for name in ('sample.py', 'sample.svg'):
-        shutil.copy2(ROOT / 'content/field-notes/alpha' / name, bundle / name)
+        shutil.copy2(ORGANIZATION / 'content/field-notes/alpha' / name, bundle / name)
     stress_out = build(stress, run, 'stress')
     subpath = build(source, run, 'subpath', flags=('--baseURL', 'https://example.org/preview/'))
     count = 0

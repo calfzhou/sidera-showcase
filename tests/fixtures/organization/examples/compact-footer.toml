@@ -1,0 +1,8 @@
+# Explicit compact override; standalone defaults remain full-featured.
+[cascade.params]
+left = false
+right = []
+article_footer = []
+site_footer = ['text', 'links']
+footer_text = 'A quiet reading space.'
+footer_menu = 'footer'

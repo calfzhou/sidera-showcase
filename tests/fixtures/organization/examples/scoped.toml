@@ -1,0 +1,10 @@
+# Native Page.Params cascade supplies scoped overrides before preset defaults.
+# hugo server --config hugo.toml,examples/full-shell.toml,examples/scoped.toml
+# Collection/article front-matter examples: examples/scoped-frontmatter.md.
+[[cascade]]
+[cascade.target]
+path = '/about'
+kind = 'page'
+[cascade.params]
+left = false
+right = []

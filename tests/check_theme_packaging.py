@@ -12,7 +12,7 @@ import tempfile
 from urllib.parse import unquote, urljoin, urlparse
 
 sys.dont_write_bytecode = True
-from check_p1a import ROOT, THEME, COLLECTIONS, article_route, check_baseline, snapshot
+from check_p1a import ORGANIZATION, ROOT, THEME, COLLECTIONS, article_route, check_baseline, snapshot
 from check_p1b import build, copy_site, html, http_smoke, tag_checks, FIELD, LAB
 from check_p1c import baseline_checks
 
@@ -76,7 +76,7 @@ def skeleton_checks(out, samples):
         if route != '/about/':
             assert 'This is the synthetic <strong>' in file.read_text(), route
     for name in ('sample.py', 'sample.svg'):
-        assert (out / 'field-notes/alpha' / name).read_bytes() == (ROOT / 'content/field-notes/alpha' / name).read_bytes()
+        assert (out / 'field-notes/alpha' / name).read_bytes() == (ORGANIZATION / 'content/field-notes/alpha' / name).read_bytes()
     assert not (out / 'field-notes/tags').exists()
     assert not (out / 'field-notes/page').exists()
     assert not (out / 'field-notes/alpha/resource-note/index.html').exists()
@@ -115,7 +115,8 @@ def main():
     assert not (ROOT / 'layouts').exists(), 'Site templates would mask theme coverage'
     assert not (ROOT / 'content/_content.gotmpl').exists()
     skeleton_before = snapshot(ROOT / 'themes/skeleton')
-    baseline = build(ROOT, run, 'sidera')
+    baseline_source = copy_site(run, 'baseline')
+    baseline = build(baseline_source, run, 'sidera')
     check_baseline(baseline)
 
     # Retain every active-theme semantic assertion from the former comparison.

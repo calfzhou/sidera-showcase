@@ -5,7 +5,7 @@ Then: hugo server --source <output>/example-source --config hugo.toml,full-shell
 from pathlib import Path
 import sys
 sys.dont_write_bytecode = True
-from check_p1a import ROOT
+from check_p1a import ORGANIZATION, ROOT
 from check_p1b import copy_site
 
 def apply(source):
@@ -23,5 +23,5 @@ def apply(source):
 if __name__=='__main__':
     run=Path(sys.argv[1]).resolve();run.mkdir(parents=True,exist_ok=False)
     source=copy_site(run,'example');apply(source)
-    (source/'full-shell.toml').write_text((ROOT/'examples/full-shell.toml').read_text())
+    (source/'full-shell.toml').write_text((ORGANIZATION/'examples/full-shell.toml').read_text())
     print(source)

@@ -5,6 +5,7 @@ sys.dont_write_bytecode=True
 from check_p1a import ROOT, THEME, Page
 from check_p1b import copy_site,build,html
 from check_p2w import write,replace
+from check_p2f import nodes
 
 def main():
     (ROOT/'.checks').mkdir(exist_ok=True)
@@ -29,13 +30,18 @@ icon='star'
     replace(source,'content/about.md',"title = 'About this proof'", "title = 'About this proof'\ndate=2024-01-02T00:00:00Z\nlastmod=2024-02-03T00:00:00Z\ntags=['Native assignment']\n[params]\nsite_owned='Page value'\n[params.sidera]\nbyline='Obsolete namespace value'\nshow_updated=false")
     replace(source,'content/field-notes/beta/index.md',"byline = 'Visiting naturalist'", "byline = ''")
     write(source,'layouts/_partials/sidera/head-extra.html','''<meta name="namespace-probe" content="{{ .Page.Site.Params.site_owned }}|{{ .Page.Params.site_owned }}|{{ .Page.Params.tags }}">
+<template id="expected-menu-icon">{{ partial "sidera/icon.html" "star" }}</template>
 {{ if .Page.Params.sidera.tag_view }}<meta name="generated-namespace" content="{{ .Page.Params.sidera.tag_key }}|{{ isset .Page.Params "tag_view" }}">{{ end }}''')
     out=build(source,run,'scopes',flags=('--printI18nWarnings',))
     assert Page(html(out,'/about/')).byline=='Site author' and Page(html(out,'/about/')).updated
     assert Page(html(out,'/field-notes/alpha/')).byline=='Field team'
     assert Page(html(out,'/field-notes/beta/')).byline=='' and not Page(html(out,'/field-notes/beta/')).updated
     assert 'Not a Sidera option|Page value|[Native assignment]' in html(out,'/about/').read_text()
-    assert 'M12 1v22' in html(out,'/about/').read_text()
+    doc=nodes(out,'/about/')
+    menu=next(n for n in doc.all() if n.attrs.get('class')=='native-menu')
+    actual=next(n for n in menu.all() if n.tag=='a' and n.attrs.get('href')=='/about/')
+    shape=lambda node:[(n.tag,n.attrs) for n in node.all() if n.tag in ('svg','g','path','circle','rect')]
+    expected=shape(doc.all(id='expected-menu-icon')[0]);assert expected and shape(actual)==expected
     assert 'content="science/quantum|false"' in html(out,'/field-notes/tags/science/quantum/').read_text()
     replace(source,'content/about.md',"[params]\nsite_owned", "[params]\nbyline=''\nshow_updated=false\nright=[]\nsite_owned")
     out=build(source,run,'page-off')

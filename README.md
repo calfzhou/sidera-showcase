@@ -1,325 +1,85 @@
-# Sidera showcase
+# Sidera showcase — Fieldbook
 
-Synthetic fixtures and regression harness for the independent Hugo Sidera theme. The active
-`themes/sidera` Git submodule is also the theme-development checkout. No sibling theme clone,
-Go-module dependency change, symlink, Hexo runtime or package download is required.
+One normal, fictional site for developing and reviewing Sidera. **Root `content/` is the only
+live showcase source.** The active `themes/sidera` Git submodule is the theme-development checkout.
+No alternate example site, duplicate theme checkout, symlink, Go-module change or package install
+is required. P2 visual review is ongoing; this is not a production migration or phase-closure claim.
 
-P2-F's shell is accepted. **P2-M now implements the agreed content/configuration model**:
-portable params, optional native presets with separate section/descendant defaults, independent
-scope boundaries, page-tree capabilities, shared classification, multiple authors and scoped
-series. G/H still own final browsing/reading/footer finishing; this is not whole-P2 completion
-or real-site conversion. The inactive PoC source was retired separately; skeleton/history remain.
-
-## Clone and develop
+## Clone, preview and build
 
 ```sh
 git clone --recurse-submodules git@github.com:calfzhou/sidera-showcase.git
-# Existing checkout:
+# In an existing checkout:
 git submodule update --init --recursive
-# For intentional theme development (updates may detach HEAD):
+# For theme development, after checking for local changes:
 git -C themes/sidera switch main
+
+# From the showcase root, choose a free port; stop with Ctrl-C:
+hugo server --bind 127.0.0.1 --port 14420 --disableFastRender
 ```
 
-Edit the nested checkout; Hugo reads local changes without committing/pushing. Commit theme
-first, then the showcase gitlink. Push neither without authorization; if publishing later,
-push the theme commit before its showcase pointer. The submodule's main branch hint is not
-`--remote`: ordinary update uses the pinned commit. Preserve local changes before any update.
-Plain `git archive` omits submodules; exact-source reproduction needs an initialized checkout.
+The retired `--source examples/notebook` command is no longer needed. Restart an old preview
+from the root rather than pointing it at the removed example folder. No agent-owned review
+server is retained. Source edits are read directly from the submodule; commit theme changes
+first, then the showcase pointer, and push neither without authorization.
 
-## Build and preview
-
-Verified with Hugo **0.166.0+extended+withdeploy** on macOS. This is a tested version, not an
-assertion that the extended/deploy features are required or every older version works.
+Verified with Hugo **0.166.0**. Fresh successful builds remain authoritative; the accepted
+watcher/stale-output limitations are unchanged, and `--disableFastRender` is not a fix:
 
 ```sh
 mkdir -p .checks
 run=$(mktemp -d "$PWD/.checks/build-XXXXXX")
 hugo --destination "$run/public" --cacheDir "$run/cache" \
   --panicOnWarning --printPathWarnings --printI18nWarnings
-
-# User-owned convenience preview; choose a free port, stop with Ctrl-C:
-hugo server --bind 127.0.0.1 --port 14420 --disableFastRender
 ```
 
-Only fresh successful builds to new destinations are authoritative. Known watcher/stale-output
-limitations remain D-010's migration tolerance; --disableFastRender is not a fix. Never publish
-a failed build. No agent-owned preview is retained at handoff.
+## Live content
 
-## Theme-owned definitions, site-owned content
+| Collection | Preset | Demonstrates |
+|---|---|---|
+| `/journal/` | blog | Publication stream, category tree/tag chips, archives, native author and series links |
+| `/notes/` | notes | Evolving notes, hierarchical tags, pins, pagination, publication-order sidebar |
+| `/handbook/` | docs | Body-bearing parent/leaf documents, page tree, two independent recent instances |
 
-Sidera supplies tags, categories, authors, series and preset definitions, native term URLs,
-and bundled blog/notes/docs preset term Pages. Showcase config contains only import permission:
+The overview home remains the default. Shared author `/authors/rowan/`, series
+`/series/making-notes/`, taxonomy views and `/about/` complete the example. Content/dates/identity
+are fictional. Additional collections should demonstrate a concrete capability, not duplicate
+another default preview.
 
-```toml
-[taxonomies]
-_merge = 'shallow'
-[permalinks.term]
-_merge = 'shallow'
-```
+**Journal keeps the established dated-URL policy.** Its current articles are:
 
-Hugo needs these category-specific gates to import theme configuration. There is no repeated
-taxonomy declaration/preset registry or root-wide/security/markup merge. Date chains, timezone,
-language, page permalinks and pagination remain deliberate site policy. Journal retains its
-native `/journal/YYYY/MM/DD/slug/` URL rule; its convention treats date as publication date.
+- `/journal/2026/04/10/beginning/`
+- `/journal/2026/04/11/returning/`
 
-Read the self-contained theme guides:
+Native menu `pageRef` values still use source paths such as `/journal/beginning`; Hugo supplies
+the dated URL. Original root date/lastmod fallback chains and Asia/Shanghai timezone remain.
+No redirects or real-site URL migration were introduced.
 
-- [CONTRACT.md](themes/sidera/CONTRACT.md): fields/types, ownership, scopes, validation and limits.
-- [PRESETS.md](themes/sidera/PRESETS.md): three targets, bundled defaults, native overrides/custom terms.
-- [TAXONOMIES.md](themes/sidera/TAXONOMIES.md): global/scoped tags/categories/authors/series.
-- [DOCS.md](themes/sidera/DOCS.md): native body/tree/order/pagers and explicit docs mount.
-- [SHELL.md](themes/sidera/SHELL.md): native menus, fixed regions, safety and native hooks.
-- [I18N.md](themes/sidera/I18N.md): EN/ZH configuration, overrides and filename-language boundary.
+## Configuration and examples
 
-The optional workspace [migration-project](../migration-project/README.md) holds decisions/history;
-it is **not** a build or test dependency. Real-site/Stellar/Hugo-doc reference repos are not inputs
-to the ordinary build or regression suite.
+Root `hugo.toml` owns the Fieldbook identity, menus, footer copy and site URL/date policy.
+Sidera supplies taxonomy definitions, term URLs and native preset defaults. The site imports
+only `[taxonomies]` and `[permalinks.term]` with `_merge='shallow'`; it does not duplicate them
+or broadly merge security/markup configuration.
 
-## Content model
-
-```yaml
-# A section's _index.md
-preset: notes
-params:
-  list_order: modification
-  page_size: 10
-  # Only for an independently browsed nested section:
-  scope_root: true
-cascade:
-  target:
-    kind: page
-  params:
-    byline: Field team
-    show_updated: true
-```
-
-Top-level content sections are roots automatically. Nested sections remain in the nearest
-outer browsing scope unless local scope_root is true. Preset selection never starts a scope.
-A section without any preset can configure identical capabilities. Ordinary section params
-configure itself; native cascade provides descendant metadata. Native effective Page.Params
-wins before target-specific preset defaults. Empty/false/maps/arrays retain deliberate semantics.
-
-Public custom fields are under params, not a blanket params.sidera wrapper. Native metadata,
-menus and taxonomy assignments stay native. No old-key/type aliases or duplicate article-owner
-IDs. Private generated navigation fields remain under params.sidera and cannot be authored.
-The presets are defaults, not closed blog/docs/notes capability types.
-
-The original synthetic collections remain Journal, Dispatches, Field notes and Lab notes;
-Storage is a native nested section, not a separate Lab collection. A site-owned Workshop
-handbook demonstrates body-bearing branch/leaf documents, local ordering and child pagination.
-An isolated Annex test adds an independent nested scope using content/config only.
-
-## Authors and series walkthrough
-
-Journal's First/Second signal and Field's Alpha now demonstrate fictional native attribution
-and a shared `model-workshop` series term. Author profiles and series metadata are site content,
-not theme defaults. One term may span sections; the section-scoped sequence does not mix them.
-
-```yaml
-authors: [demo-editor, demo-researcher]
-series: model-workshop
-```
-
-Inspect `/authors/demo-editor/`, `/series/model-workshop/`,
-`/journal/series/model-workshop/`, `/field-notes/series/model-workshop/`, and the corresponding
-articles. Authors preserve authored order; show_authors=false hides display, not membership.
-Series links normally prefer contextual results; previous/next is scoped and independent of
-pagination/pins. Optional native series_weight ordering is a series-term policy.
-
-To expose all four contextual taxonomy choices without editing the theme:
+All `examples/*.toml` files are **overlays on this same root content**:
 
 ```sh
-hugo server --config hugo.toml,examples/model.toml --bind 127.0.0.1 --port 14420 --disableFastRender
-```
-
-Other same-theme configurations: `examples/full-shell.toml`, `two-regions.toml`, `compact.toml`,
-`empty-regions.toml`, `taxonomies.toml`, `taxonomies-flat.toml`, and the native per-page example in
-[scoped-frontmatter.md](examples/scoped-frontmatter.md). Whole-site overrides of preset values
-use native config cascade; Site.Params alone is lower-priority fallback. Footer APIs and local covers are now documented in the theme SHELL.md.
-Default global classification is flat. The named collection fixtures explicitly retain hierarchy
-examples; taxonomy demo configs deliberately exercise global hierarchy/flat variants.
-
-## Docs remain opt-in
-
-The site handbook at `/guidebook/` is ordinary site content. The separate theme sample lives
-only in `themes/sidera/docs/content` and is **absent by default**:
-
-```sh
-hugo server --config hugo.toml,docs-on.toml --bind 127.0.0.1 --port 14420 --disableFastRender
-```
-
-This explicit native mount publishes the sample at `/sidera/`; `docs-off.toml` demonstrates
-removing the opt-in. The bundled docs **preset term** is not permission to publish theme docs.
-Sample content/resources are not copied into site source. Both root and nested mount namespaces,
-native override/language/resource/order behavior remain in the regression suite.
-
-## Tests
-
-Python 3.9+ stdlib via installed uv; no Python package install. Tests create fresh ignored .checks
-runs, retain logs/output, never overwrite public, and stop their own HTTP/browser processes.
-
-```sh
-uv run --no-project --no-managed-python python3 tests/check_model.py
-# The preceding command prints its retained run; optional focused browser check:
-# nvm use (selects .nvmrc; installed Node 24.12.0)
-# node tests/check_model_browser.mjs /absolute/path/to/that/run
-
-uv run --no-project --no-managed-python python3 tests/check_theme_defaults.py
-uv run --no-project --no-managed-python python3 tests/check_theme_packaging.py
-uv run --no-project --no-managed-python python3 tests/check_p1a.py
-uv run --no-project --no-managed-python python3 tests/check_p1b.py
-uv run --no-project --no-managed-python python3 tests/check_p1c.py
-uv run --no-project --no-managed-python python3 tests/check_journal_urls.py
-uv run --no-project --no-managed-python python3 tests/check_taxonomies.py
-uv run --no-project --no-managed-python python3 tests/check_namespace.py
-uv run --no-project --no-managed-python python3 tests/check_p2w.py
-uv run --no-project --no-managed-python python3 tests/check_p2f.py
-```
-
-The historical check_namespace filename now verifies **public params and private generated
-metadata**, including removal of old namespace readers, native fields, empty/false and menu icons.
-Packaging compares active-theme/in-place config/data/assets/adapters, local edits/site overrides
-and the retained skeleton's measured gaps. No PoC source or obsolete schema back-conversion.
-
-P2-A/B/C scripts also run the installed-browser harness; select .nvmrc before them. It starts
-its own Chrome/profile on explicit available ports (default HTTP 14378/CDP 14379), verifies its
-instance and stops it. Never attach tests to a user browser or stop an occupied unrelated port.
-P2-W/F/taxonomy browser scripts reuse isolated prepared runs. No connector is needed for these
-repository-local tests, no browser/dependency download. Chromium checks are not universal WCAG/
-screen-reader/Safari/Firefox/CSP certification. Images are local/system-font evidence.
-
-Structural validation of unreferenced excluded content uses a separate private native build with
---buildDrafts --buildFuture --buildExpired; draft is not a validation exemption. Current contextual
-vocabulary discovery is bounded to supported local literal TOML/YAML and built-in source roots,
-not arbitrary mounts/generated/cascaded vocabulary or full Hugo-loader parity. Harmless empty
-inferred term pages remain tolerated during migration; privacy/public-list lifecycle needs the
-relevant production review. Historical watcher/inventory probes are optional, not prerequisites
-or permission to edit the read-only real site. License/distribution and whole-P2 acceptance remain open.
-
-
-## P2-G component and footer preview
-
-From this checkout, choose a free port and run your own foreground server:
-
-```sh
+hugo server --config hugo.toml,examples/widgets.toml --bind 127.0.0.1 --port 14420 --disableFastRender
+hugo server --config hugo.toml,examples/chinese.toml --bind 127.0.0.1 --port 14420 --disableFastRender
 hugo server --config hugo.toml,examples/full-shell.toml,examples/components.toml --bind 127.0.0.1 --port 14420 --disableFastRender
 ```
 
-Inspect `/field-notes/` (local diagram cover + term badges), `/journal/2024/01/01/first-signal/`
-(ordered authors, scoped series and both footers), `/guidebook/getting-started/setup/`
-(tree + TOC), `/authors/demo-editor/` and a term result/pager. Hover/focus the card title,
-activate a term independently, expand a tree while retaining its parent link, scroll a
-heading-rich body, and switch Light/System or narrow the window. All content is synthetic.
+- `widgets`: right TOC/profile/links; `full-shell`: alternate menu with a nested Journal link.
+- `components`: footer columns/links and an optional local mark cover on the Color note.
+- `compact`, `compact-footer`, `empty-regions`: contrasting shell/footer defaults.
+- `taxonomies`, `taxonomies-flat`, `model`: global classification and contextual author/series links.
+- `scoped`: compact About; [scoped front-matter examples](examples/scoped-frontmatter.md) explain local overrides.
+- `chinese`: Chinese theme UI around unchanged authored English content, not automatic translation.
 
-Use `examples/compact-footer.toml` last for the contrasting no-sidebar/no-article-footer,
-text-first/credit-off composition. This is an explicit override, not a standalone limitation.
-The default home remains collection overview; whole-site/non-content finishing is superseded by the corrective P2-GR section below;
-selected-home and detailed Markdown work remain separate. The examples do not assign a content license or require theme template edits.
-Footer arrays/text/menu selectors are public params with existing preset/cascade precedence;
-see the theme SHELL/CONTRACT guides for defaults, empty behavior and small native hooks.
-
-Focused checks (existing Python/Node/Chrome only):
-
-```sh
-uv run --no-project --no-managed-python python3 tests/check_p2g.py
-# Then, using the printed retained directory:
-nvm use
-node tests/check_p2g_browser.mjs /absolute/path/to/retained/run
-```
-
-The browser check samples components/states rather than reproducing every historical matrix.
-It uses explicit free local ports (SIDERA_HTTP_PORT/SIDERA_CDP_PORT can override defaults),
-a fresh owned Chrome profile, blocks HTTPS, and stops its services at completion. No server
-is left for review. Stop your own preview with Ctrl-C. Fresh builds remain authoritative.
-
-
-## P2-GR — Stellar-like normal presentation
-
-The live theme now uses the Stellar-led composition across the default showcase as well as
-normal sites: bounded reading track/inset cards, full-height left rail, banner-like headers,
-quiet TOC/footer hierarchy, local Solar icons, fine-pointer spotlight/tilt and narrow-screen
-drawers. Native Hugo scope/preset/author/series and all optional cover/footer controls remain.
-
-For a normal text-first example, see [Fieldbook](examples/notebook/README.md):
-
-```sh
-hugo server --source examples/notebook --bind 127.0.0.1 --port 14420 --disableFastRender
-```
-
-This is a real site source consuming the same submodule, not static target HTML. Inspect
-`/notes/`, `/notes/package-management/`, `/`, taxonomies, authors/series, handbook and About.
-The original default showcase and full-components/compact variants still work. The sole new
-presentation setting is `params.list_header` (true by default): false removes a redundant
-recursive section intro while retaining an accessible title, full counts and paginator.
-
-Narrow screens now use native auto-popovers (right ≤1180px, left ≤667px), with Escape,
-light-dismiss, explicit close and focus return. No-JS/unsupported browsers retain open in-flow
-navigation. Local/system fonts only; see theme THIRD-PARTY-NOTICES for Solar CC BY 4.0,
-Stellar MIT and the React Bits-derived hover notice. No license is assigned to site content.
-
-Focused corrective checks:
-
-```sh
-uv run --no-project --no-managed-python python3 tests/check_p2gr.py
-nvm use
-node tests/check_p2gr_browser.mjs /absolute/path/to/printed/run
-```
-
-The browser harness creates a fresh profile even on rerun and stops its owned services.
-The corrective browser suite covers normal page types and live hover, TOC, drawers, keyboard,
-no-JS, reduced motion and configurable layouts. This is not cross-browser/production certification.
-
-Identity-only regression (circular/full-box home links, rainbow rotation, subtitle flip,
-keyboard/no-JS/reduced-motion, escaping and locale-aware URLs):
-
-```sh
-uv run --no-project --no-managed-python python3 tests/check_identity.py
-nvm use
-node tests/check_identity_browser.mjs /absolute/path/to/printed/run
-```
-
-Main-menu regression (Stellar icon/dot/row geometry, per-entry `params.color`,
-hover/focus/current states, safe hex values and config variants):
-
-```sh
-uv run --no-project --no-managed-python python3 tests/check_menu.py
-nvm use
-node tests/check_menu_browser.mjs /absolute/path/to/printed/run
-```
-
-Sidebar scrolling regression (normal example, short desktop/mobile viewports):
-
-```sh
-mkdir -p .checks
-run=$(mktemp -d "$PWD/.checks/sidebar-scroll-XXXXXX")
-hugo --source examples/notebook --destination "$run/baseline-public" --cacheDir "$run/cache" --panicOnWarning
-nvm use
-node tests/check_sidebar_scroll_browser.mjs "$run"
-```
-
-Checks hidden sidebar/TOC/drawer scrollbar chrome while preserving actual wheel, keyboard,
-focus-reveal, emulated-touch and no-JS scrolling. The document scrollbar remains visible.
-
-Tree-presentation regression (dots only on main menus; branch/leaf counts align):
-
-```sh
-mkdir -p .checks
-run=$(mktemp -d "$PWD/.checks/tree-presentation-XXXXXX")
-hugo --source examples/notebook --destination "$run/baseline-public" --cacheDir "$run/cache" --panicOnWarning
-hugo --destination "$run/generic-public" --cacheDir "$run/cache" --baseURL https://example.org/_generic/ --panicOnWarning
-hugo --source examples/notebook --config hugo.toml,widgets.toml --destination "$run/widgets-public" --cacheDir "$run/cache" --baseURL https://example.org/_widgets/ --panicOnWarning
-nvm use
-node tests/check_tree_presentation_browser.mjs "$run"
-```
-
-The browser check retains native parent links/disclosure behavior, current-row highlighting,
-actual count values, main-menu accents, auxiliary-menu dot exclusion, mobile/palette/no-JS behavior.
-
-
-## Component instances and compact recent lists
-
-All five configurable regions (including top) accept plain names and per-instance config objects. Repeated
-components are supported; config does not alter other instances or Page.Params. Example:
+Native Page/section settings can override a config cascade. For example, Notes explicitly selects
+its publication-order recent list; compact defaults are easiest to inspect on Home/About. Region
+arrays replace rather than append. Components support independent `{component, config}` instances:
 
 ```yaml
 params:
@@ -329,46 +89,84 @@ params:
       config: {order: publication, count: 5}
     - component: recent
       config: {order: modification, count: 8}
-    - component: links
-      config: {menu: primary, icons: false}
 ```
 
-The theme SHELL.md lists the exact options for menu, collections, taxonomy navigation, page-tree,
-TOC, recent, profile, text, links and footer items. Unknown fields and unsafe values diagnose;
-strings are shorthand for defaults. The previous duplicate-component rejection is intentionally
-replaced by independent instances and unique IDs, not silently suppressed validation.
+Theme-owned guides:
+[CONTRACT](themes/sidera/CONTRACT.md) · [PRESETS](themes/sidera/PRESETS.md) ·
+[SHELL](themes/sidera/SHELL.md) · [TAXONOMIES](themes/sidera/TAXONOMIES.md) ·
+[DOCS](themes/sidera/DOCS.md) · [I18N](themes/sidera/I18N.md).
+They define scope/preset independence, exact types/precedence/safety, instance options and source limits.
+Fonts are local/system fallbacks; icon/style notices are in the theme. No content license is inferred.
 
-Fieldbook Notes explicitly uses publication-order recent links; Handbook demonstrates both
-orders. Existing bundled preset choices stay unchanged. Recent rows now show only an ellipsized
-title with a full native tooltip; taxonomy captions no longer repeat the collection name.
+## Theme docs remain opt-in
 
-Focused verification (fresh output directories printed by each Python check):
+`/handbook/` is ordinary site content. The separate theme sample is absent by default:
 
 ```sh
-uv run --no-project --no-managed-python python3 tests/check_instances.py
-nvm use
-node tests/check_instances_browser.mjs /absolute/path/to/instances/run
-uv run --no-project --no-managed-python python3 tests/check_recent.py
-# The recent browser test also visits the normal live example:
-hugo --source examples/notebook --destination /absolute/path/to/recent/run/normal-public --cacheDir /absolute/path/to/recent/run/normal-cache --panicOnWarning
-node tests/check_recent_browser.mjs /absolute/path/to/recent/run
+hugo server --config hugo.toml,docs-on.toml --bind 127.0.0.1 --port 14420 --disableFastRender
 ```
 
+This publishes the theme-owned sample at `/sidera/` through native mounts. Append `docs-off.toml`
+to remove that opt-in. The always-available docs **preset term** is not the sample itself.
+No theme docs are copied into root content.
 
-## Collection browsing
+## Tests: live showcase versus intentional fixtures
 
-Blog preset sections now have the Stellar-style `collection-nav` in the new `top` instance region.
-It links the collection list, nonempty scoped Categories/Tags and a real publication-year Archive.
-Categories are wide directory trees; flat tags use chips, hierarchical tags keep a tree. Scoped
-term results remain native article lists. `taxonomy_hubs=list|index` selects the root hub view;
-blog sections default to index, other presets keep list. Native model/scope/pin/URL rules remain.
+The former organizational showcase is preserved in
+[`tests/fixtures/organization`](tests/fixtures/organization/README.md), including its original
+config, resources and matching test overlays. It is **test input, not a second maintained preview**.
+It keeps purposeful multiple-collection, isolation, hierarchy, date, pin, pagination, resource,
+author/series and docs edge cases out of the normal site's editorial content.
 
-Fieldbook's Journal is the normal review example. The theme SHELL/CONTRACT/PRESETS guides document
-instance items/order/disable behavior, the reserved archives route, source boundaries and dates.
-Series as a tab is deliberately left for a later refinement, not a nonworking control.
+- `copy_site()` assembles those stable fixture inputs with the **current** theme in a test directory.
+- `copy_showcase()` copies the real root site for live configuration/UI checks.
+- No theme is stored in the fixture and neither content tree is mounted into the other.
+- Existing semantic fixture assertions remain; root presentation tests follow the live site.
+
+Python uses installed uv/stdlib; Node uses `.nvmrc` (24.12.0). Runs write fresh ignored output,
+never overwrite root `public/`, and stop their owned HTTP/Chrome processes:
 
 ```sh
-uv run --no-project --no-managed-python python3 tests/check_browsing.py
+uv run --no-project --no-managed-python python3 tests/check_showcase.py
+uv run --no-project --no-managed-python python3 tests/check_identity.py
+uv run --no-project --no-managed-python python3 tests/check_menu.py
+uv run --no-project --no-managed-python python3 tests/check_p2gr.py
 nvm use
-node tests/check_browsing_browser.mjs /absolute/path/to/printed/run
+# Use the matching Python check's printed directory:
+node tests/check_identity_browser.mjs /absolute/path/to/identity/run
+node tests/check_menu_browser.mjs /absolute/path/to/menu/run
+node tests/check_p2gr_browser.mjs /absolute/path/to/p2gr/run
 ```
+
+Organization/model/configuration suites remain under their established names: `check_p1a.py`,
+`check_p1b.py`, `check_p1c.py`, `check_journal_urls.py`, `check_theme_packaging.py`,
+`check_theme_defaults.py`, `check_namespace.py`, `check_model.py`, `check_taxonomies.py`,
+`check_p2w.py`, `check_p2f.py`, `check_p2g.py`, `check_p2c.py`, `check_instances.py`,
+`check_recent.py` and `check_browsing.py`. Invoke them with the same uv command. P2-C supports
+`SIDERA_SKIP_BROWSER=1` for its configuration/catalog portion. Historical A/B/F browser matrices
+retain old fixed visual assumptions; they are not the current visual-fidelity gate.
+
+Focused instance/browsing browser suites consume their corresponding Python output directory.
+For `check_recent_browser.mjs`, first build the live root to that run's `normal-public` destination.
+For the root-only scrolling check:
+
+```sh
+run=$(mktemp -d "$PWD/.checks/sidebar-scroll-XXXXXX")
+hugo --destination "$run/baseline-public" --cacheDir "$run/cache" --panicOnWarning
+node tests/check_sidebar_scroll_browser.mjs "$run"
+```
+
+`check_tree_presentation_browser.mjs` uses a root build plus the organizational fixture's generated
+`generic-public` and a root widgets build; `tests/prepare_root_browser.py` prepares those three.
+Tests use explicit free HTTP/CDP ports (14378/14379 by default), a fresh owned Chrome profile and
+no downloads; they never attach to user profiles or stop unrelated occupied ports. Chromium checks
+are not full screen-reader/WCAG/Safari/Firefox certification.
+
+For structural validation of excluded content use a separate private build with
+`--buildDrafts --buildFuture --buildExpired`. Drafts are not a structural exemption. Contextual
+route discovery remains bounded to supported local literal TOML/YAML sources, not universal
+mount/generated-content or publication/privacy certification. No failed build is publishable.
+
+Exact-source reproduction requires initializing the pinned submodule—plain `git archive` is
+incomplete. The coordination/history repository in the sibling migration workspace is optional,
+not a build/test input; original-site/Stellar/Hugo-doc repositories remain read-only references.

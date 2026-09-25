@@ -40,7 +40,7 @@ await runBrowser(async b=>{
   for(let i=0;i<60&&await e('location.pathname')!=='/';i++)await delay(25);assert.equal(await e('location.pathname'),'/');
  }
  for(const [width,prefix,selector] of [[390,'','.mobile-brand .identity-text'],[1440,'/_compact','.compact-header .identity-text'],[1440,'/_chinese',text]]){
-  await v(width,844);await n(prefix+'/notes/');await e(`document.querySelector(${JSON.stringify(selector)}).focus()`);await key('Enter','Enter',13);await delay(100);
+  await v(width,844);await n(prefix+(prefix==='/_compact'?'/about/':'/notes/'));await e(`document.querySelector(${JSON.stringify(selector)}).focus()`);await key('Enter','Enter',13);await delay(100);
   assert.equal(await e('location.pathname'),prefix==='/_chinese'?'/_chinese/':'/');assert(await e('document.documentElement.scrollWidth<=innerWidth'));
  }
  await v(1440);await n('/notes/');await call('Emulation.setEmulatedMedia',{features:[{name:'prefers-reduced-motion',value:'reduce'}]});

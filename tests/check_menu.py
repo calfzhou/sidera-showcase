@@ -1,19 +1,17 @@
 """Focused native-menu color contract and retained safe/configurable variants."""
 from pathlib import Path
-import json, os, shutil, sys, tempfile
+import json, os, sys, tempfile
 sys.dont_write_bytecode=True
-from check_p1a import ROOT, THEME
-from check_p1b import build, html
+from check_p1a import ROOT
+from check_p1b import copy_showcase, build, html
 from check_p2f import nodes
 from check_p2w import write
 
 def main():
     run=Path(os.environ.get('SIDERA_CHECK_DIR') or tempfile.mkdtemp(prefix='menu-',dir=ROOT/'.checks')).resolve()
     run.mkdir(parents=True,exist_ok=True)
-    source=run/'source'
-    shutil.copytree(ROOT/'examples/notebook',source,ignore=shutil.ignore_patterns('.hugo_build.lock','public','resources'))
-    shutil.copytree(ROOT/THEME,source/THEME,ignore=shutil.ignore_patterns('.git'))
-    cfg=source/'hugo.toml';original=cfg.read_text().replace("themesDir = '../../themes'","themesDir = 'themes'");cfg.write_text(original)
+    source=copy_showcase(run,'live')
+    cfg=source/'hugo.toml';original=cfg.read_text()
     def check(label,extra='',diagnostic=None):
         write(source,'probe.toml',extra)
         return build(source,run,label,diagnostic,('--config','hugo.toml,probe.toml','--printI18nWarnings'))

@@ -6,7 +6,7 @@ import sys
 import tempfile
 
 sys.dont_write_bytecode = True
-from check_p1a import ROOT, THEME, Page, article_route, all_articles, pagers, snapshot
+from check_p1a import ORGANIZATION, ROOT, THEME, Page, article_route, all_articles, pagers, snapshot
 from check_p1b import (FIELD, LAB, View, build, copy_site, html, local_links,
                        tag_checks, write_note, http_smoke)
 
@@ -117,11 +117,12 @@ def main():
     run = Path(tempfile.mkdtemp(prefix='p1c-', dir=ROOT / '.checks'))
     print('Retained run:', run, flush=True)
     (run / 'version.txt').write_text(subprocess.check_output(['hugo', 'version'], text=True, timeout=10))
-    baseline = build(ROOT, run, 'baseline')
+    baseline_source = copy_site(run, 'baseline')
+    baseline = build(baseline_source, run, 'baseline')
     baseline_checks(baseline)
-    again = build(ROOT, run, 'determinism')
+    again = build(baseline_source, run, 'determinism')
     assert snapshot(baseline) == snapshot(again)
-    subpath = build(ROOT, run, 'subpath', flags=('--baseURL', 'https://example.org/preview/'))
+    subpath = build(baseline_source, run, 'subpath', flags=('--baseURL', 'https://example.org/preview/'))
     baseline_checks(subpath, '/preview')
 
     source = copy_site(run, 'edges')

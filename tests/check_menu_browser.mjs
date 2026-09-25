@@ -26,12 +26,12 @@ await runBrowser(async b=>{
  await call('Input.dispatchMouseEvent',{type:'mouseMoved',x:1100,y:500});await e(`document.querySelector(${JSON.stringify(notes)}).focus()`);await delay(240);
  assert.equal(await style(notes+' .icon','color'),'rgb(61, 197, 80)');assert.notEqual(await style(notes,'outlineStyle'),'none');
  await key('Enter','Enter',13);await delay(120);assert.equal(await e('location.pathname'),'/notes/');
- await n('/journal/beginning/');assert.equal(await e(`document.querySelector(${JSON.stringify(journal)}).getAttribute('aria-current')`),'location');
+ await n('/journal/2026/04/10/beginning/');assert.equal(await e(`document.querySelector(${JSON.stringify(journal)}).getAttribute('aria-current')`),'location');
  assert.equal(await style(journal+' .icon','color'),'rgb(255, 189, 43)');assert.equal(await style(journal,'width','::after'),'8px');
  await move(home);const defaultColor=await style(home+' .icon','color');assert.notEqual(defaultColor,resting);assert.notEqual(defaultColor,'rgb(255, 189, 43)');
- await n('/_nested/journal/returning/');
+ await n('/_nested/journal/2026/04/11/returning/');
  assert.equal(await style(journal+' .icon','color'),'rgb(255, 189, 43)');
- const returning=menu+' a[href="/journal/returning/"]',beginning=menu+' a[href="/journal/beginning/"]';
+ const returning=menu+' a[href="/journal/2026/04/11/returning/"]',beginning=menu+' a[href="/journal/2026/04/10/beginning/"]';
  assert.equal(await style(returning+' .icon','color'),defaultColor); // no parent-to-child accent leak
  await move(beginning);assert.equal(await style(beginning+' .icon','color'),'rgb(51, 153, 204)');
  await n('/_fallback/notes/');const collection=menu+' .collection-nav a[href="/notes/"]';
