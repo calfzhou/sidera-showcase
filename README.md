@@ -60,6 +60,40 @@ Native menu `pageRef` values still use source paths such as `/journal/beginning`
 the dated URL. Original root date/lastmod fallback chains and Asia/Shanghai timezone remain.
 No redirects or real-site URL migration were introduced.
 
+## Editor-native source-link inspection (P3-A)
+
+Open `/notes/reading-list/` in your own root server, then **Follow a useful connection**.
+The committed note links directly to the existing Journal source:
+
+```md
+[Connect the useful parts](../../journal/connect-the-useful-parts/index.md)
+[Give a link a reason](../../journal/connect-the-useful-parts/index.md#give-a-link-a-reason)
+```
+
+The file is `content/journal/connect-the-useful-parts/index.md`; the heading exists there.
+With the normal Journal rule the built href is
+`/journal/2026/04/14/connect-the-useful-parts/#give-a-link-a-reason`. Without that rule,
+the same source gives `/journal/connect-the-useful-parts/#give-a-link-a-reason`.
+A reference-style link in the note also targets the second heading. No relref or
+published-URL replacement is needed. Moving files may still require fixing relative paths.
+
+Theme [LINKS.md](themes/sidera/LINKS.md) documents exact matching, resources/languages,
+warning strictness, optional heading checks and project-hook precedence. No new markup
+merge or `useEmbedded=always` setting is required. Fresh verification:
+
+```sh
+uv run --no-project --no-managed-python python3 tests/check_source_links.py
+nvm use
+# Use the printed run directory; these ports must be free:
+SIDERA_HTTP_PORT=14472 SIDERA_CDP_PORT=14473 node tests/check_source_links_browser.mjs /absolute/path/to/run
+```
+
+The browser smoke follows the committed note's page/heading/reference links with and
+without JavaScript and checks the existing external-marker distinction without fetching
+external sites. The harness stops its unique Chrome/HTTP instance; it never attaches to
+your server or browser. Tests also cover native embedded controls, source/heading existence,
+plain/storage/branch/bundle/Unicode resources, language filenames, mounts and diagnostics.
+
 ## Ordinary Markdown inspection
 
 Open `/handbook/reference/markdown/` on your own root showcase server. It is also linked

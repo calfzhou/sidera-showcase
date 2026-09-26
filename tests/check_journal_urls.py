@@ -36,9 +36,18 @@ def main():
     previous = build(old, run, 'without-rule')
     before, after = snapshot(previous), snapshot(baseline)
     native_dependents = {'authors/demo-editor/index.html', 'authors/demo-researcher/index.html', 'series/model-workshop/index.html'}
-    unchanged = [p for p in before if not p.startswith(('journal/', 'tags/', 'categories/')) and p != 'sitemap.xml' and p not in native_dependents]
+    # Share QR resources encode native Journal URLs; they are route dependents too.
+    native_qr = set()
+    for output in (previous, baseline):
+        for document in (output / 'journal').rglob('index.html'):
+            for url in Page(document).assets:
+                if url.startswith('/images/qr/'):
+                    file = output / url.lstrip('/')
+                    assert file.read_bytes().startswith(b'\x89PNG\r\n\x1a\n')
+                    native_qr.add(url.lstrip('/'))
+    unchanged = [p for p in before if not p.startswith(('journal/', 'tags/', 'categories/')) and p != 'sitemap.xml' and p not in native_dependents and p not in native_qr]
     assert all(after.get(p) == before[p] for p in unchanged)
-    assert all(p in before for p in after if not p.startswith(('journal/', 'tags/', 'categories/')) and p != 'sitemap.xml' and p not in native_dependents)
+    assert all(p in before for p in after if not p.startswith(('journal/', 'tags/', 'categories/')) and p != 'sitemap.xml' and p not in native_dependents and p not in native_qr)
 
     # Global taxonomy results intentionally link the same Journal pages; native
     # dated policy must propagate there instead of retaining stale destinations.
