@@ -84,7 +84,7 @@ def bilingual_checks(out, prefix=''):
             member = 'only' if owner.endswith('annex') else 'alpha'
             assert v.count == 1 and v.owner == f'{zh}/{owner}/'
             assert v.nav['Collection'] == [f'{zh}/{owner}/']
-            assert v.nav['Tag ancestors'] == [f'{zh}/{owner}/tags/'] + [
+            assert v.nav['Breadcrumbs'] == [f'{zh}/', f'{zh}/{owner}/', f'{zh}/{owner}/tags/'] + [
                 f'{zh}/{owner}/tags/{"/".join(term.split("/")[:i])}/' for i in range(1, len(term.split('/'))+1)]
             check_list(out, path, [f'/zh/{owner}/{member}/'], order, size, prefix=prefix)
         assert not html(out, f'/zh/{owner}/tags/science/quantum/').exists()
@@ -152,13 +152,13 @@ def main():
             assert f'[{key}]\nother = "{label}"' in catalog
     keys = set(re.findall(r'^\[([^]]+)\]', en_catalog, re.M))
     assert keys == set(re.findall(r'^\[([^]]+)\]', zh_catalog, re.M))
-    assert len(keys) == 94, keys # Deliberate UI inventory: update alongside I18N.md.
+    assert len(keys) == 96, keys # Deliberate UI inventory: update alongside I18N.md.
     assert en_catalog.count('other = ') == zh_catalog.count('other = ') == len(keys)
     # Literal call sites plus the four deliberately native dynamic message groups.
     implementation = '\n'.join(p.read_text() for directory in ['layouts', 'content']
                                for p in (ROOT / THEME / directory).rglob('*') if p.is_file())
     used = set(re.findall(r'\bT "([a-z_]+)"', implementation))
-    used.add('all_tags_in') # Retained translation for site overrides; no default article hub row.
+    used.update(['all_tags_in', 'docs_ancestors', 'standalone_page']) # Retained translation overrides; shared header breadcrumbs supersede these labels.
     used.update(['collection_blog', 'collection_notebook', 'collection_docs', 'order_publication', 'order_modification',
                  'order_title', 'date_published', 'date_modified', 'date_updated', 'published_undated',
                  'series_order_publication','series_order_weight', 'modified_undated', 'tags', 'categories', 'authors', 'series', 'preset', 'article_count'])

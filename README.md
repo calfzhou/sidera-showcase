@@ -385,3 +385,9 @@ Compact author checks: `check_header_authors.py` and `check_header_authors_brows
 single/multiple/no-author/date combinations, comma-space separators, native profile destinations,
 no default footer cards/avatars, show_authors=false, scoped links and preserved date reveal.
 Explicit footer authors/edit configuration remains available; it is no longer a default item.
+
+
+Header breadcrumb checks: `check_breadcrumbs.py` and `check_breadcrumbs_browser.mjs` cover
+Home/collection/native ancestors/current-page links, independent nested roots, scoped taxonomy
+paths, EN/ZH/subpaths, consistent insets, wrapping and hover/keyboard/no-JS navigation.
+Use SIDERA_CHECK_DIR for the build output and pass that directory to the browser script.

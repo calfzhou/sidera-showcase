@@ -161,7 +161,7 @@ await runBrowser(async ({ run, port, debugPort, profile, origin, version, errors
     await navigate('/_stress/field-notes/tags/reading/observations/languages/english/cjk/paragraphs/long-labels/final-level/');
     await overflow(`${mode}/deep-leaf`);
     assert.equal(await evaluate(`document.querySelector('[data-note-count]').dataset.noteCount`), '1');
-    await evaluate(`document.querySelector('.breadcrumbs a[href$="/long-labels/"]').click()`); await delay(150);
+    await evaluate(`document.querySelector('.page-breadcrumbs a[href$="/long-labels/"]').click()`); await delay(150);
     assert(await evaluate(`location.pathname.endsWith('/long-labels/') && document.querySelector('[data-note-count]').dataset.noteCount === '1'`));
     await evaluate(`document.querySelector('.article-card h2 a').click()`); await delay(150);
     assert.equal(await evaluate(`document.querySelector('article[data-collection]').dataset.collection`), '/_stress/field-notes/');

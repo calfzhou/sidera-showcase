@@ -49,7 +49,8 @@ class View(HTMLParser):
             self.pending_tag = a['data-tag']
         if tag == 'nav':
             if a.get('data-tree-scope') == 'owner': self.full_tree = True
-            self.current_nav = a.get('aria-label')
+            self.current_nav = 'Breadcrumbs' if a.get('class') == 'page-breadcrumbs' else a.get('aria-label')
+            if self.current_nav == 'Breadcrumbs': self.nav['Collection'] = []
             if self.current_nav in ('Notes tags', 'Tags'):
                 self.current_nav = 'Notebook tags'
             if self.chinese:
@@ -60,6 +61,8 @@ class View(HTMLParser):
         if tag == 'a' and self.pending_tag:
             self.tree_links[self.pending_tag] = unquote(a['href'])
             self.pending_tag = None
+        if tag == 'a' and 'data-collection-link' in a and self.current_nav == 'Breadcrumbs':
+            self.nav['Collection'].append(unquote(a['href']))
         if tag == 'a' and self.current_nav:
             self.nav[self.current_nav].append(unquote(a['href']))
 
@@ -151,7 +154,7 @@ def tag_checks(out, owner, expected, all_notes):
             ancestors = [hub]
             pieces = slug.split('/') if slug else []
             ancestors += [hub + '/'.join(pieces[:i]) + '/' for i in range(1, len(pieces) + 1)]
-            assert v.nav['Tag ancestors'] == ancestors, (route, v.nav)
+            assert v.nav['Breadcrumbs'] == ['/', root, *ancestors], (route, v.nav)
             descendants = {labels[s]: len(ns) for s, ns in expected.items()
                            if v.full_tree or (s != slug and (not slug or s.startswith(slug + '/')))}
             assert v.tree == descendants, (route, v.tree, descendants)
@@ -268,7 +271,7 @@ def main():
     view = View(html(subpath, '/field-notes/tags/science/quantum/basics/'))
     assert view.owner == '/preview/field-notes/'
     assert view.nav['Collection'] == ['/preview/field-notes/']
-    assert view.nav['Tag ancestors'] == ['/preview/field-notes/tags/' + p for p in
+    assert view.nav['Breadcrumbs'] == ['/preview/', '/preview/field-notes/'] + ['/preview/field-notes/tags/' + p for p in
         ['', 'science/', 'science/quantum/', 'science/quantum/basics/']]
 
 
