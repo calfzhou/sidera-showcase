@@ -310,3 +310,18 @@ Article terms now use centered Stellar-style pills, without All tags in … / co
 hub links below the body. Sidebar hub links and native scoped/global term destinations remain.
 `check_article_tags.py` plus `check_article_tags_browser.mjs` verify geometry, hover/focus/native
 links, no-hub markup, long-label wrapping, repeated/header instances, icons-off and EN/ZH/subpath.
+
+
+## Collection reading navigation
+
+Previous / Parent / Next follows the article footer (or a recursive section's main list), separate
+from series links. Set params.navigation_mode on a collection root to list, siblings or sequential.
+Blog/Notes default list; Handbook defaults siblings. Switching Handbook to sequential flattens its
+existing tree parent-first without altering child order or dates. Do not cascade this root policy.
+The root's main-list mode includes pins and spans pagers; all modes stay in the same language/scope.
+
+Run `tests/check_page_navigation.py` with a fresh SIDERA_CHECK_DIR, followed by
+`node tests/check_page_navigation_browser.mjs <same-directory>`. Fixtures cover all three modes
+across all presets and unclassified roots, exact reciprocal targets, nested scopes, native excluded
+states, bilingual/subpath URLs, root-policy validation and canonical-only controls. Browser checks
+use real local keyboard links, no external navigation or user browser session.
