@@ -99,8 +99,10 @@ These are Chromium spot checks, not full accessibility/cross-browser certificati
 
 Root `hugo.toml` owns the Fieldbook identity, menus, footer copy and site URL/date policy.
 Sidera supplies taxonomy definitions, term URLs and native preset defaults. The site imports
-only `[taxonomies]` and `[permalinks.term]` with `_merge='shallow'`; it does not duplicate them
-or broadly merge security/markup configuration.
+`[taxonomies]`, `[permalinks.term]` and the narrow `[markup.tableOfContents]` category with
+`_merge='shallow'`; it does not duplicate theme defaults or broadly merge security/markup
+configuration. The TOC default is H1–H6 rather than Hugo's H2–H3. Explicit native
+startLevel/endLevel settings still override it.
 
 All `examples/*.toml` files are **overlays on this same root content**:
 
@@ -476,3 +478,11 @@ For a focused check, build the root to a fresh run's `baseline-public`, then run
 HTTP/CDP ports. It verifies actual 4px Chromium geometry, native keyboard scrolling, palettes,
 touch/no-JS and native forced-colors fallback. Other engines use the standard thin fallback;
 no cross-browser certification is implied.
+
+
+TOC depth/default checks: run `tests/check_toc_depth.py` with a fresh `SIDERA_CHECK_DIR`, then
+`node tests/check_toc_browser.mjs <same-directory>` with nvm and free HTTP/CDP ports. The old
+prepare_toc_browser helper no longer adds a fixture-only six-level override: both its test
+page and the real `/handbook/reference/markdown/` now use the normal theme/site configuration.
+The focused check also covers native owner overrides, leading missing levels and the safety
+boundary of the leaf-scoped config import.

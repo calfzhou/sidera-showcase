@@ -26,3 +26,5 @@ journal = '/journal/:year/:month/:day/:slugorcontentbasename/'
 # Import only the theme's term URL defaults; site rules still take precedence.
 [permalinks.term]
 _merge = 'shallow'
+[markup.tableOfContents]
+_merge = 'shallow'

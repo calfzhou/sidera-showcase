@@ -41,6 +41,15 @@ await runBrowser(async b=>{
   assert.equal(await e(`getComputedStyle(document.querySelector('.right-region [data-toc]')).maxHeight`),'none');
   assert.equal(await e(`document.querySelector('.right-region .article-toc > summary').textContent`),'本页目录');
  }
+ // The real root also uses the theme defaults, without a phantom H1 indent.
+ await v(1440,1000);await n('/handbook/reference/markdown/');
+ assert.equal(await e(`getComputedStyle(document.querySelector('[data-toc] a')).fontSize`),'17px');
+ assert.equal(await e(`getComputedStyle(document.querySelector('[data-toc] a')).paddingLeft`),'8px');
+ await scrollHeading('the-final-level');
+ assert(await e(`document.querySelector('[data-toc] a[href="#the-final-level"]')`));
+ const normalRect=await e(`(()=>{const r=document.querySelector('.right-region [data-component="toc"]').getBoundingClientRect();return{x:r.x+scrollX,y:r.y+scrollY,width:r.width,height:r.height}})()`);
+ const normal=await call('Page.captureScreenshot',{format:'png',captureBeyondViewport:false,clip:{...normalRect,scale:1}});await writeFile(resolve(b.run,'normal-toc.png'),Buffer.from(normal.data,'base64'));
+
  await v(1440,1000);await call('Emulation.setScriptExecutionDisabled',{value:true});await n(route,false);
  assert(await e(`document.querySelector('.right-region .article-toc').open&&document.querySelectorAll('.right-region [data-toc] a').length===19`));
  await call('Emulation.setScriptExecutionDisabled',{value:false});

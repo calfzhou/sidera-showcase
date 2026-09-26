@@ -8,6 +8,8 @@ disableKinds = ['RSS']
 _merge = 'shallow'
 [permalinks.term]
 _merge = 'shallow'
+[markup.tableOfContents]
+_merge = 'shallow'
 [frontmatter]
 date = ['date', 'publishDate', 'pubdate', 'published']
 publishDate = ['publishDate', 'pubdate', 'published', 'date']

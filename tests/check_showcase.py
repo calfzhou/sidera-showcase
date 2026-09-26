@@ -84,6 +84,7 @@ def main():
     for base in [ROOT,ORGANIZATION]:
         config=(base/'hugo.toml').read_text()
         assert "[taxonomies]\n_merge = 'shallow'" in config
+        assert "[markup.tableOfContents]\n_merge = 'shallow'" in config
         assert "journal = '/journal/:year/:month/:day/:slugorcontentbasename/'" in config
     prefixed=check('subpath',flags=('--baseURL','https://example.org/preview/'));local_links(prefixed,'/preview')
     assert all_articles(prefixed,'/journal/')==['/preview'+p for p in JOURNAL]
