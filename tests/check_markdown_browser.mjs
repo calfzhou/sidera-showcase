@@ -88,8 +88,9 @@ await runBrowser(async b=>{
    const nodes=[...document.querySelectorAll('.prose p,.prose li,.prose a,.prose pre span,.prose figcaption')].filter(x=>x.childNodes.length&&[...x.childNodes].some(n=>n.nodeType===3&&n.textContent.trim()));
    const samples=nodes.map(x=>{let bg=[255,255,255];const parents=[];for(let a=x;a;a=a.parentElement)parents.unshift(a);for(const a of parents)bg=over(rgba(getComputedStyle(a).backgroundColor),bg);const fg=over(rgba(getComputedStyle(x).color),bg),a=lum(fg),b=lum(bg);return {tag:x.tagName,class:x.className,ratio:(Math.max(a,b)+.05)/(Math.min(a,b)+.05)}});
    const p=document.querySelector('.prose p'),r=document.createRange();r.selectNodeContents(p);getSelection().removeAllRanges();getSelection().addRange(r);
-   const sel=getComputedStyle(p,'::selection'),a=lum(rgba(sel.color)),b=lum(rgba(sel.backgroundColor));
-   samples.push({tag:'selection',class:'',ratio:(Math.max(a,b)+.05)/(Math.min(a,b)+.05)});return samples;
+   if (!getSelection().toString()) throw new Error('Native text selection is empty');
+   // Native browser/OS selection colors are not represented by author pseudo-style colors.
+   return samples;
   })()`);
   contrasts.push({mode,min:Math.min(...samples.map(s=>s.ratio)),fail:samples.filter(s=>s.ratio<4.5)});
  }

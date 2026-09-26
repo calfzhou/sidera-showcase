@@ -91,8 +91,8 @@ SIDERA_HTTP_PORT=14462 SIDERA_CDP_PORT=14463 node tests/check_markdown_browser.m
 
 The browser harness verifies those ports are free, uses a unique owned profile and stops
 its HTTP/Chrome processes. It checks EN/ZH, both palettes, 320/390/768/1440px, native keyboard
-scrolling/TOC/links/footnotes, no-JS enlarged text, image sizing and composited text/selection
-contrast. Temporary standalone/branch-body cases reuse the specimen only inside the test run.
+scrolling/TOC/links/footnotes, no-JS enlarged text, image sizing and composited body-text
+contrast. Text selection follows browser/OS defaults throughout the site, as in Stellar. Temporary standalone/branch-body cases reuse the specimen only inside the test run.
 These are Chromium spot checks, not full accessibility/cross-browser certification.
 
 ## Configuration and examples
@@ -457,3 +457,12 @@ Run `tests/check_code_blocks.py` with a fresh `SIDERA_CHECK_DIR`, then
 as above. Clipboard writes are mocked, never sent to the developer's real clipboard. These
 checks cover native code options, language/control states, text without line numbers, timer/
 toast behavior, failures, keyboard/pointer distinction, touch and no-JS.
+
+
+Site-wide text-selection styling follows Stellar's browser/OS defaults, with no Sidera
+`::selection` color overrides. Existing nonselectable decorative markers/line numbers remain.
+For a focused check, build the root site to a fresh run's `baseline-public` directory, then run
+`node tests/check_selection_browser.mjs <run-directory>` using nvm and free HTTP/CDP ports.
+It covers identity/header/prose/code/footer, native form selection, both palettes/widths and
+no-JS. Browser-native highlight painting is inspected directly, not misreported as author-CSS
+contrast derived from a transparent `getComputedStyle(..., '::selection')` background.
