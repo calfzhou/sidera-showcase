@@ -121,15 +121,17 @@ right=[]''')
     assert 'data-tree-scope="global"' in html(out,'/one/').read_text()
     assert '>Authors</a>' in html(out,'/one/').read_text() and '>Series</a>' in html(out,'/one/').read_text()
     replace(source,'content/series/shared/_index.md',"series_order='publication'","series_order='weight'")
+    check(source,'weight-rejected','series_order must be publication')
+    replace(source,'content/series/shared/_index.md',"series_order='weight'","series_order='publication'")
     replace(source,'content/one/a.md','\n+++\n',"\n[params]\nshow_authors=false\ntaxonomy_links={series='global'}\n+++\n")
-    out=check(source,'weighted-hidden-authors')
-    assert all_articles(out,'/one/series/shared/')==['/one/b/','/one/a/']
+    out=check(source,'publication-hidden-authors')
+    assert all_articles(out,'/one/series/shared/')==['/one/a/','/one/b/']
     assert 'id="footer-assigned-authors"' not in html(out,'/one/a/').read_text()
     assert '/series/shared/' in html(out,'/one/a/').read_text()
     assert '/one/b/' in html(out,'/one/a/').read_text()
     assert set(all_articles(out,'/authors/alice/'))=={'/one/a/','/one/b/','/two/a/'}
     out=check(source,'subpath',flags=('--baseURL','https://example.org/preview/'))
-    assert all_articles(out,'/preview/one/series/shared/','/preview')==['/preview/one/b/','/preview/one/a/']
+    assert all_articles(out,'/preview/one/series/shared/','/preview')==['/preview/one/a/','/preview/one/b/']
     write(source,'locale.toml',"defaultContentLanguage='en'\ndefaultContentLanguageInSubdir=true\n[languages.en]\nlocale='en-US'\n[languages.zh]\nlocale='zh-CN'\n")
     write(source,'content/one/_index.zh.md','+++\ntitle="中文分区"\npreset="notes"\n[params]\npage_size=1\n+++\n')
     write(source,'content/one/a.zh.md','+++\ntitle="中文第一篇"\ndate=2024-01-01T00:00:00Z\nauthors=["alice"]\nseries="shared"\n+++\n中文正文。')
@@ -138,7 +140,7 @@ right=[]''')
     write(source,'content/series/shared/_index.zh.md','+++\ntitle="共享专栏"\nslug="shared"\n[params]\nseries_order="publication"\n+++\n')
     out=check(source,'bilingual',flags=('--config','hugo.toml,locale.toml','--baseURL','https://example.org/preview/'))
     assert all_articles(out,'/preview/zh/one/series/shared/','/preview')==['/preview/zh/one/a/','/preview/zh/one/b/']
-    assert all_articles(out,'/preview/en/one/series/shared/','/preview')==['/preview/en/one/b/','/preview/en/one/a/']
+    assert all_articles(out,'/preview/en/one/series/shared/','/preview')==['/preview/en/one/a/','/preview/en/one/b/']
     assert '示例作者' in html(out,'/zh/one/a/').read_text() and '专栏下一篇' in html(out,'/zh/one/a/').read_text()
     # Raw structural validation also covers unpublished supported local source.
     invalid=[

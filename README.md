@@ -350,3 +350,15 @@ After that check, build `chinese-prefixed-public` into the same run folder using
 `hugo --config hugo.toml,examples/chinese.toml --baseURL https://example.org/_chinese/` with explicit
 `--destination` and `--cacheDir` paths. Run `node tests/check_journal_series_browser.mjs <run-folder>`
 to check actual series links, mixed lists and EN/ZH/mobile/no-JS behavior.
+
+
+Journal cards now identify series membership with a compact name/position badge. The existing
+article-footer series block includes a collapsible ordered outline and current-part highlight;
+its Previous/Next in series remain separate from collection reading links. Non-series posts keep
+no badge/block. Ordering is always oldest publication first, with stable ties and undated last;
+series weights and collection pins cannot change it. The former series_order=weight now diagnoses.
+
+Run `tests/check_series_presentation.py` with a fresh SIDERA_CHECK_DIR, then
+`node tests/check_series_presentation_browser.mjs <same-directory>` for exact positions, scoped/
+global chronology, hidden/standalone/singleton/repeated states, native badge pointer navigation,
+keyboard/current outline, EN/ZH/subpath/mobile/no-JS and the removed weight-mode diagnostic.
