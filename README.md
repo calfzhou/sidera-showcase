@@ -426,3 +426,10 @@ Header breadcrumb checks: `check_breadcrumbs.py` and `check_breadcrumbs_browser.
 Home/collection/native ancestor links (without repeating the current page), independent nested roots, scoped taxonomy
 paths, EN/ZH/subpaths, consistent insets, wrapping and hover/keyboard/no-JS navigation.
 Use SIDERA_CHECK_DIR for the build output and pass that directory to the browser script.
+
+
+Heading-marker checks: run `tests/check_heading_markers.py` with a fresh `SIDERA_CHECK_DIR`,
+then `node tests/check_heading_markers_browser.mjs <same-directory>` using `.nvmrc` and free
+HTTP/CDP ports as above. H2/H3/H4/H5 use Stellar's `#` / `=` / `|` / `:` permalink markers;
+H1/H6 stay unmarked. The existing ordinary-Markdown page demonstrates these levels without
+another live specimen. Native anchors, formatted heading links and safe attributes are preserved.

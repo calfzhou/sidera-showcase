@@ -1,5 +1,6 @@
 """Ordinary Markdown: one live specimen, native body/anchor/resource/option contracts."""
 from pathlib import Path
+from urllib.parse import unquote
 import json, os, sys
 sys.dont_write_bytecode=True
 from check_p1b import copy_showcase, build, local_links, html
@@ -32,7 +33,7 @@ def main():
   assert (html(out,route).parent/'sample.svg').read_bytes()==(specimen/'sample.svg').read_bytes()
   ids=[n.attrs['id'] for n in d.all() if n.attrs.get('id')];assert len(ids)==len(set(ids))
   for a in d.all():
-   if a.tag=='a' and a.attrs.get('href','').startswith('#'):assert a.attrs['href'][1:] in ids
+   if a.tag=='a' and a.attrs.get('href','').startswith('#'):assert unquote(a.attrs['href'][1:]) in ids
   assert len(d.all(**{'class':'article-end'}))==1
   return body
  baseline=check('baseline');local_links(baseline);body_check(baseline,ROUTE)

@@ -152,7 +152,7 @@ def main():
             assert f'[{key}]\nother = "{label}"' in catalog
     keys = set(re.findall(r'^\[([^]]+)\]', en_catalog, re.M))
     assert keys == set(re.findall(r'^\[([^]]+)\]', zh_catalog, re.M))
-    assert len(keys) == 96, keys # Deliberate UI inventory: update alongside I18N.md.
+    assert len(keys) == 97, keys # Deliberate UI inventory: update alongside I18N.md.
     assert en_catalog.count('other = ') == zh_catalog.count('other = ') == len(keys)
     # Literal call sites plus the four deliberately native dynamic message groups.
     implementation = '\n'.join(p.read_text() for directory in ['layouts', 'content']
@@ -215,6 +215,7 @@ def main():
             assert messages.messages['taxonomy_count', str(count)] == expected_taxonomy
             assert HOSTILE in messages.messages['all_tags_in', str(count)]
             assert HOSTILE in messages.messages['toggle_branch', str(count)]
+            assert HOSTILE in messages.messages['heading_permalink', str(count)]
         assert messages.messages['page_summary','1'] == ('第 1,234 页，共 12,345 页' if lang == 'chinese' else 'Page 1,234 of 12,345')
         assert messages.messages['date_published','1'] == ('发表于 2024年2月3日' if lang == 'chinese' else 'Published Feb 3, 2024')
         probes.append(messages.messages)
