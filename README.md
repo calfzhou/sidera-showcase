@@ -319,6 +319,7 @@ from series links. Set params.navigation_mode on a collection root to list, sibl
 Blog/Notes default list; Handbook defaults siblings. Switching Handbook to sequential flattens its
 existing tree parent-first without altering child order or dates. Do not cascade this root policy.
 The root's main-list mode includes pins and spans pagers; all modes stay in the same language/scope.
+Parent is shown in siblings/sequential only, not list mode.
 
 Run `tests/check_page_navigation.py` with a fresh SIDERA_CHECK_DIR, followed by
 `node tests/check_page_navigation_browser.mjs <same-directory>`. Fixtures cover all three modes

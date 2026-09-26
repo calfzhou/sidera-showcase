@@ -25,7 +25,7 @@ def main():
     for owner in ['journal','notes']:
         routes=all_articles(baseline,'/'+owner+'/')
         for i,route in enumerate(routes):
-            links={'parent':'/'+owner+'/'}
+            links={}
             if i:links['previous']=routes[i-1]
             if i+1<len(routes):links['next']=routes[i+1]
             expect(baseline,route,links)
@@ -69,7 +69,7 @@ A real collection overview.
         if sequence:
           for i,part in enumerate(sequence):
             links={}
-            if part:links['parent']=base+('a/' if '/' in part else '')
+            if part and mode!='list':links['parent']=base+('a/' if '/' in part else '')
             if i:links['previous']=route(sequence[i-1])
             if i+1<len(sequence):links['next']=route(sequence[i+1])
             expect(out,route(part),links,prefix)
@@ -90,7 +90,7 @@ A real collection overview.
     write(source,'content/navigation-fallback/_index.md','---\ntitle: Plain fallback\n---\n')
     write(source,'content/navigation-fallback/a.md','---\ntitle: A\n---\n')
     out=check('matrix');verify(out);local_links(out);expect(out,'/navigation-fallback/',{})
-    expect(out,'/navigation-fallback/a/',{'parent':'/navigation-fallback/'})
+    expect(out,'/navigation-fallback/a/',{})
     out=check('chinese',"defaultContentLanguage='zh'\nlocale='zh-CN'\nbaseURL='https://example.org/_chinese/'\n");verify(out,'/_chinese');local_links(out,'/_chinese')
     out=check('subpath',"baseURL='https://example.org/preview/'\n");verify(out,'/preview');local_links(out,'/preview')
     # Site-level fallback is available for plain roots; presets retain normal precedence.
@@ -103,12 +103,12 @@ A real collection overview.
     out=check('mixed');expect(out,'/notes-sequential/a/a1/',{'parent':'/notes-sequential/a/','previous':'/notes-sequential/a/a2/','next':'/notes-sequential/b/'})
     # Title/date/primary-date changes affect only the policy that owns them.
     root.write_text(saved.replace('navigation_mode: sequential','navigation_mode: list').replace('list_order: publication','list_order: title'))
-    out=check('title');expect(out,'/notes-sequential/a/a1/',{'parent':'/notes-sequential/a/','previous':'/notes-sequential/b/','next':'/notes-sequential/a/a2/'})
+    out=check('title');expect(out,'/notes-sequential/a/a1/',{'previous':'/notes-sequential/b/','next':'/notes-sequential/a/a2/'})
     root.write_text(saved)
     # Docs list mode uses its actual ordered immediate-child list, not a second date sort.
     handbook=source/'content/handbook/_index.md';hs=handbook.read_text();handbook.write_text(hs.replace('params:\n','params:\n  navigation_mode: list\n',1))
-    out=check('children-list');expect(out,'/handbook/workflows/',{'parent':'/handbook/','previous':'/handbook/start/','next':'/handbook/review/'})
-    expect(out,'/handbook/workflows/writing/',{'parent':'/handbook/workflows/'})
+    out=check('children-list');expect(out,'/handbook/workflows/',{'previous':'/handbook/start/','next':'/handbook/review/'})
+    expect(out,'/handbook/workflows/writing/',{})
     handbook.write_text(hs.replace('params:\n','params:\n  navigation_mode: sequential\n',1))
     out=check('live-sequential');expect(out,'/handbook/review/',{'parent':'/handbook/','previous':'/handbook/workflows/research/evaluate/','next':'/handbook/reference/'})
     # Later docs child pagers omit reading navigation, even though page 1 contains it.
@@ -118,7 +118,7 @@ A real collection overview.
     out=check('hidden-children');assert nav(out,'/handbook/').get('next') # Hiding child cards never hides the tree sequence.
     handbook.write_text(hs)
     out=check('included-states',flags=('--buildDrafts','--buildFuture'))
-    expect(out,'/blog-list/b/',{'parent':'/blog-list/','next':'/blog-list/future/'})
+    expect(out,'/blog-list/b/',{'next':'/blog-list/future/'})
     assert '/blog-sequential/draft/' in nav(out,'/blog-sequential/c/').values()
     # Existing scoped-route validation rejects non-rendered roots before publishing blank links.
     fallback=source/'content/navigation-fallback/_index.md';fallback_text=fallback.read_text()

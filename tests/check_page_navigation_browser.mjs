@@ -9,6 +9,7 @@ await runBrowser(async b=>{
   for(const route of ['/blog-list/c/','/notes-siblings/a/a2/','/docs-sequential/b/','/plain-sequential/','/handbook/workflows/']){
    await n(prefix+route);await e(`Sidera.setColorMode('${mode}')`);await delay(200);
    const state=await e(`(()=>{const nav=document.querySelector('.page-navigation'),a=nav.querySelector('.page-neighbor'),box=document.querySelector('.article-footer-box');return{count:document.querySelectorAll('.page-navigation').length,overflow:document.documentElement.scrollWidth>innerWidth,border:getComputedStyle(a).borderTopStyle,bottom:getComputedStyle(a).borderBottomStyle,size:getComputedStyle(a.querySelector('.neighbor-title')).fontSize,labels:[...nav.querySelectorAll('.neighbor-label')].map(n=>n.textContent),after:!box||!!(box.compareDocumentPosition(nav)&Node.DOCUMENT_POSITION_FOLLOWING),links:[...nav.querySelectorAll('a')].map(a=>a.getAttribute('href'))}})()`);
+   if(route==='/blog-list/c/')assert.equal(await e(`document.querySelectorAll('[data-navigation=parent]').length`),0);
    assert.equal(state.count,1);assert(!state.overflow&&state.after);assert.equal(state.border,'dashed');assert.equal(state.bottom,'dashed');assert.equal(state.size,'20px');
    assert(state.labels.every(label=>(prefix==='/_chinese'?['上一页','下一页']:['Previous','Next']).includes(label)));
    assert(state.links.every(url=>url.startsWith(prefix+route.split('/').slice(0,2).join('/')+'/')));
