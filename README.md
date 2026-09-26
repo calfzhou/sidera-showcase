@@ -304,3 +304,9 @@ share query encoding, native disclosure/no-JS, mocked clipboard success/denial (
 user clipboard), defaults/overrides/repeats/validation and EN/ZH/subpath/mobile behavior. Browser
 readiness skips closed-disclosure images and unrequested lazy images; opening QR is checked
 explicitly. No live share-provider/repository destination is opened by tests.
+
+
+Article terms now use centered Stellar-style pills, without All tags in … / collection-category
+hub links below the body. Sidebar hub links and native scoped/global term destinations remain.
+`check_article_tags.py` plus `check_article_tags_browser.mjs` verify geometry, hover/focus/native
+links, no-hub markup, long-label wrapping, repeated/header instances, icons-off and EN/ZH/subpath.

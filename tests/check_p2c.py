@@ -102,7 +102,7 @@ def bilingual_checks(out, prefix=''):
     assert a.times['updated'] == '2024-04-05T09:00:00+08:00'
     raw = html(out, '/zh/field-notes/alpha/').read_text()
     assert '<img src=x' not in raw and HOSTILE in unescape(raw)
-    assert '浏览「' + HOSTILE + '」的全部标签' in unescape(raw)
+    assert 'article-tag-hub' not in raw # No collection-wide hub links below an article.
     assert '<html lang="zh-CN"' in raw and '发表于 2024年2月3日' in raw
     assert '<h1>标签</h1>' in html(out, '/zh/field-notes/tags/').read_text()
     assert '<h1>Tags</h1>' in html(out, '/field-notes/tags/').read_text()
@@ -158,6 +158,7 @@ def main():
     implementation = '\n'.join(p.read_text() for directory in ['layouts', 'content']
                                for p in (ROOT / THEME / directory).rglob('*') if p.is_file())
     used = set(re.findall(r'\bT "([a-z_]+)"', implementation))
+    used.add('all_tags_in') # Retained translation for site overrides; no default article hub row.
     used.update(['collection_blog', 'collection_notebook', 'collection_docs', 'order_publication', 'order_modification',
                  'order_title', 'date_published', 'date_modified', 'date_updated', 'published_undated',
                  'series_order_publication','series_order_weight', 'modified_undated', 'tags', 'categories', 'authors', 'series', 'preset', 'article_count'])
