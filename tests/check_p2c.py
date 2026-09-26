@@ -129,7 +129,7 @@ def catalog_probe(source):
 {{ $catalog := transform.Unmarshal (os.ReadFile "themes/sidera/i18n/en.toml") }}
 {{ range $count := slice 0 1 2 12345 }}
   {{ range $key, $message := $catalog }}
-    <p data-key="{{ $key }}" data-count="{{ $count }}">{{ T $key (dict "count" $count "number" (lang.FormatNumber 0 $count) "title" $.Site.Params.probe "tag" $.Site.Params.probe "date" (time.Format ":date_medium" (time.AsTime "2024-02-03")) "label" $.Site.Params.probe "next" $.Site.Params.probe "current" (lang.FormatNumber 0 1234) "total" (lang.FormatNumber 0 12345)) }}</p>
+    <p data-key="{{ $key }}" data-count="{{ $count }}">{{ T $key (dict "count" $count "number" (lang.FormatNumber 0 $count) "language" $.Site.Params.probe "title" $.Site.Params.probe "tag" $.Site.Params.probe "date" (time.Format ":date_medium" (time.AsTime "2024-02-03")) "label" $.Site.Params.probe "next" $.Site.Params.probe "current" (lang.FormatNumber 0 1234) "total" (lang.FormatNumber 0 12345)) }}</p>
   {{ end }}
 {{ end }}
 {{ end }}
@@ -152,7 +152,7 @@ def main():
             assert f'[{key}]\nother = "{label}"' in catalog
     keys = set(re.findall(r'^\[([^]]+)\]', en_catalog, re.M))
     assert keys == set(re.findall(r'^\[([^]]+)\]', zh_catalog, re.M))
-    assert len(keys) == 98, keys # Deliberate UI inventory: update alongside I18N.md.
+    assert len(keys) == 105, keys # Deliberate UI inventory: update alongside I18N.md.
     assert en_catalog.count('other = ') == zh_catalog.count('other = ') == len(keys)
     # Literal call sites plus the four deliberately native dynamic message groups.
     implementation = '\n'.join(p.read_text() for directory in ['layouts', 'content']

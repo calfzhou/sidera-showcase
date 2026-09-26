@@ -35,7 +35,7 @@ await runBrowser(async b=>{
  for(const selector of ['.prose .highlight:has(.lntable)','.prose .highlight > pre','.prose table:not(.lntable)']){
   await e(`(()=>{const box=document.querySelector(${JSON.stringify(selector)});box.scrollLeft=0;box.scrollIntoView({behavior:'instant'});(box.querySelector('.lntd:last-child pre')||box).focus()})()`);
   assert(await e(`document.activeElement.matches('pre,table')`),'Native scroll target did not accept focus');
-  assert.notEqual(await e('getComputedStyle(document.activeElement).outlineStyle'),'none');
+  assert.notEqual(await e(`getComputedStyle(document.activeElement.closest('.highlight') || document.activeElement).outlineStyle`),'none');
   for(let i=0;i<5;i++)await key('ArrowRight','ArrowRight',39);await delay(200);
   assert(await e(`document.querySelector(${JSON.stringify(selector)}).scrollLeft>0`),selector);
  }

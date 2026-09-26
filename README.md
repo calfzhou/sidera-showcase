@@ -444,3 +444,16 @@ For focused checks, use a fresh `SIDERA_CHECK_DIR` with `tests/check_external_li
 `node tests/check_external_links_browser.mjs <same-directory>`. Both commands use
 `SIDERA_HTTP_PORT=14462` by default for this fixture's same-origin absolute link; supply the same
 explicit free port to both when changing it, plus a free `SIDERA_CDP_PORT` for the browser.
+
+
+Fenced-code controls: on the ordinary-Markdown specimen, hover/focus a block to replace its
+language label with Copy. Copied remains briefly after success and the existing site toast
+confirms it. Touch shows both language and Copy. Clipboard failures provide a selected manual
+copy field; no-JS leaves normal code and its language label. Click focus no longer produces a
+double cyan border; keyboard focus retains one scrollport outline.
+
+Run `tests/check_code_blocks.py` with a fresh `SIDERA_CHECK_DIR`, then
+`node tests/check_code_blocks_browser.mjs <same-directory>` with nvm and explicit free ports
+as above. Clipboard writes are mocked, never sent to the developer's real clipboard. These
+checks cover native code options, language/control states, text without line numbers, timer/
+toast behavior, failures, keyboard/pointer distinction, touch and no-JS.
