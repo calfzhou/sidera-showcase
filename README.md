@@ -369,3 +369,13 @@ Top-bar surface checks: build normal output to `baseline-public` and the Chinese
 `node tests/check_topbar_browser.mjs <run-folder>`. This checks solid rest vs. layered pinned glass,
 return-to-top/reset/viewport events, unchanged dimensions, pointer/keyboard destinations, horizontal
 scroll isolation, light/dark and no-JS. No browser user profile or external destinations are used.
+
+
+The series outline now replaces the separate Previous/Next in series pair. Chapter links remain
+in chronological order, with the current part highlighted; the general collection navigation is
+unchanged. The showcase contact sentence moved from cascade.params.article_text to
+cascade.params.article_end_text: it appears after navigation and any docs child cards as the final
+article section. Footer article_text remains available independently for authored footer content.
+No comment system is installed; sidera/article-end.html is the final integration slot for later.
+`check_article_end.py` and `check_article_end_browser.mjs` verify placement, safe Markdown/empty
+values, canonical-only rendering, no duplicate controls, and native chapter links in EN/ZH/mobile.

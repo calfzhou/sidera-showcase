@@ -30,7 +30,7 @@ subtitle = 'Notes & everyday tools | Small ideas, kept close'
 title = 'A working notebook'
 text = 'Observations from the desk and the field. Small ideas, kept in one place.'
 [cascade.params]
-article_text = 'Have a different approach? [Get in touch](mailto:hello@example.org).'
+article_end_text = 'Have a different approach? [Get in touch](mailto:hello@example.org).'
 [[menus.primary]]
 name = 'Overview'
 pageRef = '/'
