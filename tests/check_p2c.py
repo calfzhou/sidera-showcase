@@ -85,7 +85,7 @@ def bilingual_checks(out, prefix=''):
             assert v.count == 1 and v.owner == f'{zh}/{owner}/'
             assert v.nav['Collection'] == [f'{zh}/{owner}/']
             assert v.nav['Breadcrumbs'] == [f'{zh}/', f'{zh}/{owner}/', f'{zh}/{owner}/tags/'] + [
-                f'{zh}/{owner}/tags/{"/".join(term.split("/")[:i])}/' for i in range(1, len(term.split('/'))+1)]
+                f'{zh}/{owner}/tags/{"/".join(term.split("/")[:i])}/' for i in range(1, len(term.split('/')))]
             check_list(out, path, [f'/zh/{owner}/{member}/'], order, size, prefix=prefix)
         assert not html(out, f'/zh/{owner}/tags/science/quantum/').exists()
     assert not html(out, '/field-notes/zh-only/').exists()

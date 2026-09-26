@@ -388,6 +388,6 @@ Explicit footer authors/edit configuration remains available; it is no longer a 
 
 
 Header breadcrumb checks: `check_breadcrumbs.py` and `check_breadcrumbs_browser.mjs` cover
-Home/collection/native ancestors/current-page links, independent nested roots, scoped taxonomy
+Home/collection/native ancestor links (without repeating the current page), independent nested roots, scoped taxonomy
 paths, EN/ZH/subpaths, consistent insets, wrapping and hover/keyboard/no-JS navigation.
 Use SIDERA_CHECK_DIR for the build output and pass that directory to the browser script.

@@ -154,7 +154,7 @@ def tag_checks(out, owner, expected, all_notes):
             ancestors = [hub]
             pieces = slug.split('/') if slug else []
             ancestors += [hub + '/'.join(pieces[:i]) + '/' for i in range(1, len(pieces) + 1)]
-            assert v.nav['Breadcrumbs'] == ['/', root, *ancestors], (route, v.nav)
+            assert v.nav['Breadcrumbs'] == ['/', root, *ancestors[:-1]], (route, v.nav)
             descendants = {labels[s]: len(ns) for s, ns in expected.items()
                            if v.full_tree or (s != slug and (not slug or s.startswith(slug + '/')))}
             assert v.tree == descendants, (route, v.tree, descendants)
@@ -272,7 +272,7 @@ def main():
     assert view.owner == '/preview/field-notes/'
     assert view.nav['Collection'] == ['/preview/field-notes/']
     assert view.nav['Breadcrumbs'] == ['/preview/', '/preview/field-notes/'] + ['/preview/field-notes/tags/' + p for p in
-        ['', 'science/', 'science/quantum/', 'science/quantum/basics/']]
+        ['', 'science/', 'science/quantum/']]
 
 
     source = copy_site(run, 'positive')

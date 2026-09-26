@@ -153,7 +153,7 @@ def article(output, route, owner, byline, updated):
     assert rendered.article == {
         "data-renderer": "shared-article", "data-collection": owner
     }, (route, rendered.article)
-    same_links(rendered.collection_links, [owner] if owner else [])
+    same_links(rendered.collection_links, [owner] if owner and route != owner and not route.startswith(owner + "page/") else [])
     assert rendered.byline == byline, (route, rendered.byline, byline)
     assert rendered.updated is updated, (route, rendered.updated, updated)
 
@@ -187,7 +187,7 @@ def check_baseline(output, extra=False, docs=True, theme_docs=False):
         owner = f"/{slug}/"
         routes = [article_route(slug, path) for path in paths]
         same_links(all_articles(output, owner), routes)
-        same_links(page(output, owner).collection_links, [owner])
+        same_links(page(output, owner).collection_links, [])
         for path, route in zip(paths, routes):
             expected_articles.add(route)
             article(output, route, owner, *OVERRIDES.get(f"{slug}/{path}", (byline, updated)))
@@ -204,7 +204,7 @@ def check_baseline(output, extra=False, docs=True, theme_docs=False):
         article(output, route, "/lab-notes/annex/", "Annex team", True)
         for section in ["/lab-notes/annex/", "/lab-notes/annex/storage/"]:
             same_links(all_articles(output, section), [route])
-            same_links(page(output, section).collection_links, ["/lab-notes/annex/"])
+            same_links(page(output, section).collection_links, [] if section == "/lab-notes/annex/" else ["/lab-notes/annex/"])
     doc_routes = (DOC_ROUTES if docs else []) + (THEME_DOC_ROUTES if theme_docs else [])
     if doc_routes:
         expected_articles.update(doc_routes)

@@ -27,15 +27,17 @@ def main():
   for route,expected in cases.items():
    nav=nodes(out,route).all(**{'class':'page-breadcrumbs'});assert len(nav)==1,route
    links=[n for n in nav[0].all() if n.tag=='a']
-   assert [n.attrs['href'] for n in links]==[prefix+p for p in expected],route
+   assert [n.attrs['href'] for n in links]==[prefix+p for p in expected[:-1]],route
    assert links[0].words()==home
-   assert [n.attrs['href'] for n in links if n.attrs.get('aria-current')=='page']==[prefix+route]
-   assert len(nav[0].all(**{'class':'breadcrumb-separator'}))==len(expected)-1
+   assert all(n.attrs['href'] != prefix+route for n in links)
+   assert not nav[0].words().rstrip().endswith('/')
+   assert [n.attrs['href'] for n in links if n.attrs.get('aria-current')=='page']==[]
+   assert len(nav[0].all(**{'class':'breadcrumb-separator'}))==len(expected)-2
   # Consolidated taxonomy trail, with native hub/term links and no repeated second row.
   route='/notes/tags/tools/'
   d=nodes(out,route);nav=d.all(**{'class':'page-breadcrumbs'})[0]
-  assert [n.attrs['href'] for n in nav.all() if n.tag=='a']==[prefix+p for p in ['/','/notes/','/notes/tags/',route]]
+  assert [n.attrs['href'] for n in nav.all() if n.tag=='a']==[prefix+p for p in ['/','/notes/','/notes/tags/']]
   assert not d.all(**{'class':'breadcrumbs'})
   assert not nodes(out,'/notes/').all(**{'class':'page-breadcrumbs'}) # list_header=false stays honored.
- print('PASS breadcrumbs: article/docs/section/standalone/scoped taxonomy, nested roots, dated URLs, current state, EN/ZH/subpath and local links; retained',run)
+ print('PASS breadcrumbs: article/docs/section/standalone/scoped taxonomy, nested roots, dated URLs, no current/self link or trailing separator, EN/ZH/subpath and local links; retained',run)
 if __name__=='__main__':main()

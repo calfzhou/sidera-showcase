@@ -8,6 +8,7 @@ await runBrowser(async b=>{
    await n(prefix+route);await e(`Sidera.setColorMode('${mode}')`);await delay(200);
    const state=await e(`(()=>{const nav=document.querySelector('.page-breadcrumbs'),header=nav.parentElement,links=[...nav.querySelectorAll('a')],r=nav.getBoundingClientRect(),h=header.getBoundingClientRect();return{inset:r.left-h.left,padding:parseFloat(getComputedStyle(header).paddingLeft),first:links[0].getBoundingClientRect().left-r.left,fonts:[...new Set(links.map(a=>getComputedStyle(a).fontSize))],overflow:document.documentElement.scrollWidth>innerWidth,aligned:[...nav.querySelectorAll('.breadcrumb-step')].every(step=>Math.abs(step.children[0].getBoundingClientRect().top-step.children[1].getBoundingClientRect().top)<1)}})()`);
    assert(Math.abs(state.inset-state.padding)<1,JSON.stringify({route,width,state}));assert.equal(state.first,0);assert.deepEqual(state.fonts,['14px']);assert(state.aligned);assert(!state.overflow);
+   assert(await e(`(()=>{const nav=document.querySelector('.page-breadcrumbs');return !nav.querySelector('[aria-current]') && [...nav.querySelectorAll('a')].every(a=>a.pathname!==location.pathname) && !nav.textContent.trim().endsWith('/')})()`));
    await call('Input.dispatchMouseEvent',{type:'mouseMoved',x:1,y:1});
    const rest=await e(`getComputedStyle(document.querySelector('.page-breadcrumbs a')).color`);
    const target=await e(`(()=>{const r=document.querySelector('.page-breadcrumbs a').getBoundingClientRect();return{x:r.x+r.width/2,y:r.y+r.height/2}})()`);
@@ -22,7 +23,7 @@ await runBrowser(async b=>{
  await key('Enter','Enter',13);await delay(150);assert.equal(await e('location.pathname'),'/');
  await n('/handbook/workflows/writing/outline/');await e(`document.querySelector('.page-breadcrumbs a[href="/handbook/workflows/writing/"]').focus()`);await key('Enter','Enter',13);await delay(150);assert.equal(await e('location.pathname'),'/handbook/workflows/writing/');
  await v(320,1000);await n('/handbook/workflows/writing/outline/');
- await e(`document.querySelector('.page-breadcrumbs a[aria-current]').textContent='A very long current page label with unbrokenLongTextThatMustStillWrapWithoutOverflow'`);
+ await e(`document.querySelector('.page-breadcrumbs .breadcrumb-step:last-child a').textContent='A very long ancestor label with unbrokenLongTextThatMustStillWrapWithoutOverflow'`);
  assert(await e('document.documentElement.scrollWidth<=innerWidth'));
  await call('Emulation.setScriptExecutionDisabled',{value:true});await n('/about/',false);
  await e(`document.querySelector('.page-breadcrumbs a').focus()`);await key('Enter','Enter',13);await delay(150);assert.equal(await e('location.pathname'),'/');
