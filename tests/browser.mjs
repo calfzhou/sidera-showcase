@@ -59,7 +59,8 @@ async function navigate(path, paint = true) {
     assert(n < 99, 'Page readiness timeout');
     await delay(50);
   }
-  if (paint) await evaluate(`(async () => { await document.fonts.ready; await Promise.all([...document.images].map(i => i.decode().catch(() => {}))); await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r))); })()`);
+  // Closed disclosures and unrequested lazy images may intentionally defer loading.
+  if (paint) await evaluate(`(async () => { await document.fonts.ready; await Promise.all([...document.images].filter(i => (i.complete || i.loading !== 'lazy') && !i.closest('details:not([open])')).map(i => i.decode().catch(() => {}))); await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r))); })()`);
 }
 async function viewport(width, height = 960) {
   await call('Emulation.setDeviceMetricsOverride', { width, height, deviceScaleFactor: 1, mobile: false });

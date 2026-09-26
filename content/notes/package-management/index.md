@@ -6,6 +6,8 @@ lastmod: 2026-06-24
 tags: [tools/python]
 authors: [rowan]
 params:
+  references:
+    - "[Managing Multiple Python Versions With pyenv — Real Python](https://realpython.com/intro-to-pyenv/)"
   pinned: false
 ---
 ## Declare intent

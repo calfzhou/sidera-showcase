@@ -55,7 +55,7 @@ await runBrowser(async ({ run, port, debugPort, profile, origin, version, errors
           assert.equal(await palette(),mode); assert(state.scroll<=width+1,JSON.stringify(state));
           assert.equal(state.headings,1); assert(state.images);
           if (['list','tag','blog'].includes(name)) {
-            assert.equal(await evaluate(`getComputedStyle(document.querySelector('[data-page-number]')).display`),'flex');
+            assert(await evaluate(`(()=>{const list=document.querySelector('#articles'),pager=document.querySelector('[data-page-number]');return Number(list.dataset.total)>Number(list.dataset.pageSize)?!!pager&&getComputedStyle(pager).display==='flex':!pager})()`));
             assert(await evaluate(`[...document.querySelectorAll('[data-page-link]')].every(a=>parseFloat(getComputedStyle(a).paddingTop)>0 && getComputedStyle(a.closest('.pagination')).backgroundColor !== 'rgba(0, 0, 0, 0)')`));
           }
           if(lang==='zh') {

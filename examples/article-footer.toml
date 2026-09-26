@@ -1,0 +1,11 @@
+# Native site defaults; no theme edits or external service credentials.
+[params]
+article_footer = ['terms', 'references', 'license', 'authors', 'share', 'series']
+license = 'All rights reserved unless otherwise stated.'
+share = ['link', 'wechat', 'email'] # Also supports weibo; [] or false hides sharing.
+
+# For a collection, put these settings under cascade.params in its _index.md
+# (and params for the collection page itself). Individual page params win.
+# references = ['[A reference title](https://example.org/reference/)']
+# license = false
+# edit_url = 'https://github.com/owner/repository/edit/main/content/example.md'

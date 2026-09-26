@@ -48,7 +48,7 @@ await runBrowser(async ({run,version,navigate,viewport,evaluate,call,key,screens
   // Footer at real article end, both columns and native sequence remain reachable.
   await navigate('/journal/2024/01/01/first-signal/');
   assert.equal(await evaluate(`document.querySelector('[data-series-next]').getAttribute('href')`),'/journal/2024/01/02/second-signal/');
-  assert.deepEqual(await evaluate(`[...document.querySelectorAll('#assigned-authors a')].map(a=>a.textContent.trim())`),['Example editor','Example researcher']);
+  assert.deepEqual(await evaluate(`[...document.querySelectorAll('#footer-assigned-authors a')].map(a=>a.textContent.trim())`),['Example editor','Example researcher']);
   await evaluate(`document.querySelector('.article-footer').scrollIntoView({behavior:'instant',block:'start'})`);await delay(100);
   await screenshot('components-footers-desktop');
   await viewport(390);await navigate('/_chinese'+alpha);await mode('light');

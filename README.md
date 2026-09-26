@@ -283,3 +283,24 @@ children and params for the section itself (see theme SHELL.md). Explicit show_u
 still suppresses the update date; missing dates fall back to the other available enabled date.
 `check_primary_date.py` and `check_primary_date_browser.mjs` verify presets, per-page/cascade/site/
 language precedence, mixed global/scoped listings, unchanged list/child order and validation.
+
+
+## Boxed article footer
+
+Normal articles now display References (when supplied), a neutral License notice, native Authors
+(when assigned) and Share. Native terms and series remain outside the box. Header author
+attribution is removed; custom byline stays independent. The package-management note includes an
+explicit external reference; no automatic backlink/content migration is implied.
+
+`examples/article-footer.toml` demonstrates site settings. Page `params.references` is a Markdown
+array; `params.license` is Markdown, true for the localized default, or false/empty to hide.
+`params.share` selects/orders link/wechat/weibo/email; false/[] hides it. Collection descendant
+settings belong in native cascade.params. Optional edit_url is a literal source/edit link, not
+an automatic GitHub contributor service. The existing author taxonomy supplies avatar/name cards.
+
+Run `tests/check_article_footer.py` with a fresh SIDERA_CHECK_DIR, then
+`node tests/check_article_footer_browser.mjs <same-directory>`. It covers actual Hugo QR output,
+share query encoding, native disclosure/no-JS, mocked clipboard success/denial (never touching the
+user clipboard), defaults/overrides/repeats/validation and EN/ZH/subpath/mobile behavior. Browser
+readiness skips closed-disclosure images and unrequested lazy images; opening QR is checked
+explicitly. No live share-provider/repository destination is opened by tests.
