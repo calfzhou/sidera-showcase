@@ -113,7 +113,7 @@ right=[]''')
     assert set(all_articles(out,'/series/shared/'))=={'/one/a/','/one/b/','/two/a/'}
     assert all_articles(out,'/one/series/shared/')==['/one/a/','/one/b/']
     assert all_articles(out,'/two/series/shared/')==['/two/a/']
-    article=nodes(out,'/one/a/');authors=next(n for n in article.all() if n.attrs.get('id')=='footer-assigned-authors')
+    article=nodes(out,'/one/a/');authors=next(n for n in article.all() if n.attrs.get('id')=='header-assigned-authors')
     assert [n.attrs['href'] for n in authors.all() if n.tag=='a']==['/authors/bob/','/authors/alice/']
     assert [n.attrs['href'] for n in article.all() if 'data-series-next' in n.attrs]==['/one/b/']
     assert not any('data-series-next' in n.attrs for n in nodes(out,'/two/a/').all())
@@ -126,7 +126,7 @@ right=[]''')
     replace(source,'content/one/a.md','\n+++\n',"\n[params]\nshow_authors=false\ntaxonomy_links={series='global'}\n+++\n")
     out=check(source,'publication-hidden-authors')
     assert all_articles(out,'/one/series/shared/')==['/one/a/','/one/b/']
-    assert 'id="footer-assigned-authors"' not in html(out,'/one/a/').read_text()
+    assert 'id="header-assigned-authors"' not in html(out,'/one/a/').read_text()
     assert '/series/shared/' in html(out,'/one/a/').read_text()
     assert '/one/b/' in html(out,'/one/a/').read_text()
     assert set(all_articles(out,'/authors/alice/'))=={'/one/a/','/one/b/','/two/a/'}

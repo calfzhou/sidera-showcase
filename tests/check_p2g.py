@@ -20,7 +20,7 @@ def main():
         return [n.attrs['data-footer-item'] for n in footer.all() if 'data-footer-item' in n.attrs] if footer else []
     alpha='/field-notes/alpha/'
     baseline=check('baseline');check_baseline(baseline)
-    assert items(baseline,alpha,'article-footer')==['terms','license','authors','share','series']
+    assert items(baseline,alpha,'article-footer')==['terms','license','share','series']
     assert items(baseline,'/','site-footer')==['credit']
     assert items(baseline,'/about/','article-footer')==['license','share']
     # Use native separate config files, not duplicate TOML tables.
@@ -34,12 +34,12 @@ def main():
     author=source/'content/authors/demo-researcher/_index.md'
     author.write_text(author.read_text().replace('\n+++\n','\n[params]\navatar="images/sidera-mark.svg"\n+++\n'))
     full=check('components',flags=flags)
-    assert items(full,alpha,'article-footer')==['terms','license','authors','share','series','text','links']
+    assert items(full,alpha,'article-footer')==['terms','license','share','series','text','links']
     assert items(full,alpha,'site-footer')==['links','text','credit']
     cover=[n for n in nodes(full,'/field-notes/').all() if n.tag=='img' and n.attrs.get('alt')=='Two connected sample nodes'];assert len(cover)==1
     assert cover[0].attrs['src']=='/field-notes/alpha/sample.svg'
     assert 'article-footer' not in html(full,'/guidebook/page/2/').read_text()
-    assert any(n.tag=='img' and n.attrs.get('alt')=='' for n in nodes(full,alpha).all(id='footer-assigned-authors')[0].all())
+    assert not any(n.tag=='img' for n in nodes(full,alpha).all(id='header-assigned-authors')[0].all())
     assert nodes(full,'/field-notes/').all(**{'aria-current':'page'})
     assert 'javascript:' not in html(full,alpha).read_text()
     icons_off=check('icons-off','[cascade.params]\nicons=false\n',flags=flags)

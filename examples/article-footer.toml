@@ -1,6 +1,6 @@
 # Native site defaults; no theme edits or external service credentials.
 [params]
-article_footer = ['terms', 'references', 'license', 'authors', 'share', 'series']
+article_footer = ['terms', 'references', 'license', 'share', 'series']
 license = 'All rights reserved unless otherwise stated.'
 share = ['link', 'wechat', 'email'] # Also supports weibo; [] or false hides sharing.
 
@@ -9,3 +9,6 @@ share = ['link', 'wechat', 'email'] # Also supports weibo; [] or false hides sha
 # references = ['[A reference title](https://example.org/reference/)']
 # license = false
 # edit_url = 'https://github.com/owner/repository/edit/main/content/example.md'
+
+# Add authors to article_footer explicitly if footer portraits/edit_url are desired.
+# By default linked author names appear in the header before the dates.

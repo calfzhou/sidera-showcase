@@ -19,7 +19,7 @@ await runBrowser(async b=>{
   await e(`document.querySelector('.article-dates').focus()`);assert.equal(await visible(),'visible');
   assert.notEqual(await e('getComputedStyle(document.activeElement).outlineStyle'),'none');
   const ax=await call('Accessibility.getFullAXTree');assert(ax.nodes.some(n=>n.name?.value?.includes(path.startsWith('/_chinese')?'更新于':'Updated')));
-  await key('Tab','Tab',9);assert.equal(await visible(),'hidden');
+  for(let i=0;i<5 && await e(`document.querySelector('.article-dates').contains(document.activeElement)`);i++)await key('Tab','Tab',9);assert.equal(await visible(),'hidden');
  }
  async function capture(path,name){await n(path);await e(`Sidera.setColorMode('dark')`);const row=await e(`document.querySelector('.article-dates').getBoundingClientRect().toJSON()`);await call('Input.dispatchMouseEvent',{type:'mouseMoved',x:row.x+12,y:row.y+row.height/2});await delay(240);const r=await e(`(()=>{const r=document.querySelector('.article-header').getBoundingClientRect();return{x:r.x+scrollX,y:r.y+scrollY,width:r.width,height:r.height}})()`);const {data}=await call('Page.captureScreenshot',{format:'png',clip:{...r,scale:1},captureBeyondViewport:true});await writeFile(resolve(b.run,name+'.png'),Buffer.from(data,'base64'));}
  await capture('/date-probe/both/','published-first');await capture('/notes/package-management/','updated-first');

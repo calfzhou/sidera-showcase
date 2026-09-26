@@ -7,8 +7,8 @@ await runBrowser(async b=>{
  let clipboard=await call('Page.addScriptToEvaluateOnNewDocument',{source:`Object.defineProperty(navigator,'clipboard',{configurable:true,value:{writeText:async text=>{window.testCopied=text}}})`});
  for(const [width,mode,prefix] of [[1440,'dark',''],[1440,'light',''],[390,'dark',''],[320,'light','/_chinese'],[390,'light','/preview']]){
   await v(width,960);await n(prefix+'/notes/footer-probe/');await e(`Sidera.setColorMode('${mode}')`);await delay(220);
-  const state=await e(`(()=>{const f=document.querySelector('.article-footer-box');return{items:[...f.querySelectorAll('[data-footer-item]')].map(n=>n.dataset.footerItem),headerAuthors:!!document.querySelector('.article-header .author-attribution'),headingSize:getComputedStyle(f.querySelector('h2')).fontSize,border:getComputedStyle(f).borderTopWidth,overflow:document.documentElement.scrollWidth>innerWidth,blank: [...document.querySelectorAll('.article-footer-box')].some(b=>!b.textContent.trim()),qr:f.querySelector('.share-qr').open,hiddenCopy:f.querySelector('[data-share-copy]').hidden}})()`);
-  assert.deepEqual(state.items,['references','license','authors','share']);assert(!state.headerAuthors&&!state.overflow&&!state.blank&&!state.qr&&!state.hiddenCopy);assert.equal(state.headingSize,'20px');assert.equal(state.border,'1px');
+  const state=await e(`(()=>{const f=document.querySelector('.article-footer-box');return{items:[...f.querySelectorAll('[data-footer-item]')].map(n=>n.dataset.footerItem),headerAuthors:!!document.querySelector('.article-header .header-authors'),headingSize:getComputedStyle(f.querySelector('h2')).fontSize,border:getComputedStyle(f).borderTopWidth,overflow:document.documentElement.scrollWidth>innerWidth,blank: [...document.querySelectorAll('.article-footer-box')].some(b=>!b.textContent.trim()),qr:f.querySelector('.share-qr').open,hiddenCopy:f.querySelector('[data-share-copy]').hidden}})()`);
+  assert.deepEqual(state.items,['references','license','authors','share']);assert(state.headerAuthors&&!state.overflow&&!state.blank&&!state.qr&&!state.hiddenCopy);assert.equal(state.headingSize,'20px');assert.equal(state.border,'1px');
   await e(`document.querySelector('.share-qr summary').focus()`);await key('Enter','Enter',13);await delay(100);
   assert(await e(`document.querySelector('.share-qr').open`));
   await e(`document.querySelector('.share-qr img').decode()`);
@@ -45,5 +45,5 @@ await runBrowser(async b=>{
  assert(await e(`!document.querySelector('.share-link-fallback').hidden&&document.querySelector('[data-share-copy]').hidden`));
  await call('Emulation.setScriptExecutionDisabled',{value:false});
  assert.equal(b.errors.length,0,JSON.stringify(b.errors));assert(b.requests.every(u=>u.startsWith(b.origin+'/')),JSON.stringify(b.requests.filter(u=>!u.startsWith(b.origin+'/'))));
- console.log('PASS article footer: source-led box, no header authors, native edit/share URLs, local QR disclosure, repeated independence, safe clipboard success/failure/fallback, EN/ZH/palettes/mobile/keyboard/AX/no-JS and no external requests');
+ console.log('PASS article footer: source-led box, compact header/opt-in footer authors, native edit/share URLs, local QR disclosure, repeated independence, safe clipboard success/failure/fallback, EN/ZH/palettes/mobile/keyboard/AX/no-JS and no external requests');
 },{'/_chinese':'chinese-public','/preview':'subpath-public','/_repeated':'repeated-public','/_text':'text-icons-public','':'full-public'});

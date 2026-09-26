@@ -25,7 +25,7 @@ await runBrowser(async ({navigate,viewport,evaluate,call,screenshot,errors,reque
       results.push({route,width,mode});
     }
     await navigate('/one/a/');
-    assert.deepEqual(await evaluate('[...document.querySelectorAll("#footer-assigned-authors a")].map(a=>a.getAttribute("href"))'),['/authors/bob/','/authors/alice/']);
+    assert.deepEqual(await evaluate('[...document.querySelectorAll("#header-assigned-authors a")].map(a=>a.getAttribute("href"))'),['/authors/bob/','/authors/alice/']);
     assert.equal(await evaluate('document.querySelector("[data-series-next]").getAttribute("href")'),'/one/b/');
     assert(await evaluate('document.querySelector("[data-series]").textContent.includes(" · ")'));
     await screenshot(`model-authors-${mode}-${width}`);
@@ -40,7 +40,7 @@ await runBrowser(async ({navigate,viewport,evaluate,call,screenshot,errors,reque
   }
   await viewport(390);
   await navigate('/preview/zh/one/a/');
-  assert.equal(await evaluate('document.querySelector("#footer-assigned-authors a").textContent'),'示例作者');
+  assert.equal(await evaluate('document.querySelector("#header-assigned-authors a").textContent'),'示例作者');
   assert.equal(await evaluate('document.querySelector("[data-series-next]").getAttribute("href")'),'/preview/zh/one/b/');
   assert(await evaluate('document.querySelector("[data-series]").textContent.includes("专栏下一篇")'));
   await screenshot('model-chinese-mobile');

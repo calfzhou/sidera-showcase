@@ -19,14 +19,18 @@ def main():
     def item(d,name):return d.all(**{'data-footer-item':name})
     baseline=check('baseline');local_links(baseline)
     f=footer(baseline);box=f.all(**{'class':'article-footer-box'})[0]
-    assert [n.attrs['data-footer-item'] for n in box.children]==['references','license','authors','share']
+    assert [n.attrs['data-footer-item'] for n in box.children]==['references','license','share']
     assert item(f,'terms') and item(f,'terms')[0] not in box.all()
     assert 'All rights reserved unless otherwise stated.' in item(f,'license')[0].words()
     assert item(f,'references')[0].all(href='https://realpython.com/intro-to-pyenv/')
-    assert item(f,'authors')[0].all(href='/authors/rowan/')
-    assert not nodes(baseline,'/notes/package-management/').all(**{'class':'article-header'})[0].all(**{'class':'author-attribution'})
+    assert not item(f,'authors')
+    assert nodes(baseline,'/notes/package-management/').all(id='header-assigned-authors')[0].all(href='/authors/rowan/')
+    assert not any(n.tag=='img' for n in nodes(baseline,'/notes/package-management/').all(id='header-assigned-authors')[0].all())
     assert not item(footer(baseline,'/notes/color/'),'references')
     assert not footer(baseline).all(**{'class':'footer-meta'})
+    # Explicit site opt-in retains the optional footer-author/edit component.
+    config=source/'hugo.toml'
+    config.write_text(config.read_text().replace('[params]\n',"[params]\narticle_footer=['terms','references','license','authors','share','series','text','links']\n",1))
     # Source-local metadata, hostile title encoding, portrait and an explicit edit destination.
     title='Quoted "title" & question? #fragment 中文'
     fm='''---
@@ -117,5 +121,5 @@ Ordinary test content.
     write(source,'content/notes/footer-bad.md','---\ntitle: Draft\ndraft: true\n---\n')
     write(source,'content/preset/footer-unused/_index.md','---\ntitle: Unused\nparams:\n  defaults:\n    params:\n      share: [bad]\n---\n')
     check('bad-unused',diagnostic='invalid/duplicate share')
-    print('PASS article footer: Markdown/defaults/native authors/edit, no header authors, local QR, URL encoding, overrides/empty/repeats/widgets, EN/ZH/subpath and strict validation; retained',run)
+    print('PASS article footer: Markdown/defaults/native authors/edit, compact header authors/explicit footer authors, local QR, URL encoding, overrides/empty/repeats/widgets, EN/ZH/subpath and strict validation; retained',run)
 if __name__=='__main__':main()

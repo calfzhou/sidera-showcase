@@ -287,9 +287,9 @@ language precedence, mixed global/scoped listings, unchanged list/child order an
 
 ## Boxed article footer
 
-Normal articles now display References (when supplied), a neutral License notice, native Authors
-(when assigned) and Share. Native terms and series remain outside the box. Header author
-attribution is removed; custom byline stays independent. The package-management note includes an
+Normal articles now display References (when supplied), a neutral License notice and Share.
+Native terms and series remain outside the box. Authors appear as compact linked names before
+the dates, not footer cards by default; custom byline stays independent. The package-management note includes an
 explicit external reference; no automatic backlink/content migration is implied.
 
 `examples/article-footer.toml` demonstrates site settings. Page `params.references` is a Markdown
@@ -379,3 +379,9 @@ article section. Footer article_text remains available independently for authore
 No comment system is installed; sidera/article-end.html is the final integration slot for later.
 `check_article_end.py` and `check_article_end_browser.mjs` verify placement, safe Markdown/empty
 values, canonical-only rendering, no duplicate controls, and native chapter links in EN/ZH/mobile.
+
+
+Compact author checks: `check_header_authors.py` and `check_header_authors_browser.mjs` verify
+single/multiple/no-author/date combinations, comma-space separators, native profile destinations,
+no default footer cards/avatars, show_authors=false, scoped links and preserved date reveal.
+Explicit footer authors/edit configuration remains available; it is no longer a default item.
