@@ -466,3 +466,13 @@ For a focused check, build the root site to a fresh run's `baseline-public` dire
 It covers identity/header/prose/code/footer, native form selection, both palettes/widths and
 no-JS. Browser-native highlight painting is inspected directly, not misreported as author-CSS
 contrast derived from a transparent `getComputedStyle(..., '::selection')` background.
+
+
+Code, ordinary table and manual-copy-field scrollbars now use Stellar-style slim transparent
+tracks and rounded thumbs, revealed on hover/keyboard focus and visible on touch. The document
+scrollbar and hidden sidebar/TOC/collection-tab scrollbars retain their existing policies.
+For a focused check, build the root to a fresh run's `baseline-public`, then run
+`node tests/check_content_scrollbars_browser.mjs <run-directory>` with nvm and explicit free
+HTTP/CDP ports. It verifies actual 4px Chromium geometry, native keyboard scrolling, palettes,
+touch/no-JS and native forced-colors fallback. Other engines use the standard thin fallback;
+no cross-browser certification is implied.
