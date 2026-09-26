@@ -326,3 +326,27 @@ Run `tests/check_page_navigation.py` with a fresh SIDERA_CHECK_DIR, followed by
 across all presets and unclassified roots, exact reciprocal targets, nested scopes, native excluded
 states, bilingual/subpath URLs, root-policy validation and canonical-only controls. Browser checks
 use real local keyboard links, no external navigation or user browser session.
+
+
+## Journal series demonstration
+
+Journal contains nine posts, with interleaved publication dates:
+
+- **Making notes:** four parts — Begin with a small notebook → The value of returning →
+  Connect the useful parts → Review without rewriting everything.
+- **Quiet software:** three parts — Start with the default → Reveal one layer at a time →
+  Make the exit obvious.
+- **Standalone:** A walk without a checklist and A small maintenance window (pinned).
+
+Open `/journal/series/`, `/journal/series/making-notes/` or `/journal/series/quiet-software/`.
+The main list remains pinned-first/newest-first. Each series reads oldest-first, independently.
+For example, Connect the useful parts links to Review without rewriting everything within its
+series, but its general Next link leads to Start with the default in the main Journal list.
+The two original articles and URLs are unchanged; theme code/page size are unchanged.
+
+`check_showcase.py` asserts the nine-post order, both complete series and their endpoints, absence
+of series navigation on standalone posts, and the independent collection-navigation sequence.
+After that check, build `chinese-prefixed-public` into the same run folder using
+`hugo --config hugo.toml,examples/chinese.toml --baseURL https://example.org/_chinese/` with explicit
+`--destination` and `--cacheDir` paths. Run `node tests/check_journal_series_browser.mjs <run-folder>`
+to check actual series links, mixed lists and EN/ZH/mobile/no-JS behavior.

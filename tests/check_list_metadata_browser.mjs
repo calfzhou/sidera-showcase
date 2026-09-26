@@ -5,7 +5,7 @@ await runBrowser(async b=>{
  const {evaluate:e,navigate:n,viewport:v,call,key,delay}=b;
  for(const [width,prefix] of [[1440,''],[390,''],[390,'/_chinese']]){
   await v(width,960);
-  for(const [route,id,total] of [['/journal/','articles','2'],['/notes/','articles','6'],['/notes/page/2/','articles','6'],['/handbook/','doc-children','4']]){
+  for(const [route,id,total] of [['/journal/','articles','9'],['/notes/','articles','6'],['/notes/page/2/','articles','6'],['/handbook/','doc-children','4']]){
    await n(prefix+route);
    const state=await e(`(()=>{const list=document.getElementById('${id}');return{label:list.getAttribute('aria-label'),count:list.dataset.total||list.dataset.docTotal,rows:document.querySelectorAll('.list-meta,p[data-total],p[data-list-order],p[data-doc-total]').length,items:list.children.length,heading:!!document.getElementById('children-heading'),overflow:document.documentElement.scrollWidth>innerWidth}})()`);
    assert.equal(state.rows,0);assert.equal(state.count,total);assert(state.label&&state.items>0&&!state.overflow);

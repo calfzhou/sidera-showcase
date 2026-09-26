@@ -7,7 +7,20 @@ from check_p1b import build, copy_showcase, copy_site, html, local_links
 from check_p2f import nodes
 from check_p2w import write
 
-JOURNAL=['/journal/2026/04/11/returning/','/journal/2026/04/10/beginning/']
+JOURNAL=[
+ '/journal/2026/04/16/a-small-maintenance-window/', # Pinned standalone entry.
+ '/journal/2026/04/18/make-the-exit-obvious/',
+ '/journal/2026/04/17/review-without-rewriting/',
+ '/journal/2026/04/15/reveal-one-layer-at-a-time/',
+ '/journal/2026/04/14/connect-the-useful-parts/',
+ '/journal/2026/04/13/start-with-the-default/',
+ '/journal/2026/04/12/a-walk-without-a-checklist/',
+ '/journal/2026/04/11/returning/',
+ '/journal/2026/04/10/beginning/']
+SERIES={
+ 'making-notes': [JOURNAL[8],JOURNAL[7],JOURNAL[4],JOURNAL[2]],
+ 'quiet-software': [JOURNAL[5],JOURNAL[3],JOURNAL[1]],
+}
 
 def main():
     run=Path(os.environ.get('SIDERA_CHECK_DIR') or tempfile.mkdtemp(prefix='showcase-',dir=ROOT/'.checks')).resolve();run.mkdir(parents=True,exist_ok=True)
@@ -20,7 +33,7 @@ def main():
         out=build(source,run,label,flags=('--config',','.join(['hugo.toml',*configs]),'--printI18nWarnings',*flags))
         passed.append(label);return out
     out=check('baseline');local_links(out)
-    for route,identifier,count in [('/journal/','articles','2'),('/notes/','articles','6'),('/handbook/','doc-children','4')]:
+    for route,identifier,count in [('/journal/','articles','9'),('/notes/','articles','6'),('/handbook/','doc-children','4')]:
         d=nodes(out,route);listing=d.all(id=identifier)[0]
         assert listing.tag=='ul' and listing.attrs.get('aria-label')
         assert listing.attrs.get('data-doc-total' if identifier=='doc-children' else 'data-total')==count
@@ -47,8 +60,23 @@ def main():
         link=leaf.all(**{'data-doc-path':path})[0]
         assert link.attrs['aria-current']==('page' if path.endswith('/outline') else 'location')
     assert Page(html(out,'/handbook/workflows/writing/outline/')).article['data-collection']=='/handbook/'
-    assert any(a.attrs.get('href')==JOURNAL[0] for a in nodes(out,JOURNAL[1]).all() if 'data-series-next' in a.attrs)
-    assert nodes(out,JOURNAL[1]).all(href='/authors/rowan/')
+    for series,routes in SERIES.items():
+        assert all_articles(out,'/journal/series/'+series+'/')==routes
+        for i,route in enumerate(routes):
+            d=nodes(out,route)
+            assert d.all(href='/journal/series/'+series+'/')
+            assert [a.attrs['href'] for a in d.all() if 'data-series-previous' in a.attrs]==(routes[i-1:i] if i else [])
+            assert [a.attrs['href'] for a in d.all() if 'data-series-next' in a.attrs]==routes[i+1:i+2]
+            assert d.all(href='/authors/rowan/')
+    assert {n.words() for n in nodes(out,'/journal/series/').all(**{'data-term-count':'4'})}=={'4 pages'}
+    assert nodes(out,'/journal/series/').all(**{'data-term-count':'3'})
+    for route in [JOURNAL[0],JOURNAL[6]]:assert not nodes(out,route).all(**{'class':'series-navigation'})
+    for i,route in enumerate(JOURNAL):
+        reading={n.attrs['data-navigation']:n.attrs['href'] for n in nodes(out,route).all() if 'data-navigation' in n.attrs}
+        expected={}
+        if i:expected['previous']=JOURNAL[i-1]
+        if i+1<len(JOURNAL):expected['next']=JOURNAL[i+1]
+        assert reading==expected,(route,reading,expected)
     for config in sorted((source/'examples').glob('*.toml')):
         variant=check(config.stem,('examples/'+config.name,));local_links(variant)
         if config.stem=='components':assert any(n.tag=='img' and n.attrs.get('alt')=='Fieldbook mark' for n in nodes(variant,'/notes/').all())
