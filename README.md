@@ -60,6 +60,41 @@ Native menu `pageRef` values still use source paths such as `/journal/beginning`
 the dated URL. Original root date/lastmod fallback chains and Asia/Shanghai timezone remain.
 No redirects or real-site URL migration were introduced.
 
+## Ordinary Markdown inspection
+
+Open `/handbook/reference/markdown/` on your own root showcase server. It is also linked
+from **Handbook → Reference desk → Ordinary Markdown**. The tracked leaf bundle at
+`content/handbook/reference/markdown/` is the single live specimen: English/CJK prose,
+headings, tight/loose/nested/task lists, links, quotes, code/line numbers, wide tables,
+small local images, native figure/caption and repeated footnotes. Its prose and small
+SVG reuse the earlier synthetic reading fixture, not real-site content.
+
+```sh
+# From hugo-showcase, if you do not already have your own server running:
+hugo server --bind 127.0.0.1 --port 14420 --disableFastRender
+# Visit http://127.0.0.1:14420/handbook/reference/markdown/ ; stop with Ctrl-C.
+```
+
+Try the color-mode switch, narrow the window, scroll the code/table locally, follow a
+TOC link and both footnote return arrows. This is H body review, not final theme acceptance;
+TOC/footer/shell design stays as accepted. Chinese UI uses the existing `examples/chinese.toml`
+overlay around the same deliberately mixed-language specimen.
+
+Focused repeatable checks (fresh output only; no retained preview):
+
+```sh
+run="$PWD/.checks/markdown-$(date +%Y%m%d_%H%M%S)"
+SIDERA_CHECK_DIR="$run" uv run --no-project --no-managed-python python3 tests/check_markdown.py
+nvm use
+SIDERA_HTTP_PORT=14462 SIDERA_CDP_PORT=14463 node tests/check_markdown_browser.mjs "$run"
+```
+
+The browser harness verifies those ports are free, uses a unique owned profile and stops
+its HTTP/Chrome processes. It checks EN/ZH, both palettes, 320/390/768/1440px, native keyboard
+scrolling/TOC/links/footnotes, no-JS enlarged text, image sizing and composited text/selection
+contrast. Temporary standalone/branch-body cases reuse the specimen only inside the test run.
+These are Chromium spot checks, not full accessibility/cross-browser certification.
+
 ## Configuration and examples
 
 Root `hugo.toml` owns the Fieldbook identity, menus, footer copy and site URL/date policy.

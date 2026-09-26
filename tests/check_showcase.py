@@ -52,7 +52,7 @@ def main():
     assert len(all_articles(out,'/notes/'))==6
     assert set(a.attrs['href'] for a in nodes(out,'/handbook/').all(id='doc-children')[0].all() if a.tag=='a' and 'card-title' in a.attrs.get('class',''))=={'/handbook/start/','/handbook/workflows/','/handbook/review/','/handbook/reference/'}
     # The live handbook has three levels below its root, with exact native parent ordering.
-    for route,children in [('/handbook/workflows/',['writing','research']),('/handbook/workflows/writing/',['outline','draft']),('/handbook/workflows/research/',['sources','evaluate']),('/handbook/reference/',['frontmatter'])]:
+    for route,children in [('/handbook/workflows/',['writing','research']),('/handbook/workflows/writing/',['outline','draft']),('/handbook/workflows/research/',['sources','evaluate']),('/handbook/reference/',['frontmatter','markdown'])]:
         links=[a.attrs['href'] for a in nodes(out,route).all(id='doc-children')[0].all() if a.tag=='a' and 'card-title' in a.attrs.get('class','')]
         assert links==[route+child+'/' for child in children]
     leaf=nodes(out,'/handbook/workflows/writing/outline/')
