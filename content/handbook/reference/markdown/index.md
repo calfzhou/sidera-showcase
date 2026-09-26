@@ -6,6 +6,8 @@ lastmod: 2026-05-20
 ---
 This synthetic page keeps the ordinary parts of a document together. Read it at a comfortable pace, or use the contents to jump to [code and data](#code-and-data). No special theme tags, remote fonts or external images are needed.
 
+For syntax details, see [Hugo’s Markdown documentation](https://gohugo.io/content-management/formats/) or stay within [this handbook]({{< relref "/handbook" >}}). External text links have a small suffix; internal links do not.
+
 ## Reading at a comfortable pace
 
 An observation begins with a small detail. We write it down, return to it later, and notice a relationship that was not obvious the first time. A useful reading surface gives these sentences enough space without asking the eye to travel too far. **Strong emphasis**, *quiet emphasis*, and ~~a discarded assumption~~ should remain distinct from [an ordinary handbook link]({{< relref "/handbook" >}}).

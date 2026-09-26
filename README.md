@@ -433,3 +433,14 @@ then `node tests/check_heading_markers_browser.mjs <same-directory>` using `.nvm
 HTTP/CDP ports as above. H2/H3/H4/H5 use Stellar's `#` / `=` / `|` / `:` permalink markers;
 H1/H6 stay unmarked. The existing ordinary-Markdown page demonstrates these levels without
 another live specimen. Native anchors, formatted heading links and safe attributes are preserved.
+
+
+External article links now show a quiet `↗` suffix; the ordinary-Markdown specimen contrasts
+Hugo documentation with an internal Handbook link. This enhancement leaves native href/target
+behavior intact and does not decorate menus, metadata, footers, mail/tel or image-only links.
+With scripts disabled, the original links remain usable without suffixes.
+
+For focused checks, use a fresh `SIDERA_CHECK_DIR` with `tests/check_external_links.py`, then
+`node tests/check_external_links_browser.mjs <same-directory>`. Both commands use
+`SIDERA_HTTP_PORT=14462` by default for this fixture's same-origin absolute link; supply the same
+explicit free port to both when changing it, plus a free `SIDERA_CDP_PORT` for the browser.
