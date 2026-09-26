@@ -362,3 +362,10 @@ Run `tests/check_series_presentation.py` with a fresh SIDERA_CHECK_DIR, then
 `node tests/check_series_presentation_browser.mjs <same-directory>` for exact positions, scoped/
 global chronology, hidden/standalone/singleton/repeated states, native badge pointer navigation,
 keyboard/current outline, EN/ZH/subpath/mobile/no-JS and the removed weight-mode diagnostic.
+
+
+Top-bar surface checks: build normal output to `baseline-public` and the Chinese overlay to
+`chinese-public` (baseURL `https://example.org/_chinese/`) under one run folder, then run
+`node tests/check_topbar_browser.mjs <run-folder>`. This checks solid rest vs. layered pinned glass,
+return-to-top/reset/viewport events, unchanged dimensions, pointer/keyboard destinations, horizontal
+scroll isolation, light/dark and no-JS. No browser user profile or external destinations are used.
