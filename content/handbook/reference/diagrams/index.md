@@ -32,6 +32,11 @@ online editor is opened and no diagram is sent to a hosted service.
 
 {{< diagramsnet src="flow.drawio" caption="Source to local view" >}}
 
+This file has no canvas background, so the area around the shapes is transparent.
+The shapes keep their fills. A background explicitly saved in a drawio file is
+respected with drawio's normal light/dark adaptation.
+
+
 ## Fold, grid and explicit inversion
 
 Native container notation is unchanged: outer `%`, nested `<`. Opening a hidden fold

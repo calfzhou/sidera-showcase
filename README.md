@@ -674,3 +674,8 @@ badge APIs are unchanged. Add the focused browser check with free ports:
 ```sh
 SIDERA_HTTP_PORT=14494 SIDERA_CDP_PORT=14495 node tests/check_diagram_controls_browser.mjs "$RUN"
 ```
+
+Drawio background checks: `check_drawio_backgrounds_browser.mjs` verifies transparent
+canvas alpha, explicit source colors/theme adaptation and independent shape fills
+using 14 sequential exports in one isolated browser. It uses an existing root build
+in `$RUN/baseline-public`; no source downloads or SVG-document switch.
