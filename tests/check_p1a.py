@@ -231,7 +231,7 @@ def check_baseline(output, extra=False, docs=True, theme_docs=False):
         assert (output / bundle / asset).read_bytes() == (ORGANIZATION / "content" / bundle / asset).read_bytes()
     # The Markdown resource must not become a page or disappear from a branch's article count.
     assert not (output / bundle / "resource-note/index.html").exists()
-    assert {"sample.svg", "/field-notes/alpha/sample.py"} <= set(page(output, "/field-notes/alpha/").assets) # Native link resource URL; image hook unchanged.
+    assert {"/field-notes/alpha/sample.svg", "/field-notes/alpha/sample.py"} <= set(page(output, "/field-notes/alpha/").assets) # Native link/image resource URLs; bytes checked above.
 
 
 def snapshot(root):

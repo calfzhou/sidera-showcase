@@ -28,7 +28,7 @@ def main():
   assert body.all(href=prefix+'/handbook/') and body.all(href=prefix+'/handbook/reference/')
   images=[n for n in body.all() if n.tag=='img'];assert len(images)==3
   assert all(n.attrs.get('alt') for n in images)
-  assert [n.attrs['src'] for n in images]==['sample.svg',prefix+route+'sample.svg','sample.svg']
+  assert [n.attrs['src'] for n in images]==[prefix+route+'sample.svg']*3
   assert any(n.attrs.get('width')=='120' and n.attrs.get('height')=='60' for n in images)
   assert (html(out,route).parent/'sample.svg').read_bytes()==(specimen/'sample.svg').read_bytes()
   ids=[n.attrs['id'] for n in d.all() if n.attrs.get('id')];assert len(ids)==len(set(ids))

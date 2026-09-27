@@ -152,7 +152,7 @@ def main():
             assert f'[{key}]\nother = "{label}"' in catalog
     keys = set(re.findall(r'^\[([^]]+)\]', en_catalog, re.M))
     assert keys == set(re.findall(r'^\[([^]]+)\]', zh_catalog, re.M))
-    assert len(keys) == 105, keys # Deliberate UI inventory: update alongside I18N.md.
+    assert len(keys) == 111, keys # Deliberate UI inventory: update alongside I18N.md.
     assert en_catalog.count('other = ') == zh_catalog.count('other = ') == len(keys)
     # Literal call sites plus the four deliberately native dynamic message groups.
     implementation = '\n'.join(p.read_text() for directory in ['layouts', 'content']
@@ -162,6 +162,7 @@ def main():
     used.update(['collection_blog', 'collection_notebook', 'collection_docs', 'order_publication', 'order_modification',
                  'order_title', 'date_published', 'date_modified', 'date_updated', 'published_undated',
                  'series_order_publication','series_order_weight', 'modified_undated', 'tags', 'categories', 'authors', 'series', 'preset', 'article_count'])
+    used.update(['alert_note','alert_tip','alert_important','alert_warning','alert_caution'])
     assert keys == used, (keys-used, used-keys)
     css = (ROOT / THEME / 'assets/css/sidera.css').read_text()
     assert all(value.strip() == "none" or not value.strip(" \"'") for value in re.findall(r'(?:^|[;{])\s*content\s*:\s*([^;}]*)', css)), 'CSS must not generate untranslated text'

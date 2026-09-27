@@ -136,3 +136,7 @@ weight = 30
 [menus.social.params]
 icon = 'color-mode'
 onclick = 'Sidera.cycleColorMode()'
+
+# Native TeX preservation; Sidera renders MathML at build time with embedded KaTeX.
+[markup.goldmark.extensions.passthrough]
+_merge = 'deep'

@@ -94,6 +94,35 @@ external sites. The harness stops its unique Chrome/HTTP instance; it never atta
 your server or browser. Tests also cover native embedded controls, source/heading existence,
 plain/storage/branch/bundle/Unicode resources, language filenames, mounts and diagnostics.
 
+## Advanced Markdown / math checkpoint (partial P3-B)
+
+Open **Handbook → Reference desk → Advanced Markdown and math**, at
+`/handbook/reference/advanced-markdown/`, on your normal root server. Source:
+`content/handbook/reference/advanced-markdown/index.md`. It demonstrates five basic
+alerts, nested ordinary content/source links, Obsidian width/dimensions, inline and
+display math, local macros, escaped currency and a wide keyboard-scrollable formula.
+The Reading List note also links to the dated Journal heading from inside an alert.
+
+**Not full B acceptance:** native MathML loses visible array rules/box/cancellation
+in Chromium. The example names this limitation. Recommended output is native
+build-time KaTeX HTML+MathML with approved local matching CSS/fonts; those assets
+have not been added. Image-attribute/container conversion and automatic figures
+also await approval. See theme [MARKDOWN.md](themes/sidera/MARKDOWN.md).
+
+```sh
+uv run --no-project --no-managed-python python3 tests/check_advanced_markdown.py
+nvm use
+# Use the printed run directory and two free ports:
+SIDERA_HTTP_PORT=14474 SIDERA_CDP_PORT=14475 node tests/check_advanced_markdown_browser.mjs /absolute/path/to/run
+```
+
+Root config explicitly imports only the native passthrough leaf. Math is rendered
+at build time with Hugo's embedded KaTeX 0.18.4 (Hugo 0.166.0); the current candidate
+adds no math script, stylesheet/font dependency, CDN request or unsafe HTML.
+Tests include ordinary root versus explicit config, native opt-out, project hook
+precedence, parser-gap controls, escaping, diagnostics, resources, EN/ZH and no-JS.
+Own isolated Chrome/HTTP instances stop before exit; there is no retained preview.
+
 ## Ordinary Markdown inspection
 
 Open `/handbook/reference/markdown/` on your own root showcase server. It is also linked

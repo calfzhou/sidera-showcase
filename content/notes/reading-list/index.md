@@ -25,3 +25,7 @@ or revisit [the surrounding sentence][context]. These are source-file links: an 
 can open the same Markdown that Hugo publishes under the journal's dated URL.
 
 [context]: ../../journal/connect-the-useful-parts/index.md#keep-the-surrounding-sentence "Keep the reason for the link"
+
+> [!note]
+> A useful connection can also live inside a callout:
+> [Give a link a reason](../../journal/connect-the-useful-parts/index.md#give-a-link-a-reason).

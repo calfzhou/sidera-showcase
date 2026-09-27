@@ -15,3 +15,5 @@ Short reference pages collect the conventions used throughout this demonstration
 Open a page when you need a reminder, then return to the workflow you were following. The reference branch is separate from the writing and research branches.
 
 The [ordinary Markdown specimen]({{< relref "markdown" >}}) keeps prose, lists, code and images together for reading checks.
+
+The [advanced Markdown and math checkpoint](advanced-markdown/index.md) demonstrates native callouts and build-time formulas. Image/container authoring differences remain under review.
