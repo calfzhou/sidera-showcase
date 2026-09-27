@@ -55,6 +55,7 @@ await runBrowser(async b=>{
   if(prefix){await e(`Sidera.setColorMode('dark')`);await render('.content-folding [data-sidera-diagram="drawio"]');await b.screenshot('diagrams-inverted-grid');}
   // Native buttons, local keyboard scroll and expansion; no image-wide page overflow.
   const group='[data-sidera-diagram="drawio"]';await render(group);
+  assert(await e(`fetch(document.querySelector('${group} img').src).then(r=>r.text()).then(svg=>svg.includes('color-scheme: '+document.documentElement.dataset.colorScheme+';'))`),'drawio export must preserve its native light-dark palette context');
   await e(`document.querySelector('${group} [data-diagram-action="in"]').focus()`);await key('Enter','Enter',13);
   assert(await e(`document.querySelector('${group} img').width>document.querySelector('${group} .diagram-view').clientWidth`));
   await e(`document.querySelector('${group} .diagram-view').focus()`);await key('ArrowRight','ArrowRight',39);await delay(150);
