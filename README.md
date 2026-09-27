@@ -683,3 +683,8 @@ in `$RUN/baseline-public`; no source downloads or SVG-document switch.
 `check_diagram_scroll_browser.mjs` uses actual wheel input to verify inline page-scroll
 chaining (including tiny overflow), local zoomed scrolling and modal containment.
 It needs only the existing root build in `$RUN/baseline-public` and free HTTP/CDP ports.
+
+`check_diagram_toolbar_browser.mjs` verifies floating controls above the image with
+unchanged desktop spacing, stable hover/focus and pointer travel, inverted/narrow
+cells and the separate touch/modal rows. It reuses the normal root build and runs
+in one isolated browser; no additional rendering dependency is involved.
