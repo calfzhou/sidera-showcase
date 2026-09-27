@@ -16,7 +16,7 @@ const chromePath = process.env.CHROME_BIN || '/Applications/Google Chrome.app/Co
 const profile = resolve(run, `chrome-profile-${Date.now()}`);
 const origin = `http://127.0.0.1:${port}`;
 const delay = ms => new Promise(r => setTimeout(r, ms));
-const mime = { '.html': 'text/html', '.css': 'text/css', '.js': 'text/javascript', '.svg': 'image/svg+xml' };
+const mime = { '.html': 'text/html', '.css': 'text/css', '.js': 'text/javascript', '.svg': 'image/svg+xml', '.mp4': 'video/mp4' };
 const server = createServer(async (req, res) => {
   try {
     if (req.url === '/__p2a') { res.end(run); return; }
@@ -29,7 +29,24 @@ const server = createServer(async (req, res) => {
     const file = resolve(root, '.' + path + (path.endsWith('/') ? 'index.html' : ''));
     assert(file.startsWith(root + sep));
     res.setHeader('Content-Type', mime[extname(file)] || 'application/octet-stream');
-    res.end(await readFile(file));
+    const data = await readFile(file);
+    // Native media seeking needs a known length/range response. Keep this local
+    // fixture server bounded to the requested file; no provider/proxy fetching.
+    if (extname(file) === '.mp4') {
+      res.setHeader('Accept-Ranges', 'bytes');
+      if (req.headers.range) {
+        const range = /^bytes=(\d+)-(\d*)$/.exec(req.headers.range);
+        const start = range ? Number(range[1]) : NaN;
+        const end = range?.[2] ? Math.min(Number(range[2]), data.length - 1) : data.length - 1;
+        if (!Number.isSafeInteger(start) || start > end || start >= data.length) {
+          res.writeHead(416, {'Content-Range': `bytes */${data.length}`}); res.end(); return;
+        }
+        res.writeHead(206, {'Content-Range': `bytes ${start}-${end}/${data.length}`, 'Content-Length': end-start+1});
+        res.end(data.subarray(start, end+1)); return;
+      }
+    }
+    res.setHeader('Content-Length', data.length);
+    res.end(data);
   } catch { res.writeHead(404); res.end('Not found'); }
 });
 let chrome, socket, log;

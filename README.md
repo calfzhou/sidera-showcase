@@ -630,3 +630,11 @@ uv run --no-project --no-managed-python python3 tests/check_snippets.py
 
 The browser harness creates/stops its own isolated instances and mocks the clipboard.
 C2 stops for user review; no D/E/F or combined P3 closure is implied.
+
+## Native MP4 inspection (P3-D video slice)
+
+Open `/handbook/reference/video/` on the normal root server. The committed two-second
+silent test pattern is local: Load video, then play/pause/seek with native controls.
+The page includes a closed fold/grid player, disabled state and before/after source
+recipe; it never requests the original LeetCode clip. Theme `VIDEO.md` is authoritative.
+No player dependency or template rename. Full diagrams/badges D completion is separate.

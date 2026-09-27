@@ -20,3 +20,6 @@ The [advanced Markdown and math checkpoint](advanced-markdown/index.md) demonstr
 
 The [small content components](content-components/index.md) page shows the independent
 C2 primitives; its missing container-composition checkpoint is explicitly marked.
+
+The [native MP4 specimen](video/index.md) demonstrates deliberate loading, browser
+controls and useful file links, including nested and disabled players.
