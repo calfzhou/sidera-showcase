@@ -5,8 +5,8 @@ lastmod: 2026-05-20
 ---
 ## Native callouts
 
-This is the working B checkpoint, not a promise of markdown-it grammar parity.
-Image attributes, automatic captions and palette containers await the authoring decision.
+This B specimen combines native Markdown with a small general block container.
+It does not require a Markdown preprocessor or browser math renderer.
 
 > [!Note]
 > A callout keeps **ordinary Markdown**, including a source-relative
@@ -34,15 +34,73 @@ This titled form deliberately remains an ordinary quotation, as in the source re
 > [!tip] Goal
 > Do not silently reinterpret an existing designator.
 
-## Image dimensions
+## Images and native attributes
 
-The terminal size marker is removed from alt text. This retains source syntax without a shortcode:
+A standalone image takes its caption from the title, otherwise its cleaned alt text.
+The first image has both a native class and an Obsidian width:
 
-![Two connected steps|120](../markdown/sample.svg "A title remains a tooltip at this checkpoint")
+![Two connected steps|120](../markdown/sample.svg "A light diagram, adapted only in dark mode")
+{.invert-when-dark #adaptive-image}
 
 ![Two connected steps|120x60](../markdown/sample.svg)
 
-The title is not yet an automatic caption. That policy remains a separate B decision.
+This next-line suppression keeps the alternative description but omits a caption:
+
+![A plain colored diagram|120](../markdown/sample.svg)
+{.no-caption #plain-image}
+
+An image inside ordinary prose has no generated caption: ![Small diagram|40](../markdown/sample.svg).
+
+### Source conversion, kept explicit
+
+The old attribute placement was `![alt](diagram.svg){.invert-when-dark}`.
+Use the same class on the **next line**, as above. No image shortcode is required.
+A palette class applies to the marked element; a figure's caption is not inverted
+unless its enclosing block is deliberately marked.
+
+## General Markdown blocks
+
+The old palette wrapper was `::: invert-when-dark … :::`. The compatible form is a
+general container, not a palette-specific shortcode:
+
+```text
+{{%/* block class="invert-when-dark" */%}}
+Markdown content here.
+{{%/* /block */%}}
+```
+
+{{% block class="reading-group" id="adaptive-block" %}}
+### Inside a general block
+
+This general block keeps **ordinary Markdown**. A class can mark any element,
+not just an image; no inversion is requested on this reading group.
+
+[Give a link a reason](../../../journal/connect-the-useful-parts/index.md?from=block#give-a-link-a-reason).
+
+![Block-owned diagram|120](../markdown/sample.svg "A caption in an ordinary group")
+
+> [!note]
+> Nested ordinary content keeps its semantics.
+>
+> - Lists remain lists.
+> - Headings and links belong to the page.
+{{% /block %}}
+
+Here is a separately marked group. Its image owns a light background, and the
+filter applies to the group as a whole:
+
+{{% block class="invert-when-dark" id="palette-block" %}}
+![Group-owned diagram|120](../markdown/sample.svg)
+{.no-caption}
+{{% /block %}}
+
+A native paragraph can carry the class too. This authored dark surface becomes
+light in light mode; pairing foreground and background keeps it readable.
+{.invert-when-light #adaptive-paragraph style="color:#fff;background:#17191b;padding:1em"}
+
+Use `block` at the top level with Markdown notation. Nested ordinary Markdown works;
+shortcode nesting is rejected because of Hugo's separate nested-shortcode render pass.
+Do not mark both a parent and its children unless compounded inversion is intended.
 
 ## Inline and display equations
 
@@ -61,14 +119,11 @@ The next expression exercises a local TeX definition and an array, not a site ma
 $$
 \def\arraystretch{1.5}
 \begin{array}{c|ccc}
-i & 0 & 1 & 2 \\
-a_i & \boxed 1 & \xcancel 1 & 2
+i & 0 & 1 & 2 \\ \hline
+a_i & \boxed 1 & \xcancel 1 & 2 \\ \hdashline
+s_i & 1 & 2 & 4
 \end{array}
 $$
-
-Review limitation: the native MathML candidate exposes the array rule, box and cancellation
-in markup, but Chromium does not paint all of them. Do not treat this candidate as full
-formula compatibility. Bundled KaTeX CSS/fonts for HTML+MathML output require approval.
 
 A deliberately wide equation scrolls locally on a narrow screen:
 
@@ -82,6 +137,6 @@ Escaped currency is ordinary text: \$5 and \$10. Code is also literal: `$x_1$`.
 $$x_1 + y_2$$
 ```
 
-Hugo's embedded KaTeX emits native MathML at build time. No client math script, CDN,
-KaTeX stylesheet or new font is required. Browser math typography differs from KaTeX's
-HTML/CSS output; this is a reviewable choice, not pixel-equivalence or universal TeX support.
+Hugo's embedded KaTeX emits HTML for visual layout and MathML for accessibility at
+build time. Matching local CSS/fonts preserve boxes, cancellation and array rules.
+No client math script or remote CDN is required, and formulas work without JavaScript.

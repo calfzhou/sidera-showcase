@@ -94,34 +94,36 @@ external sites. The harness stops its unique Chrome/HTTP instance; it never atta
 your server or browser. Tests also cover native embedded controls, source/heading existence,
 plain/storage/branch/bundle/Unicode resources, language filenames, mounts and diagnostics.
 
-## Advanced Markdown / math checkpoint (partial P3-B)
+## Advanced Markdown / math inspection (P3-B)
 
 Open **Handbook → Reference desk → Advanced Markdown and math**, at
 `/handbook/reference/advanced-markdown/`, on your normal root server. Source:
-`content/handbook/reference/advanced-markdown/index.md`. It demonstrates five basic
-alerts, nested ordinary content/source links, Obsidian width/dimensions, inline and
-display math, local macros, escaped currency and a wide keyboard-scrollable formula.
-The Reading List note also links to the dated Journal heading from inside an alert.
+`content/handbook/reference/advanced-markdown/index.md`. It demonstrates alerts,
+native attributes, Obsidian dimensions, default title/alt captions, single-image
+suppression, arbitrary-element inversion classes and a general Markdown block with
+native heading/TOC and a source link to the dated Journal URL. Old/converted syntax
+is shown explicitly; no real-site sources were converted.
 
-**Not full B acceptance:** native MathML loses visible array rules/box/cancellation
-in Chromium. The example names this limitation. Recommended output is native
-build-time KaTeX HTML+MathML with approved local matching CSS/fonts; those assets
-have not been added. Image-attribute/container conversion and automatic figures
-also await approval. See theme [MARKDOWN.md](themes/sidera/MARKDOWN.md).
+Inline/display math now uses **Hugo build-time KaTeX HTML+MathML**, with matching
+local 0.18.4 CSS/fonts and MIT notices. Boxes, cancellation and array rules render
+correctly; no client math JavaScript/CDN. Escaped currency/code remains literal.
+No-JS works. Wide equations scroll locally with keyboard focus. Plain pages do not
+load the KaTeX stylesheet; missing bundled assets fail the build.
 
 ```sh
 uv run --no-project --no-managed-python python3 tests/check_advanced_markdown.py
 nvm use
-# Use the printed run directory and two free ports:
+# Use the printed run directory and free ports:
 SIDERA_HTTP_PORT=14474 SIDERA_CDP_PORT=14475 node tests/check_advanced_markdown_browser.mjs /absolute/path/to/run
 ```
 
-Root config explicitly imports only the native passthrough leaf. Math is rendered
-at build time with Hugo's embedded KaTeX 0.18.4 (Hugo 0.166.0); the current candidate
-adds no math script, stylesheet/font dependency, CDN request or unsafe HTML.
-Tests include ordinary root versus explicit config, native opt-out, project hook
-precedence, parser-gap controls, escaping, diagnostics, resources, EN/ZH and no-JS.
-Own isolated Chrome/HTTP instances stop before exit; there is no retained preview.
+The native parser import is limited to `markup.goldmark.parser` (deep, including block
+attrs); passthrough and TOC have their own imports. No renderer.unsafe permission.
+`params.auto_caption` defaults true and supports page/cascade/preset/site overrides.
+Theme [MARKDOWN.md](themes/sidera/MARKDOWN.md) states tested limits: no markdown-it
+inline-attrs/colon-container grammar, direct standalone captions only, and top-level
+Markdown-notation block containers. Nested ordinary content works; nested shortcodes
+are rejected, with actual diagram integration deferred to D. Own test instances stop.
 
 ## Ordinary Markdown inspection
 

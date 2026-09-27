@@ -13,8 +13,18 @@ from urllib.parse import unquote, urljoin, urlparse
 
 sys.dont_write_bytecode = True
 from check_p1a import ORGANIZATION, ROOT, THEME, COLLECTIONS, article_route, check_baseline, snapshot
-from check_p1b import build, copy_site, html, http_smoke, tag_checks, FIELD, LAB
+from check_p1b import build, copy_site as copy_fixture, html, http_smoke, tag_checks, FIELD, LAB
 from check_p1c import baseline_checks
+
+
+def copy_site(run, label):
+    source = copy_fixture(run, label)
+    # Compare packaging at equal native configuration. Loading theme config as an
+    # explicit primary config in-place otherwise enables B parser defaults which
+    # the old organization fixture never imported in the theme-based control.
+    with (source/'hugo.toml').open('a') as f:
+        f.write("\n[markup.goldmark.parser]\n_merge='deep'\n[markup.goldmark.extensions.passthrough]\n_merge='deep'\n")
+    return source
 
 
 class Scan(HTMLParser):
@@ -144,6 +154,10 @@ def main():
     config = inline / 'hugo.toml'
     config.write_text(config.read_text().replace("theme = 'sidera'\n", ''))
     previous = build(inline, run, 'in-place', flags=('--config', 'themes/sidera/hugo.toml,hugo.toml'))
+    def markup(source, flags=()):
+        result = subprocess.check_output(['hugo','config','--source',str(source),'--format','json',*flags], text=True, timeout=20)
+        return json.loads(result)['markup']
+    assert markup(baseline_source) == markup(inline, ('--config','themes/sidera/hugo.toml,hugo.toml'))
     assert snapshot(baseline) == snapshot(previous), 'Packaging changed published bytes'
 
     # An optional site template overrides the corresponding theme template.

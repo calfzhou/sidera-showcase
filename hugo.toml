@@ -140,3 +140,8 @@ onclick = 'Sidera.cycleColorMode()'
 # Native TeX preservation; Sidera renders MathML at build time with embedded KaTeX.
 [markup.goldmark.extensions.passthrough]
 _merge = 'deep'
+
+[markup.goldmark.parser]
+_merge = 'deep'
+[markup.goldmark.parser.attribute]
+_merge = 'shallow'
