@@ -33,7 +33,7 @@ def main():
         out=build(source,run,label,flags=('--config',','.join(['hugo.toml',*configs]),'--printI18nWarnings',*flags))
         passed.append(label);return out
     out=check('baseline');local_links(out)
-    for route,identifier,count in [('/journal/','articles','9'),('/notes/','articles','6'),('/handbook/','doc-children','4')]:
+    for route,identifier,count in [('/journal/','articles','9'),('/notes/','articles','7'),('/handbook/','doc-children','4')]:
         d=nodes(out,route);listing=d.all(id=identifier)[0]
         assert listing.tag=='ul' and listing.attrs.get('aria-label')
         assert listing.attrs.get('data-doc-total' if identifier=='doc-children' else 'data-total')==count
@@ -49,7 +49,7 @@ def main():
     for route in JOURNAL:assert html(out,route).exists()
     for old in ['/journal/beginning/','/journal/returning/','/field-notes/','/lab-notes/','/dispatches/','/guidebook/','/sidera/']:
         assert not html(out,old).exists(),old
-    assert len(all_articles(out,'/notes/'))==6
+    assert len(all_articles(out,'/notes/'))==7
     assert set(a.attrs['href'] for a in nodes(out,'/handbook/').all(id='doc-children')[0].all() if a.tag=='a' and 'card-title' in a.attrs.get('class',''))=={'/handbook/start/','/handbook/workflows/','/handbook/review/','/handbook/reference/'}
     # The live handbook has three levels below its root, with exact native parent ordering.
     for route,children in [('/handbook/workflows/',['writing','research']),('/handbook/workflows/writing/',['outline','draft']),('/handbook/workflows/research/',['sources','evaluate']),('/handbook/reference/',['frontmatter','markdown','advanced-markdown'])]:

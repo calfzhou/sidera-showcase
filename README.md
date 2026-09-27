@@ -566,3 +566,36 @@ prepare_toc_browser helper no longer adds a fixture-only six-level override: bot
 page and the real `/handbook/reference/markdown/` now use the normal theme/site configuration.
 The focused check also covers native owner overrides, leading missing levels and the safety
 boundary of the leaf-scoped config import.
+
+## Code-file inclusion inspection (P3-C1)
+
+On your normal root server, open **Notes → Include code without rewriting it**, at
+`/notes/code-inclusion/`. The committed bundle has harmless `pairs.py`; the page shows
+the complete file, source lines 4–8 with native highlighting/line numbers, and one
+explicit shared resource from `assets/snippets/labels.py`. Copy uses selected source;
+Download full source always retains the complete original bytes. No included code runs.
+The page includes a before/after Hexo conversion recipe.
+
+```text
+{{< snippet src="pairs.py" >}}
+{{< snippet src="pairs.py" from=4 to=8 options="linenos=table,hl_lines=2" >}}
+```
+
+See theme [SNIPPETS.md](themes/sidera/SNIPPETS.md) for exact line/newline/UTF-8 behavior,
+safe resource roots, title/language defaults, native options and limitations. Use standard
+notation with surrounding Markdown; nested shortcodes, including B's block, are rejected.
+C2's remaining components/composition are not delivered by this checkpoint.
+
+```sh
+uv run --no-project --no-managed-python python3 tests/check_snippets.py
+nvm use
+# Use the printed run folder and free ports; harness stops both owned instances:
+SIDERA_HTTP_PORT=14478 SIDERA_CDP_PORT=14479 node tests/check_snippets_browser.mjs /absolute/path/to/run
+```
+
+The checker covers real normal-root output, selected/rendered text and original download
+bytes, UTF-8/CRLF/no-final-newline/empty/escaping, native resource routes/locales/docs,
+invalid inputs and file/directory symlink boundaries. Browser checks mock all clipboard
+writes and cover palettes/mobile/keyboard/no-JS/manual fallback. CRLF renders as LF
+natively; Clipboard API text retains CRLF, but the browser manual textarea normalizes it.
+Use the original download for file-byte fidelity. No agent preview remains running.
