@@ -5,8 +5,9 @@ summary: "Keyboard tokens, status marks, link cards and exact copy text. Contain
 ---
 
 This is the **partial C2 inspection page**, not the completed container showcase. Folding,
-grids, boxes, attributed quotations, enhanced images and timelines still await the
-native composition decision. Existing [code inclusion](../../../notes/code-inclusion/index.md)
+grids, boxes and attributed quotations still await the native composition decision.
+Emoji, timelines and enhanced-image components have been retired by user choice;
+ordinary Markdown images remain supported. Existing [code inclusion](../../../notes/code-inclusion/index.md)
 and [advanced Markdown](../advanced-markdown/index.md) remain available.
 
 ## Read the small signals
@@ -57,13 +58,6 @@ Copy uses the same confirmation, text-only toast and selected-field failure path
 code blocks. With JavaScript disabled, the value remains selectable; no dead button.
 
 {{< snippet src="example.txt" lang="text" >}}
-
-## A local sticker, not an asset license
-
-A small signal {{< emoji src="signal.svg" alt="Synthetic green signal, not the blobcat party asset" >}}
-can sit beside prose. This original geometric placeholder proves local rendering only.
-The used **blobcat party** asset remains unresolved: a CDN address is not permission
-to redistribute it. No blobcat library or third-party sticker is bundled.
 
 ## Existing native Markdown stays native
 

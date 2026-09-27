@@ -9,7 +9,8 @@ await runBrowser(async b=>{
  for(const [prefix,mode,width] of [['','dark',1440],['','light',390],['/_chinese','dark',390],['/_chinese','light',1440]]){
   await v(width,1000);await n(prefix+route);await e(`Sidera.setColorMode('${mode}')`);
   assert(await e(`document.documentElement.scrollWidth<=innerWidth`));
-  assert(await e(`document.querySelector('.content-emoji img').complete&&document.querySelector('.content-emoji img').naturalWidth>0`));
+  assert(!await e(`document.querySelector('.content-emoji')`));
+  assert(await e(`[...document.querySelectorAll('.prose p')].some(p=>p.textContent.includes('aabcc.'))`),'u must not insert a space');
   assert.equal(await e(`document.querySelector('.content-copy .copy-value').textContent`),value);
   assert(await e(`(()=>{const c=document.querySelector('.content-copy'),items=['.copy-prefix','.copy-value','.code-copy'].map(s=>c.querySelector(s).getBoundingClientRect());return items.every((a,i)=>items.slice(i+1).every(b=>a.right<=b.left+.5||b.right<=a.left+.5||a.bottom<=b.top+.5||b.bottom<=a.top+.5))})()`),'Copy label/value/button must not overlap');
   await e(`document.querySelector('.content-copy .code-copy').focus()`);await key('Enter','Enter',13);await delay(100);
@@ -30,6 +31,8 @@ await runBrowser(async b=>{
  const file=await fetch(b.origin+route+'example.txt');assert.equal(await file.text(),'Only this harmless text is copied.\nNo included code is executed.\n');
  // Long content and malformed-looking labels remain text, including clipboard payloads.
  await v(320,1000);await n('/_safety/component-safety/');assert(await e('document.documentElement.scrollWidth<=innerWidth'));
+ assert(await e(`[...document.querySelectorAll('.prose p')].some(p=>p.textContent==='Inline:Aaabcc|BCtrl+K|C✓done.')`),'Inline shortcode adjacency must be exact');
+ assert(await e(`[...document.querySelectorAll('.prose p')].some(p=>p.textContent==='Spaced: A aa bcc.')`),'Authored spaces must remain');
  await e(`document.querySelector('.content-copy .code-copy').click()`);await delay(100);
  assert.equal(await e('window.testCopies[0]'),'  α & <tag>  β  ');assert(!await e(`document.querySelector('.prose script,.prose img[src="x"]')`));
  await n('/_override'+route);await e(`document.querySelector('.content-copy .code-copy').click()`);await delay(100);

@@ -30,7 +30,8 @@ def main():
         assert copy.all(**{'class':'copy-prefix'})[0].words()=='Example fingerprint'
         assert 'hidden' in copy.all(**{'class':'code-copy'})[0].attrs
         assert copy.all(**{'class':'code-copy-fallback'})[0].attrs['aria-label']
-        assert d.all(**{'class':'content-emoji'})[0].all()[0].attrs['alt'].startswith('Synthetic')
+        assert not d.all(**{'class':'content-emoji'})
+        assert '<u class="content-u">aa</u>bcc.' in (out/ROUTE.strip('/')/'index.html').read_text()
         assert nodes(out,ROUTE).all(href='#inside-the-existing-top-level-block')
         assert nodes(out,ROUTE).all(**{'data-sidera-math':''}) or 'data-sidera-math' in (out/ROUTE.strip('/')/'index.html').read_text()
         assert not (out/'sidera').exists()
@@ -44,6 +45,10 @@ title: Component safety
 ---
 ## A real heading
 
+Inline:A{{< u text="aa" >}}bcc|B{{< kbd text="Ctrl" >}}+K|C{{< mark text="✓" >}}done.
+
+Spaced: A {{< u text="aa" >}} bcc.
+
 {{< kbd text="<script>bad()</script> & `" >}}
 {{< mark text="<&>" color="red" >}}
 {{< u text="3, -2, 3" >}}
@@ -56,6 +61,9 @@ title: Component safety
     out=check('safety');d=body(out,'/component-safety/')
     assert not any(x.tag=='script' for x in d.all()) and not d.all(src='x')
     assert '<script>bad()</script> & `' in d.words()
+    rendered=(out/'component-safety/index.html').read_text()
+    assert 'Inline:A<u class="content-u">aa</u>bcc|B<kbd class="content-kbd">Ctrl</kbd>+K|C<mark class="content-mark" data-color="yellow">✓</mark>done.' in rendered
+    assert 'Spaced: A <u class="content-u">aa</u> bcc.' in rendered
     assert json.loads(d.all(**{'class':'content-copy'})[0].attrs['data-code-source'])=='  α & <tag>  β  '
     assert 'data-sidera-math' not in (out/'component-safety/index.html').read_text()
     # Real authored Chinese + native language filenames and subpath, not just a UI overlay.
@@ -63,8 +71,8 @@ title: Component safety
     write(source,'content/component-safety.zh.md',text.replace('Component safety','组件检查').replace('A real heading','真实标题').replace('3, -2, 3','所选文字'))
     write(source,'content/about.zh.md','---\ntitle: About\n---\nLocale probe.\n')
     out=check('languages',flags=('--config','hugo.toml,locales.toml','--baseURL','https://example.org/preview/'))
-    assert body(out,'/zh/component-safety/').all(**{'class':'content-u'})[0].words()=='所选文字'
-    assert body(out,'/en/component-safety/').all(**{'class':'content-u'})[0].words()=='3, -2, 3'
+    assert body(out,'/zh/component-safety/').all(**{'class':'content-u'})[-1].words()=='所选文字'
+    assert body(out,'/en/component-safety/').all(**{'class':'content-u'})[-1].words()=='3, -2, 3'
     # Existing documentation remains default-off and can still be mounted explicitly.
     out=check('docs',flags=('--config','hugo.toml,docs-on.toml'))
     assert (out/'sidera').is_dir()
@@ -80,9 +88,9 @@ title: Component safety
          ('missing-source','{{< link text="x" href="missing.md" >}}','Sidera link source'),
          ('missing-icon','{{< link text="x" href="/" icon="missing.png" >}}','missing local image'),
          ('encoded-icon','{{< link text="x" href="/" icon="%2e%2e/private.svg" >}}','invalid local image'),
-         ('traversal-icon','{{< emoji src="../private.svg" alt="x" >}}','invalid local image'),
-         ('raw-svg','{{< emoji src="<svg onload=bad()>" alt="x" >}}','unsupported image extension'),
-         ('remote-emoji','{{< emoji src="https://example.org/party.gif" alt="x" >}}','approved local image'),
+         ('traversal-icon','{{< link href="/" text="x" icon="../private.svg" >}}','invalid local image'),
+         ('raw-svg','{{< link href="/" text="x" icon="<svg onload=bad()>" >}}','unsupported image extension'),
+         ('retired-emoji','{{< emoji src="signal.svg" alt="x" >}}','failed to extract shortcode'),
          ('standard-in-block','{{% block %}}\n{{< copy text="x" >}}\n{{% /block %}}','composition awaits'),
          ('markdown-notation','{{% quot text="x" %}}','Raw HTML omitted'),
          ('raw-html','<script>bad()</script>','Raw HTML omitted')]
@@ -97,6 +105,6 @@ title: Component safety
     assert d.all(**{'data-site-kbd':'true'})
     assert all(a.attrs['href']=='/site-destination/' for a in d.all(**{'class':'content-link-card'}))
     assert d.all(**{'class':'content-copy'})[0].all(**{'class':'code-copy'})[0].attrs['data-success']=='<img src=x onerror=bad()> & copied'
-    (run/'results.json').write_text(json.dumps({'passed':passed,'expected_rejections':rejected,'container_composition':'pending user decision','blobcat_asset':'unresolved'},indent=2))
+    (run/'results.json').write_text(json.dumps({'passed':passed,'expected_rejections':rejected,'container_composition':'pending user decision','retired':['emoji','timeline','enhanced images']},indent=2))
     print('PASS independent C2 primitives; composition remains Pending; retained',run)
 if __name__=='__main__':main()

@@ -605,13 +605,13 @@ Use the original download for file-byte fidelity. No agent preview remains runni
 Open **Handbook → Reference desk → Small components, real content** at
 `/handbook/reference/content-components/` on your normal server. The modest committed
 page contains kbd/mark/u, standout quotes, a real note-to-dated-post card, adjacent
-harmless resource, exact fingerprint Copy and a clearly labeled synthetic local sticker.
+harmless resource and exact fingerprint Copy.
 Theme [COMPONENTS.md](themes/sidera/COMPONENTS.md) records every used C2 conversion row,
 including those still Pending. No whole-site source conversion occurred.
 
-**Not complete:** folding/grid/box, attributed quotations, enhanced image viewing/
-downloads, timeline and required nested-shortcode integration. Blobcat rights/asset
-selection are also unresolved. The isolated composition probe demonstrates a proposed
+**Not complete:** folding/grid/box, attributed quotations and required nested-shortcode
+integration. Emoji, timeline and enhanced-image components are retired by user choice;
+ordinary Markdown images remain unchanged. The isolated composition probe demonstrates a proposed
 mixed-notation native-node route; it is not installed as the theme's authoring API.
 
 ```sh
@@ -623,5 +623,5 @@ uv run --no-project --no-managed-python python3 tests/probe_content_composition.
 ```
 
 Copy tests mock the clipboard. Native no-JS selection/navigation and honest manual
-fallback remain. No preview server is retained. Stop for the C2 composition/asset
-choices and partial implementation review, not automatic D or P3 closure.
+fallback remain. No preview server is retained. Stop for the C2 composition
+choice and partial implementation review, not automatic D or P3 closure.
