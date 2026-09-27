@@ -96,6 +96,14 @@ plain/storage/branch/bundle/Unicode resources, language filenames, mounts and di
 
 ## Advanced Markdown / math inspection (P3-B)
 
+**Already running a preview during the B changes? Restart it once.** The development
+template changed from `block.html` to `block.md`. Hugo 0.166 can keep the removed
+HTML-template lookup and display literal `> ###`/`{data-sidera-block=…}` instead of a
+block. Stop your server with Ctrl-C and rerun the same command; a browser refresh
+or `--disableFastRender` alone is insufficient. No cache deletion or Markdown edit
+is needed. The current committed template works in fresh builds and cold previews.
+
+
 Open **Handbook → Reference desk → Advanced Markdown and math**, at
 `/handbook/reference/advanced-markdown/`, on your normal root server. Source:
 `content/handbook/reference/advanced-markdown/index.md`. It demonstrates alerts,
@@ -115,6 +123,13 @@ uv run --no-project --no-managed-python python3 tests/check_advanced_markdown.py
 nvm use
 # Use the printed run directory and free ports:
 SIDERA_HTTP_PORT=14474 SIDERA_CDP_PORT=14475 node tests/check_advanced_markdown_browser.mjs /absolute/path/to/run
+```
+
+Preview-specific regression (two builds, cold server, isolated template rename and
+same-cache restart recovery; owns/stops free loopback port 14476):
+
+```sh
+uv run --no-project --no-managed-python python3 tests/check_block_preview.py
 ```
 
 The native parser import is limited to `markup.goldmark.parser` (deep, including block
