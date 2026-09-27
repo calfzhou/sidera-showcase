@@ -54,6 +54,7 @@ const pending = new Map();
 let nextId = 0;
 const errors = [];
 const requests = [];
+const listeners = new Map();
 let sessionId;
 function call(method, params = {}, session = sessionId) {
   const id = ++nextId;
@@ -121,6 +122,7 @@ try {
       if (message.error) p.reject(new Error(JSON.stringify(message.error))); else p.accept(message.result);
     } else if (message.method === 'Runtime.exceptionThrown') errors.push(message.params);
     else if (message.method === 'Network.requestWillBeSent') requests.push(message.params.request.url);
+    for (const callback of listeners.get(message.method) || []) Promise.resolve(callback(message.params, message.sessionId)).catch(error => errors.push(String(error)));
   });
   const args = await call('Browser.getBrowserCommandLine');
   assert(args.arguments.includes(`--user-data-dir=${profile}`), 'Not our isolated Chrome');
@@ -129,7 +131,9 @@ try {
   await call('Page.enable'); await call('Runtime.enable'); await call('Network.enable');
   await call('Network.setBlockedURLs', {urls:['https://*']});
   await check({ run, port, debugPort, profile, origin, version, errors, requests,
-    call, evaluate, navigate, viewport, key, screenshot, delay });
+    call, evaluate, navigate, viewport, key, screenshot, delay,
+    on(method, callback) { if (!listeners.has(method)) listeners.set(method, []); listeners.get(method).push(callback); }
+  });
 } finally {
   if (socket?.readyState === 1) socket.close();
   for (const p of pending.values()) clearTimeout(p.timer);

@@ -638,3 +638,27 @@ silent test pattern is local: Load video, then play/pause/seek with native contr
 The page includes a closed fold/grid player, disabled state and before/after source
 recipe; it never requests the original LeetCode clip. Theme `VIDEO.md` is authoritative.
 No player dependency or template rename. Full diagrams/badges D completion is separate.
+
+## Diagram and badge inspection (P3-D)
+
+On the normal root server, open `/handbook/reference/diagrams/`: ordinary Mermaid
+fences, a harmless native drawio file, hidden fold/grid/inversion, original source
+access and automatic Shields badges. Diagram rendering is local; the badge provider
+is explicitly external. Theme DIAGRAMS.md defines exact scope and conversion.
+
+Lightweight verification (fresh timestamped output folder under the workspace):
+
+```sh
+# Set RUN to that absolute output folder; tests never copy the whole theme/site.
+SIDERA_CHECK_DIR="$RUN/checks" uv run --no-project --no-managed-python python3 tests/check_diagrams.py
+SIDERA_CHECK_DIR="$RUN/checks" SIDERA_HTTP_PORT=14492 uv run --no-project --no-managed-python python3 tests/check_diagram_preview.py
+GOMAXPROCS=2 HUGO_NUMWORKERMULTIPLIER=1 hugo --destination "$RUN/baseline-public" --cacheDir "$RUN/cache" --panicOnWarning
+GOMAXPROCS=2 HUGO_NUMWORKERMULTIPLIER=1 hugo --config hugo.toml,examples/chinese.toml --baseURL https://example.org/_chinese/ --destination "$RUN/chinese-public" --cacheDir "$RUN/cache" --panicOnWarning
+nvm use
+SIDERA_HTTP_PORT=14490 SIDERA_CDP_PORT=14491 node tests/check_diagrams_browser.mjs "$RUN"
+```
+
+Choose free ports. The helpers verify/stop their owned instances; no retained preview,
+parallel broad regression campaign, external badge requests or real diagram uploads.
+The source rendering audit reads the workspace's read-only reference in memory; it
+is not a standalone test independent of that reference checkout.

@@ -23,3 +23,6 @@ C2 primitives; its missing container-composition checkpoint is explicitly marked
 
 The [native MP4 specimen](video/index.md) demonstrates deliberate loading, browser
 controls and useful file links, including nested and disabled players.
+
+The [diagram and badge specimen](diagrams/index.md) keeps Mermaid fences and native
+drawio sources, with local viewing, container composition and explicit remote badges.
