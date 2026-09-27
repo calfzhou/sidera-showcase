@@ -1,0 +1,2 @@
+Only this harmless text is copied.
+No included code is executed.

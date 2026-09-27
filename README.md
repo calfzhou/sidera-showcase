@@ -599,3 +599,29 @@ invalid inputs and file/directory symlink boundaries. Browser checks mock all cl
 writes and cover palettes/mobile/keyboard/no-JS/manual fallback. CRLF renders as LF
 natively; Clipboard API text retains CRLF, but the browser manual textarea normalizes it.
 Use the original download for file-byte fidelity. No agent preview remains running.
+
+## Content primitives (partial P3-C2)
+
+Open **Handbook → Reference desk → Small components, real content** at
+`/handbook/reference/content-components/` on your normal server. The modest committed
+page contains kbd/mark/u, standout quotes, a real note-to-dated-post card, adjacent
+harmless resource, exact fingerprint Copy and a clearly labeled synthetic local sticker.
+Theme [COMPONENTS.md](themes/sidera/COMPONENTS.md) records every used C2 conversion row,
+including those still Pending. No whole-site source conversion occurred.
+
+**Not complete:** folding/grid/box, attributed quotations, enhanced image viewing/
+downloads, timeline and required nested-shortcode integration. Blobcat rights/asset
+selection are also unresolved. The isolated composition probe demonstrates a proposed
+mixed-notation native-node route; it is not installed as the theme's authoring API.
+
+```sh
+uv run --no-project --no-managed-python python3 tests/check_content_components.py
+# Use the printed folder and explicit free ports; harness stops its own instances:
+nvm use
+SIDERA_HTTP_PORT=14480 SIDERA_CDP_PORT=14481 node tests/check_content_components_browser.mjs /absolute/path/to/run
+uv run --no-project --no-managed-python python3 tests/probe_content_composition.py
+```
+
+Copy tests mock the clipboard. Native no-JS selection/navigation and honest manual
+fallback remain. No preview server is retained. Stop for the C2 composition/asset
+choices and partial implementation review, not automatic D or P3 closure.

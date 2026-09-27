@@ -17,3 +17,6 @@ Open a page when you need a reminder, then return to the workflow you were follo
 The [ordinary Markdown specimen]({{< relref "markdown" >}}) keeps prose, lists, code and images together for reading checks.
 
 The [advanced Markdown and math checkpoint](advanced-markdown/index.md) demonstrates native callouts, figures, palette classes, block containers and build-time formulas, with explicit source-conversion examples.
+
+The [small content components](content-components/index.md) page shows the independent
+C2 primitives; its missing container-composition checkpoint is explicitly marked.
