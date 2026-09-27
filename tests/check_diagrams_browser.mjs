@@ -48,8 +48,11 @@ await runBrowser(async b=>{
   await render('.content-folding [data-sidera-diagram="mermaid"]');
   await render('.content-folding [data-sidera-diagram="drawio"]');
   const src=await e(`document.querySelector('.content-folding [data-sidera-diagram="drawio"] img').src`);
+  assert.equal(await e(`getComputedStyle(document.querySelector('.content-folding [data-sidera-diagram="drawio"]')).backgroundColor`),'rgb(255, 255, 255)');
+  assert.equal(await e(`getComputedStyle(document.querySelector('.content-folding [data-sidera-diagram="drawio"] figcaption')).color`),'rgb(23, 25, 27)');
   await e(`Sidera.setColorMode('${palette==='dark'?'light':'dark'}')`);await delay(500);
   assert.equal(await e(`document.querySelector('.content-folding [data-sidera-diagram="drawio"] img').src`),src,'explicit inversion keeps fixed renderer palette');
+  if(prefix){await e(`Sidera.setColorMode('dark')`);await render('.content-folding [data-sidera-diagram="drawio"]');await b.screenshot('diagrams-inverted-grid');}
   // Native buttons, local keyboard scroll and expansion; no image-wide page overflow.
   const group='[data-sidera-diagram="drawio"]';await render(group);
   await e(`document.querySelector('${group} [data-diagram-action="in"]').focus()`);await key('Enter','Enter',13);
