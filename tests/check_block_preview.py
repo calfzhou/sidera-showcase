@@ -1,6 +1,6 @@
 """Cold preview and template-rename recovery; never attaches to a user's server.
-Reproduce the B handoff's block.html -> block.md transition in an isolated copy.
-A known stale live lookup is recorded, not certified as working or patched by Sidera.
+C2 replaces B's block.md with block.html for mixed notation. Verify the current
+cold server and same-cache restart, not a claim of fixing Hugo's live lookup cache.
 """
 from contextlib import contextmanager
 from pathlib import Path
@@ -58,7 +58,7 @@ def server(source, run, label, extra=(), state=None):
                 proc.kill(); proc.wait(timeout=3)
 
 def main():
-    run = Path(tempfile.mkdtemp(prefix='block-preview-',dir=ROOT/'.checks'))
+    run = Path(os.environ.get('SIDERA_CHECK_DIR') or tempfile.mkdtemp(prefix='block-preview-',dir=ROOT/'.checks'));run.mkdir(parents=True,exist_ok=True)
     source = copy_showcase(run,'live')
     for label, flags in [('production',()),('development',('--environment','development'))]:
         valid(html(build(source,run,label,flags=flags),ROUTE))
@@ -66,29 +66,16 @@ def main():
         path=run/(name+'.html');path.write_text(text);return path
     with server(source,run,'cold') as fetch:
         valid(save('cold',fetch()))
-    # Model only the removed development template in the isolated copy. Its output
-    # is HTML-escaped because the template is named .html instead of plain .md.
-    template=source/'themes/sidera/layouts/_shortcodes/block.md'
-    legacy=template.with_suffix('.html');template.rename(legacy)
-    with server(source,run,'rename',('--disableFastRender',)) as fetch:
-        before=fetch();save('before-rename',before)
-        assert '&gt; ### Inside a general block' in before
-        legacy.rename(template)
-        # Prove that a source edit is processed, not merely a browser cache hit.
-        page=source/'content/handbook/reference/advanced-markdown/index.md'
-        marker='Verified post-rename content edit'
-        page.write_text(page.read_text().replace('This general block keeps',marker+' keeps'))
-        after=fetch(marker);save('after-rename',after)
-        stale='&gt; ### Inside a general block' in after
-        if not stale: valid(run/'after-rename.html')
-    with server(source,run,'restarted',('--disableFastRender',),state='rename') as fetch:
-        valid(save('restarted',fetch(marker)))
+    # The user runs their own server. Only this isolated process is restarted;
+    # keep its cache/output intact, and verify current native-node composition.
+    with server(source,run,'restarted',state='cold') as fetch:
+        valid(save('restarted',fetch()))
     with socket.socket() as probe:
         probe.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         probe.bind(('127.0.0.1', PORT))
     result={'version':subprocess.check_output(['hugo','version'],text=True,timeout=10).strip(),
             'production_and_development':'pass','cold_server':'pass',
-            'live_rename_stale_lookup_observed':stale,'post_restart_same_cache':'pass','owned_port_released':PORT}
+            'post_restart_same_cache':'pass','owned_port_released':PORT}
     (run/'results.json').write_text(json.dumps(result,indent=2)+'\n')
-    print('PASS cold build/preview and restart recovery; stale live rename observed:',stale,'; retained',run)
+    print('PASS current cold build/preview and same-cache restart; retained',run)
 if __name__=='__main__':main()

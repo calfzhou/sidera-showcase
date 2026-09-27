@@ -96,13 +96,11 @@ plain/storage/branch/bundle/Unicode resources, language filenames, mounts and di
 
 ## Advanced Markdown / math inspection (P3-B)
 
-**Already running a preview during the B changes? Restart it once.** The development
-template changed from `block.html` to `block.md`. Hugo 0.166 can keep the removed
-HTML-template lookup and display literal `> ###`/`{data-sidera-block=…}` instead of a
-block. Stop your server with Ctrl-C and rerun the same command; a browser refresh
-or `--disableFastRender` alone is insufficient. No cache deletion or Markdown edit
-is needed. The current committed template works in fresh builds and cold previews.
-
+**Preview template transitions:** B changed block.html to block.md; C2 now uses a
+single block.html template for the approved outer/nested notation. Restart a server
+that spans either transition once. Hugo's stale live lookup is not fixed by browser
+refresh or `--disableFastRender`; no cache deletion or content rewrite is needed.
+Current cold builds/previews and same-cache restart are verified.
 
 Open **Handbook → Reference desk → Advanced Markdown and math**, at
 `/handbook/reference/advanced-markdown/`, on your normal root server. Source:
@@ -583,8 +581,8 @@ The page includes a before/after Hexo conversion recipe.
 
 See theme [SNIPPETS.md](themes/sidera/SNIPPETS.md) for exact line/newline/UTF-8 behavior,
 safe resource roots, title/language defaults, native options and limitations. Use standard
-notation with surrounding Markdown; nested shortcodes, including B's block, are rejected.
-C2's remaining components/composition are not delivered by this checkpoint.
+notation with surrounding Markdown. C2 now supports nested snippets in its native
+containers; see COMPONENTS.md for outer `%` / nested `<` and the safe bridge.
 
 ```sh
 uv run --no-project --no-managed-python python3 tests/check_snippets.py
@@ -600,28 +598,35 @@ writes and cover palettes/mobile/keyboard/no-JS/manual fallback. CRLF renders as
 natively; Clipboard API text retains CRLF, but the browser manual textarea normalizes it.
 Use the original download for file-byte fidelity. No agent preview remains running.
 
-## Content primitives (partial P3-C2)
+## Content components (P3-C2)
 
-Open **Handbook → Reference desk → Small components, real content** at
-`/handbook/reference/content-components/` on your normal server. The modest committed
-page contains kbd/mark/u, standout quotes, a real note-to-dated-post card, adjacent
-harmless resource and exact fingerprint Copy.
-Theme [COMPONENTS.md](themes/sidera/COMPONENTS.md) records every used C2 conversion row,
-including those still Pending. No whole-site source conversion occurred.
+Open **Handbook → Reference desk → Small components, real content**, at
+`/handbook/reference/content-components/`. The modest committed page demonstrates
+native folding → grid → cards/images and folding/box → snippets, plus inline tokens,
+copy, attributes, captions and math. Quote credit is ordinary Markdown; emoji/timeline/
+enhanced-image components are retired. Theme [COMPONENTS.md](themes/sidera/COMPONENTS.md)
+is the authoritative syntax/arguments/conversion/safety guide.
 
-**Not complete:** folding/grid/box, attributed quotations and required nested-shortcode
-integration. Emoji, timeline and enhanced-image components are retired by user choice;
-ordinary Markdown images remain unchanged. The isolated composition probe demonstrates a proposed
-mixed-notation native-node route; it is not installed as the theme's authoring API.
-
-```sh
-uv run --no-project --no-managed-python python3 tests/check_content_components.py
-# Use the printed folder and explicit free ports; harness stops its own instances:
-nvm use
-SIDERA_HTTP_PORT=14480 SIDERA_CDP_PORT=14481 node tests/check_content_components_browser.mjs /absolute/path/to/run
-uv run --no-project --no-managed-python python3 tests/probe_content_composition.py
+```text
+{{% folding title="Show code" %}}
+{{< snippet src="example.txt" >}}
+{{% /folding %}}
 ```
 
-Copy tests mock the clipboard. Native no-JS selection/navigation and honest manual
-fallback remain. No preview server is retained. Stop for the C2 composition
-choice and partial implementation review, not automatic D or P3 closure.
+`%` is for the outer container, `<` for nested components. No unsafe renderer or new
+library; exact code resource scopes/downloads are unchanged. Heading behavior follows
+native Markdown; no special folded-heading navigation feature is required or added.
+Restart your existing server once for the block.md → block.html transition, keeping
+its cache. Eureka does not stop your server or leave a separate preview running.
+
+```sh
+uv run --no-project --no-managed-python python3 tests/check_composition.py
+nvm use
+SIDERA_HTTP_PORT=14482 SIDERA_CDP_PORT=14483 node tests/check_composition_browser.mjs /absolute/path/to/run
+# Also retain the independent primitive and exact code/resource regressions:
+uv run --no-project --no-managed-python python3 tests/check_content_components.py
+uv run --no-project --no-managed-python python3 tests/check_snippets.py
+```
+
+The browser harness creates/stops its own isolated instances and mocks the clipboard.
+C2 stops for user review; no D/E/F or combined P3 closure is implied.

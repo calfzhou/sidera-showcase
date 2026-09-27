@@ -1,5 +1,5 @@
-"""Small native lifecycle evidence for C2's authoring decision; no live theme edits.
-The bridge control is a proposal, NOT delivered container/snippet support.
+"""Native lifecycle control behind C2's approved convention; no live theme edits.
+This small raw-node experiment is not the production bridge implementation.
 """
 from pathlib import Path
 import json, os, subprocess, sys, tempfile

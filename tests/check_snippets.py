@@ -121,9 +121,11 @@ def main():
     for label,data in [('invalid-utf8' ,b'\xff'),('binary',b'a\x00b'),('bare-cr',b'a\rb')]:
         (source/'content/snippet-check/bad.txt').write_bytes(data)
         write(source,'content/snippet-check/index.md','---\ntitle: Invalid text\n---\n{{< snippet src="bad.txt" >}}');check(label,'must be UTF-8 text')
-    for label,call in [('nested','{{% block %}}\n{{< snippet src="three.py" >}}\n{{% /block %}}'),('markdown-notation','{{% snippet src="three.py" %}}')]:
-        write(source,'content/snippet-check/index.md','---\ntitle: Unsupported composition\n---\n'+call)
-        check(label,'must be top-level' if label=='nested' else 'Raw HTML omitted')
+    # C2 supports standard snippet inside a Markdown container; verify actual text/bytes.
+    write(source,'content/snippet-check/index.md','---\ntitle: Supported composition\n---\n{{% block %}}\n{{< snippet src="three.py" >}}\n{{% /block %}}')
+    out=check('nested');verify(out,'/snippet-check/',[(b'a\nb\nc',b'a\nb\nc')])
+    write(source,'content/snippet-check/index.md','---\ntitle: Unsupported notation\n---\n{{% snippet src="three.py" %}}')
+    check('markdown-notation','Raw HTML omitted')
     # Native Hugo excludes file and directory symlinks from resources, even inside approved roots.
     canary=source/'harmless-canary';canary.mkdir();(canary/'secret.py').write_text('SYMLINK_CANARY')
     for label,base,scope,target in [('page-file',source/'content/snippet-check','','secret.py'),('shared-file',source/'assets/snippets',' scope="shared"','secret.py'),('page-dir',source/'content/snippet-check','','dir/secret.py'),('shared-dir',source/'assets/snippets',' scope="shared"','dir/secret.py')]:
@@ -131,7 +133,7 @@ def main():
         write(source,'content/snippet-check/index.md','---\ntitle: Symlink rejection\n---\n{{< snippet src="'+target+'"'+scope+' >}}');check(label,'not found')
     # Native project shortcode override remains higher priority than the theme.
     write(source,'content/snippet-check/index.md',body)
-    write(source,'layouts/_shortcodes/snippet.html','<div class="site-snippet-override">Site implementation</div>')
+    write(source,'layouts/_shortcodes/snippet.html','{{ $html := `<div class="site-snippet-override">Site implementation</div>` | safeHTML }}{{ partial "components/leaf.html" (dict "shortcode" . "html" $html "inline" false) | safeHTML }}')
     out=check('override');assert 'site-snippet-override' in (out/'snippet-check/index.html').read_text()
     (run/'evidence.json').write_text(json.dumps({'passed':passed,'rejected':rejected},indent=2))
     print('PASS',len(passed),'builds +',len(rejected),'expected rejections; retained',run)

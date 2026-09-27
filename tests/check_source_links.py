@@ -169,6 +169,13 @@ Paragraph [with link](../../journal/edge/index.md).
     assert links(out, '/journal/2026/01/02/first-plain/')['Back']['href'] == '/notes/link-probe/#local-heading'
 
     # Native control: explicit always is TEST ONLY. It bypasses custom hooks by design.
+    # C2 inline leaf rendering also belongs to the theme link hook. This isolated
+    # embedded-hook control uses ordinary text instead of that one nested key token;
+    # all A source/resource/title/diagnostic assertions remain unchanged. C2 separately
+    # verifies an explicit failure when forced embedded hooks bypass native leaf slots.
+    components=source/'content/handbook/reference/content-components/index.md'
+    component_body=components.read_text()
+    components.write_text(component_body.replace('{{< kbd text="Enter" >}}','Enter'))
     write(source, 'embedded.toml', "[markup.goldmark.renderHooks.link]\nuseEmbedded='always'\n")
     write(source, 'content/notes/link-probe/index.md', body + '\n[Logical only](../../journal/storage/a/plain/index.md)\n[Above root](../../../../journal/edge/index.md)\n')
     out = build(source, run, 'embedded-control', flags=('--config', 'hugo.toml,embedded.toml'))
@@ -181,6 +188,7 @@ Paragraph [with link](../../journal/edge/index.md).
     assert native['Above root']['href'] == '/journal/2026/01/05/bundle-route/'
     evidence.append({'native_control': 'always (test only)', 'cross_file': native['Cross file']['href'], 'nonexistent_source_alias': native['Logical only']['href'], 'above_root': native['Above root']['href']})
 
+    components.write_text(component_body)
     write(source, 'content/journal/storage/draft.md', '---\ntitle: Valid draft\ndraft: true\ndate: 2026-01-07\n---\n## Draft heading\n')
     cases = [('missing', 'missing.md', 'unresolved source'),
              ('logical-not-physical', '../../journal/storage/a/plain/index.md', 'unresolved source'),
@@ -228,11 +236,12 @@ Paragraph [with link](../../journal/edge/index.md).
     write(source, 'invalid.toml', '[params]\nlink_heading_checks="yes"\n')
     build(source, run, 'invalid-heading-config', 'link_heading_checks must be boolean', ('--config', 'hugo.toml,invalid.toml'))
     # Native hook override contract: fallback/never/auto keep project hooks; always does not.
-    write(source, 'layouts/_markup/render-link.html', '<a data-site-hook="yes" href="{{ .Destination }}">{{ .Text }}</a>')
+    write(source, 'layouts/_markup/render-link.html', '{{ if hasPrefix .Destination "sidera-inline:" }}{{ partial "components/render-leaf.html" (dict "context" . "key" (strings.TrimPrefix "sidera-inline:" .Destination)) }}{{ else }}<a data-site-hook="yes" href="{{ .Destination }}">{{ .Text }}</a>{{ end }}')
     for mode in ['auto', 'fallback', 'never']:
         write(source, 'override.toml', f"[markup.goldmark.renderHooks.link]\nuseEmbedded='{mode}'\n")
         out = build(source, run, 'override-' + mode, flags=('--config', 'hugo.toml,override.toml'))
         assert links(out)['Plain A']['data-site-hook'] == 'yes'
+    components.write_text(component_body.replace('{{< kbd text="Enter" >}}','Enter'))
     out = build(source, run, 'override-always', flags=('--config', 'hugo.toml,embedded.toml'))
     assert 'data-site-hook' not in links(out)['Plain A']
     (run / 'evidence.json').write_text(json.dumps(evidence, indent=2, ensure_ascii=False))

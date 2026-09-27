@@ -1,4 +1,4 @@
-"""Partial C2: independent native components, NOT a container-composition pass."""
+"""Independent C2 primitive regressions; check_composition covers containers."""
 from pathlib import Path
 import json, os, sys, tempfile
 sys.dont_write_bytecode = True
@@ -16,13 +16,13 @@ def main():
         out=build(source,run,label,diagnostic,('--printI18nWarnings',*flags));(rejected if diagnostic else passed).append(label);return out
     def verify(out,prefix=''):
         d=body(out)
-        assert [x.words() for x in d.all(**{'class':'content-kbd'})]==['Ctrl','`','⌘ Cmd','F4']
+        assert [x.words() for x in d.all(**{'class':'content-kbd'})][:4]==['Ctrl','`','⌘ Cmd','F4']
         assert [x.words() for x in d.all(**{'class':'content-mark'})]==['✓','✗','?']
         assert d.all(**{'class':'content-u'})[0].words()=='aa'
         quotes=d.all(**{'class':'content-quot'});assert len(quotes)==2
         assert len(quotes[0].all(**{'aria-hidden':'true'}))==2 and not quotes[1].all(**{'aria-hidden':'true'})
         assert not any(n.tag.startswith('h') and n.tag in ('h1','h2','h3','h4','h5','h6') for q in quotes for n in q.all())
-        a=d.all(**{'class':'content-link-card'});assert len(a)==2
+        a=d.all(**{'class':'content-link-card'});assert len(a)==5
         assert a[0].attrs['href']==prefix+'/journal/2026/04/14/connect-the-useful-parts/?from=components#give-a-link-a-reason'
         assert a[1].attrs['href']==prefix+ROUTE+'example.txt'
         assert (out/ROUTE.strip('/')/'example.txt').read_bytes()==(source/'content/handbook/reference/content-components/example.txt').read_bytes()
@@ -91,20 +91,21 @@ Spaced: A {{< u text="aa" >}} bcc.
          ('traversal-icon','{{< link href="/" text="x" icon="../private.svg" >}}','invalid local image'),
          ('raw-svg','{{< link href="/" text="x" icon="<svg onload=bad()>" >}}','unsupported image extension'),
          ('retired-emoji','{{< emoji src="signal.svg" alt="x" >}}','failed to extract shortcode'),
-         ('standard-in-block','{{% block %}}\n{{< copy text="x" >}}\n{{% /block %}}','composition awaits'),
+         ('unsupported-parent','{{< unsupported >}}{{< copy text="x" >}}{{< /unsupported >}}','unsupported parent'),
          ('markdown-notation','{{% quot text="x" %}}','Raw HTML omitted'),
          ('raw-html','<script>bad()</script>','Raw HTML omitted')]
+    write(source,'layouts/_shortcodes/unsupported.html','{{ .Inner }}')
     for label,content,diagnostic in bad:
         write(source,'content/negative.md','---\ntitle: Negative\n---\n'+content+'\n');check(label,diagnostic)
     write(source,'content/negative.md','---\ntitle: Repaired\n---\nNo unsafe input.\n')
     # Project shortcode and resolver overrides; old Markdown hook precedence remains native.
-    write(source,'layouts/_shortcodes/kbd.html','<kbd data-site-kbd="true">{{ .Get "text" }}</kbd>')
+    write(source,'layouts/_shortcodes/kbd.html','{{ $html := printf `<kbd data-site-kbd="true">%s</kbd>` (htmlEscape (.Get "text")) | safeHTML }}{{ partial "components/leaf.html" (dict "shortcode" . "html" $html "inline" true) | safeHTML }}')
     write(source,'layouts/_partials/links/destination.html','{{ return "/site-destination/" }}')
     write(source,'i18n/en.toml','[content_copy_success]\nother = "<img src=x onerror=bad()> & copied"\n')
     out=check('overrides');d=body(out)
     assert d.all(**{'data-site-kbd':'true'})
     assert all(a.attrs['href']=='/site-destination/' for a in d.all(**{'class':'content-link-card'}))
     assert d.all(**{'class':'content-copy'})[0].all(**{'class':'code-copy'})[0].attrs['data-success']=='<img src=x onerror=bad()> & copied'
-    (run/'results.json').write_text(json.dumps({'passed':passed,'expected_rejections':rejected,'container_composition':'pending user decision','retired':['emoji','timeline','enhanced images']},indent=2))
-    print('PASS independent C2 primitives; composition remains Pending; retained',run)
+    (run/'results.json').write_text(json.dumps({'passed':passed,'expected_rejections':rejected,'container_composition':'covered by check_composition.py','retired':['emoji','timeline','enhanced images']},indent=2))
+    print('PASS independent C2 primitives; container checks are separate; retained',run)
 if __name__=='__main__':main()
