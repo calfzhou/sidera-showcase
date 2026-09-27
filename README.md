@@ -679,3 +679,7 @@ Drawio background checks: `check_drawio_backgrounds_browser.mjs` verifies transp
 canvas alpha, explicit source colors/theme adaptation and independent shape fills
 using 14 sequential exports in one isolated browser. It uses an existing root build
 in `$RUN/baseline-public`; no source downloads or SVG-document switch.
+
+`check_diagram_scroll_browser.mjs` uses actual wheel input to verify inline page-scroll
+chaining (including tiny overflow), local zoomed scrolling and modal containment.
+It needs only the existing root build in `$RUN/baseline-public` and free HTTP/CDP ports.
