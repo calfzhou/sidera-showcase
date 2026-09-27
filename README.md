@@ -688,3 +688,7 @@ It needs only the existing root build in `$RUN/baseline-public` and free HTTP/CD
 unchanged desktop spacing, stable hover/focus and pointer travel, inverted/narrow
 cells and the separate touch/modal rows. It reuses the normal root build and runs
 in one isolated browser; no additional rendering dependency is involved.
+
+`check_badge_presentation_browser.mjs` verifies quiet badge statuses, visible repository
+links and transparent theme backgrounds in both palettes/mobile, with mocked Shields
+loading/success/failure/recovery and no-JS behavior. No provider images are rewritten.
