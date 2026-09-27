@@ -47,14 +47,14 @@ date: 2026-04-10
 ---
 {{% block id="group" %}}
 ## Inside the group
-```mermaid {title="Safe <title>"}
+```mermaid {caption="Safe <title>"}
 flowchart LR
   A[Read] --> j@{ shape: f-circ } --> B[Render]
 ```
 {{< folding title="Hidden diagrams" id="hidden-diagrams" >}}
 {{< grid columns=2 >}}
 {{< cell >}}
-{{< diagramsnet src="shape 文件.drawio" title="Local shape" >}}
+{{< diagramsnet src="shape 文件.drawio" caption="Local shape" >}}
 {{< /cell >}}
 {{< cell >}}
 ```mermaid
@@ -84,16 +84,18 @@ flowchart LR
     write(Path('content/posts/demo/shape 文件.drawio'),source)
     write(Path('content/posts/demo/sample.txt'),'flowchart LR\n<figure class="content-diagram" data-sidera-diagram="mermaid">\n')
     write(Path('content/posts/target/index.md'),'---\ntitle: Target\ndate: 2026-04-09\n---\n## Target\n')
+    write(Path('content/drawio-error/index.md'),'---\ntitle: Drawio failure\n---\n{{< diagramsnet src="invalid.drawio" >}}')
+    write(Path('content/drawio-error/invalid.drawio'),'<mxfile><diagram>Invalid model</diagram></mxfile>')
     write(Path('content/failure.md'),'---\ntitle: Independent failures\n---\n```mermaid {id="broken"}\nflowchart ???\n```\n\n```mermaid {id="healthy"}\nflowchart LR\nA-->B\n```\n')
     write(Path('content/plain.md'),'---\ntitle: Plain\n---\nNo dependencies.\n')
     write(Path('content/disabled/index.md'),'''---
 title: Disabled
 ---
-```mermaid {disabled=true}
+```text
 flowchart LR
 A --> B
 ```
-{{< diagramsnet src="local.drawio" disabled=true >}}
+[Download diagram](local.drawio)
 {{< badge_github user="mermaid-js" repo="mermaid" disabled=true >}}
 ''')
     write(Path('content/disabled/local.drawio'),source)
@@ -119,6 +121,9 @@ A --> B
     assert dom.all(href='/preview/dated/2026/target/#target')
     assert dom.all(href='/preview/dated/2026/demo/shape%20%E6%96%87%E4%BB%B6.drawio')
     assert (out/'dated/2026/demo/shape 文件.drawio').read_text()==source
+    assert json.loads(dom.all(**{'data-sidera-diagram':'drawio'})[0].attrs['data-diagram-source'])==source
+    bare=dom.all(**{'data-sidera-diagram':'mermaid'})[1]
+    assert not any(n.tag=='figcaption' for n in bare.all()) and bare.attrs['data-diagram-label']=='Mermaid diagram'
     assert len([n for group in dom.all(**{'class':'badge-images'}) for n in group.all() if n.tag=='img'])==6
     assert '/feature%2Ftest?label=' in html
     from check_snippets import Codes
@@ -154,10 +159,13 @@ A --> B
          ('drawio-remote','{{< diagramsnet src="https://example.org/x.drawio" >}}','exact local'),
          ('drawio-encoded','{{< diagramsnet src="%2e/file.drawio" >}}','exact local'),
          ('drawio-options','{{< diagramsnet src="local.drawio" edit="https://example.org" >}}','unsupported parameter'),
-         ('drawio-disabled-type','{{< diagramsnet src="local.drawio" disabled="true" >}}','disabled must be'),
-         ('drawio-title','{{< diagramsnet src="local.drawio" title="" >}}','title must be'),
+         ('drawio-disabled-removed','{{< diagramsnet src="local.drawio" disabled=true >}}','unsupported parameter'),
+         ('drawio-title-removed','{{< diagramsnet src="local.drawio" title="Old" >}}','unsupported parameter'),
+         ('mermaid-title-removed','```mermaid {title="Old"}\nflowchart LR\nA-->B\n```','unsupported attribute'),
+         ('drawio-caption','{{< diagramsnet src="local.drawio" caption="" >}}','caption must be'),
+         ('mermaid-disabled-removed','```mermaid {disabled=true}\nflowchart LR\nA-->B\n```','unsupported attribute'),
          ('mermaid-options','```mermaid {linenos=true}\nflowchart LR\nA-->B\n```','highlight options'),
-         ('mermaid-attr','```mermaid {title=""}\nflowchart LR\nA-->B\n```','title must be'),
+         ('mermaid-attr','```mermaid {caption=""}\nflowchart LR\nA-->B\n```','caption must be'),
          ('mermaid-class','```mermaid {class="x;url(y)"}\nflowchart LR\nA-->B\n```','invalid class'),
          ('badge-user','{{< badge_github user="bad/host" repo="x" >}}','invalid GitHub'),
          ('badge-branch','{{< badge_github user="a" repo="b" branch="../x" >}}','invalid branch'),

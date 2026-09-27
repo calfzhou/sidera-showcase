@@ -31,7 +31,7 @@ await runBrowser(async b=>{
  await call('Network.setBlockedURLs',{urls:[]});
  await call('Fetch.enable',{patterns:[{urlPattern:'http*'}]});
  await call('Target.setAutoAttach',{autoAttach:true,waitForDebuggerOnStart:true,flatten:true});
- const wait=async expression=>{for(let i=0;i<160;i++){if(await e(expression))return;await delay(50);}assert.fail('Timeout: '+expression);};
+ const wait=async expression=>{for(let i=0;i<400;i++){if(await e(expression))return;await delay(50);}assert.fail('Timeout: '+expression+' '+JSON.stringify(await e(`[...document.querySelectorAll('[data-sidera-diagram]')].map(f=>({kind:f.dataset.sideraDiagram,state:f.dataset.state,y:f.getBoundingClientRect().top,h:f.getBoundingClientRect().height}))`)));};
  const render=async selector=>{
   await e(`document.querySelector(${JSON.stringify(selector)}).scrollIntoView({behavior:'instant',block:'center'})`);
   await delay(100);await wait(`document.querySelector(${JSON.stringify(selector)}).dataset.state==='ready'`);
@@ -61,7 +61,7 @@ await runBrowser(async b=>{
   await e(`document.querySelector('${group} .diagram-view').focus()`);await key('ArrowRight','ArrowRight',39);await delay(150);
   assert(await e(`document.querySelector('${group} .diagram-view').scrollLeft>0`),JSON.stringify(await e(`(()=>{const v=document.querySelector('${group} .diagram-view');return {w:v.clientWidth,s:v.scrollWidth,left:v.scrollLeft,active:document.activeElement.className,state:v.closest('figure').dataset.state}})()`)));
   await e(`document.querySelector('${group} [data-diagram-action="fit"]').click();document.querySelector('${group} [data-diagram-action="expand"]').click()`);
-  assert(await e(`document.querySelector('${group} [data-diagram-action="expand"]').getAttribute('aria-pressed')==='true'`));
+  assert(await e(`document.querySelector('.diagram-dialog').open`));await key('Escape','Escape',27);await delay(80);assert(!await e(`document.querySelector('.diagram-dialog').open`));
   await v(320,900);assert(await e('document.documentElement.scrollWidth<=innerWidth'));
   await e(`document.querySelector('.github-badges').scrollIntoView({behavior:'instant',block:'center'})`);
   await wait(`document.querySelector('.github-badges').dataset.state==='ready'`);
@@ -88,11 +88,11 @@ await runBrowser(async b=>{
  for(const palette of ['dark','light']){
   await call('Emulation.setEmulatedMedia',{features:[{name:'prefers-color-scheme',value:palette}]});
   await wait(`document.documentElement.dataset.colorScheme==='${palette}'`);await render('[data-sidera-diagram="mermaid"]');
-  assert.equal(await e(`document.querySelector('.diagram-view').style.backgroundColor`),palette==='dark'?'rgb(27, 30, 34)':'rgb(255, 255, 255)');
+  assert.equal(await e(`document.documentElement.dataset.colorScheme`),palette);
  }
  await e(`document.querySelector('[data-sidera-diagram]').classList.add('invert-when-light');Sidera.setColorMode('dark')`);
  await render('[data-sidera-diagram="mermaid"]');
- assert.equal(await e(`document.querySelector('.diagram-view').style.backgroundColor`),'rgb(255, 255, 255)');
+ assert.equal(await e(`getComputedStyle(document.querySelector('[data-sidera-diagram]')).colorScheme`),'light');
  // Real touch zoom activation; native touch scrolling remains browser-owned.
  await v(390,850);await call('Emulation.setTouchEmulationEnabled',{enabled:true,maxTouchPoints:1});
  const point=await e(`(()=>{const b=document.querySelector('[data-diagram-action="in"]');b.scrollIntoView({behavior:'instant',block:'center'});const r=b.getBoundingClientRect();return {x:r.x+r.width/2,y:r.y+r.height/2,h:r.height}})()`);

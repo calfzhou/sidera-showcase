@@ -662,3 +662,15 @@ Choose free ports. The helpers verify/stop their owned instances; no retained pr
 parallel broad regression campaign, external badge requests or real diagram uploads.
 The source rendering audit reads the workspace's read-only reference in memory; it
 is not a standalone test independent of that reference checkout.
+
+### Diagram UI refinement
+
+The same specimen now uses optional `caption` (not `title`), quiet unframed diagrams,
+compact hover/focus/touch icon controls and a near-fullscreen native popup. Mermaid
+source and drawio download live in the toolbar; XML is not shown. Use a `text` fence
+or ordinary file link instead of the removed diagram `disabled` option. Video and
+badge APIs are unchanged. Add the focused browser check with free ports:
+
+```sh
+SIDERA_HTTP_PORT=14494 SIDERA_CDP_PORT=14495 node tests/check_diagram_controls_browser.mjs "$RUN"
+```

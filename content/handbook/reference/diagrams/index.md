@@ -6,16 +6,18 @@ summary: "Local Mermaid and drawio rendering, source downloads and explicitly re
 ## Ordinary Mermaid fences
 
 The source stays an ordinary `mermaid` fence. No front-matter flag is needed.
-Rendering happens locally; the controls zoom and scroll an inert vector image.
+Rendering happens locally. Hover or focus the diagram for small controls; on touch
+screens they remain available. The expand icon opens a near-fullscreen viewer.
+Captions are optional and also label that viewer.
 
-```mermaid {title="A local flowchart"}
+```mermaid {caption="A local flowchart"}
 flowchart LR
   A[Read source] --> B@{ shape: f-circ }
   B --> C[Render locally]
   C --> D[Keep the source]
 ```
 
-```mermaid {title="A short Git history"}
+```mermaid {caption="A short Git history"}
 gitGraph:
   commit id: "A"
   commit id: "B"
@@ -28,7 +30,7 @@ The native file is the source of truth. This harmless example includes an HTML l
 and a locally bundled polygon stencil. Download it to edit in your local app; no
 online editor is opened and no diagram is sent to a hosted service.
 
-{{< diagramsnet src="flow.drawio" title="Source to local view" >}}
+{{< diagramsnet src="flow.drawio" caption="Source to local view" >}}
 
 ## Fold, grid and explicit inversion
 
@@ -39,14 +41,14 @@ renderer palette so automatic dark recoloring does not invert it twice.
 {{% folding title="Inspect diagrams in a two-column grid" %}}
 {{< grid columns=2 >}}
 {{< cell >}}
-```mermaid {title="A hidden diagram"}
+```mermaid {caption="A hidden diagram"}
 flowchart BT
   a((a)) & b((b)) --> nand --> out(((out)))
 ```
 {{< /cell >}}
 {{< cell >}}
 {{< block class="invert-when-dark" >}}
-{{< diagramsnet src="flow.drawio" title="Explicitly inverted group" >}}
+{{< diagramsnet src="flow.drawio" caption="Explicitly inverted group" >}}
 {{< /block >}}
 {{< /cell >}}
 {{< /grid >}}
@@ -61,14 +63,14 @@ information. The repository link remains useful independently.
 
 {{< badge_github user="mermaid-js" repo="mermaid" branch="develop" release=true >}}
 
-## Source-only states
+## Plain source and file links
 
-```mermaid {disabled=true title="Rendering deliberately disabled"}
+```text
 flowchart LR
   Source --> Available
 ```
 
-{{< diagramsnet src="flow.drawio" disabled=true >}}
+Use a normal link when no viewer is needed: [download the drawio file](flow.drawio).
 
 {{< badge_github user="mermaid-js" repo="mermaid" disabled=true >}}
 
@@ -78,7 +80,7 @@ flowchart LR
 - `{% diagramsnet diagram.drawio %}` becomes the following, with the native file beside the page:
 
 ```text
-{{</* diagramsnet src="diagram.drawio" title="A useful description" */>}}
+{{</* diagramsnet src="diagram.drawio" caption="A useful description" */>}}
 ```
 
 - `{% badge_github owner repository release:true branch:beta %}` becomes:
