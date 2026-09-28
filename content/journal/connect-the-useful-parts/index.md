@@ -6,6 +6,8 @@ authors: [rowan]
 series: making-notes
 tags: ["practice/notes", "writing"]
 categories: ["notebook/practice"]
+params:
+  comments: true
 ---
 A little marginalia can make a saved connection useful again. Keep a reason beside
 the link, not a second copy of the destination.

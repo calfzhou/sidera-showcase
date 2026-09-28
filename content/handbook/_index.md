@@ -2,6 +2,7 @@
 title: Handbook
 preset: docs
 params:
+  comments: true
   left: [menu, page-tree, taxonomies, handbook-updates, recent-published]
   children:
     order: [start, workflows, review, reference]

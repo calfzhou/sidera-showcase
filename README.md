@@ -735,3 +735,50 @@ https://example.org/_chinese/`, then run `tests/check_search_controls_browser.mj
 with the same explicit HTTP/CDP port variables. This checks actual gradient movement,
 reduced motion, full inner-rail width, conditional checkbox/clear reset, keyboard/touch,
 EN/ZH/mobile/no-JS and a real heading-highlight journey; it stops its own processes.
+
+## Giscus comments (P3-F1)
+
+The normal root showcase opts in just **Reading List**, **Connect the useful parts**
+(the dated Journal article), and the **Handbook** root. Comments come after reading
+navigation/docs children and before the final Get in touch text. No separate demo
+or fake production IDs. Run your own normal `hugo server`; a preview predating the
+new partial/controller may need one cold restart, not cache clearing.
+
+**External setup blocked as inspected on 2026-09-28:** the showcase's own repository,
+`calfzhou/sidera-showcase`, is public, but GitHub Settings has Discussions unchecked.
+Its installed GitHub Apps list shows Vercel, not Giscus. The official Giscus
+configurator reports the repository unusable and no categories. The repository node ID is verified via the public GitHub API and stored in config;
+no category/node-ID pair is available while Discussions is disabled. The three pages therefore honestly show
+**Comments are not configured**, with no Giscus request.
+
+The owner must explicitly approve/perform enabling Discussions and installing (or
+extending an existing installation of) the Giscus App **only for this repository**.
+Use an Announcements-type category; prefer the existing category if available,
+otherwise approve its creation. Then verify the configurator and fill `repo_id`,
+`category`, `category_id` under the existing `[params.giscus]`. Do not use the theme
+repo or the real site's comment repository. No remote mutations, comments/reactions,
+pushes or deployment were performed for this slice.
+
+The showcase chooses strict matching for its new isolated repository. The theme's
+compatibility default remains false; changing strict mode for old threads requires
+separate review. Mapping is the native canonical path, independent of hostname,
+query and hash; keep the same baseURL path in previews. The official client still
+receives the embedding URL after explicit **Load comments** activation, including
+query parameters. No-JS uses a normal GitHub discussions link once configured.
+See the theme's [complete native config/extension guide](themes/sidera/COMMENTS.md).
+
+Focused tests (synthetic node IDs are confined to copied test sources; every external
+browser response in the fixture suite is intercepted, never submitted to GitHub):
+
+```sh
+run="$PWD/.checks/comments-$(date +%Y%m%d_%H%M%S)"
+SIDERA_CHECK_DIR="$run" GOMAXPROCS=2 uv run --no-project --no-managed-python python3 tests/check_comments.py
+nvm use
+SIDERA_HTTP_PORT=14540 SIDERA_CDP_PORT=14541 node tests/check_comments_browser.mjs "$run"
+SIDERA_CHECK_DIR="$run/preview" SIDERA_HTTP_PORT=14542 GOMAXPROCS=2 uv run --no-project --no-managed-python python3 tests/check_comments_preview.py
+```
+
+Mocked communication is not live provider readiness. The harness owns and stops its
+unique Chrome/HTTP instances; it cannot certify remote setup, auth, all browsers or
+CSP/assistive technologies. F1 user review follows; F2/logo/final integration remain
+separate.
