@@ -83,7 +83,7 @@ await runBrowser(async b => {
   await call('Emulation.setTouchEmulationEnabled',{enabled:false});
   // No script: searchable content/navigation stay accessible, disabled control says why.
   await call('Emulation.setScriptExecutionDisabled',{value:true});await n('/notes/reading-list/',false);
-  assert(await e(`document.querySelector('#search-input').disabled && !!document.querySelector('.search-fallback')`));
+  assert(await e(`document.querySelector('#search-input').disabled && document.querySelector('.search-scope').disabled && !!document.querySelector('.search-fallback')`));
   assert(await e(`document.querySelector('[data-content-relations="outgoing"] a').getAttribute('href')===${JSON.stringify(target)}`));
   await call('Emulation.setScriptExecutionDisabled',{value:false});
   // Unavailable public JSON: failure is visible, no phantom results, retry on focus.
