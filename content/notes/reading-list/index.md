@@ -29,3 +29,14 @@ can open the same Markdown that Hugo publishes under the journal's dated URL.
 > [!note]
 > A useful connection can also live inside a callout:
 > [Give a link a reason](../../journal/connect-the-useful-parts/index.md#give-a-link-a-reason).
+
+## Find the connection again
+
+The sidebar searches this collection first. Choose **All content** to include the
+Journal: search for **marginalia** to land in the introduction, or **Give a link a
+reason** to open that heading with the words highlighted. **连接笔记** finds a short
+bilingual note inside a closed fold; following it reveals only the relevant fold.
+For an exact code example, search Notes for **matching_pair**.
+
+The footer distinguishes authored references from pages cited in the body and pages
+that link back here. Several links to the same Journal article count as one source.

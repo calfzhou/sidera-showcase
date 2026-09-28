@@ -152,7 +152,7 @@ def main():
             assert f'[{key}]\nother = "{label}"' in catalog
     keys = set(re.findall(r'^\[([^]]+)\]', en_catalog, re.M))
     assert keys == set(re.findall(r'^\[([^]]+)\]', zh_catalog, re.M))
-    assert len(keys) == 150, keys # Deliberate UI inventory: update alongside I18N.md.
+    assert len(keys) == 164, keys # Deliberate UI inventory: update alongside I18N.md.
     assert en_catalog.count('other = ') == zh_catalog.count('other = ') == len(keys)
     # Literal call sites plus the four deliberately native dynamic message groups.
     implementation = '\n'.join(p.read_text() for directory in ['layouts', 'content']
@@ -162,6 +162,7 @@ def main():
     used.update(['collection_blog', 'collection_notebook', 'collection_docs', 'order_publication', 'order_modification',
                  'order_title', 'date_published', 'date_modified', 'date_updated', 'published_undated',
                  'series_order_publication','series_order_weight', 'modified_undated', 'tags', 'categories', 'authors', 'series', 'preset', 'article_count'])
+    used.update(['outgoing','backlinks'])
     used.update(['diagram_zoom_out','diagram_zoom_in','diagram_fit','diagram_expand'])
     used.update(['alert_note','alert_tip','alert_important','alert_warning','alert_caution'])
     assert keys == used, (keys-used, used-keys)
@@ -177,7 +178,14 @@ def main():
         check_baseline(out); baseline_checks(out)
         tag_checks(out, 'field-notes', FIELD, COLLECTIONS['field-notes'][2])
         tag_checks(out, 'lab-notes', LAB, COLLECTIONS['lab-notes'][2])
-    assert set(snapshot(baseline)) == set(snapshot(chinese)) # UI never mutates routes/assets.
+    # P3-E intentionally generates one language-named/fingerprinted search resource.
+    # All other UI routes/assets remain unchanged; verify, don't broadly ignore JSON.
+    for out,lang in [(baseline,'en'),(chinese,'zh')]:
+        indexes=list((out/'search').glob('*.json'))
+        assert len(indexes)==1 and indexes[0].name.startswith(lang+'.')
+        assert json.loads(indexes[0].read_text())['version']==1
+    assert {p for p in snapshot(baseline) if not p.startswith('search/')} == {p for p in snapshot(chinese) if not p.startswith('search/')}
+
     for file in baseline.rglob('*.html'):
         rel = file.relative_to(baseline)
         assert Page(file).times == Page(chinese / rel).times, rel

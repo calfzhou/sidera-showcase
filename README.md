@@ -692,3 +692,38 @@ in one isolated browser; no additional rendering dependency is involved.
 `check_badge_presentation_browser.mjs` verifies quiet badge statuses, visible repository
 links and transparent theme backgrounds in both palettes/mobile, with mocked Shields
 loading/success/failure/recovery and no-JS behavior. No provider images are rewritten.
+
+## P3-E: follow references and search into real content
+
+On your own root `hugo server`, open **Notes → A reading list with room to breathe**
+(`/notes/reading-list/`). The sidebar searches Notes by default. Choose **All content**:
+
+- **marginalia** → Journal's native dated page, introduction highlighted.
+- **Give a link a reason** → the actual native heading, body keywords highlighted.
+- **连接笔记** → a bilingual passage in a closed fold, revealed on navigation.
+- In Notes, **matching_pair** → real included code, with copy/source behavior retained.
+
+Use clear/Escape to restore the configured sidebar widgets. Outgoing/backlink footer
+sections deduplicate repeated Page references; authored references stay separate.
+[Theme contract](themes/sidera/DISCOVERY.md) describes publication eligibility,
+scopes/languages, matching/text boundaries and `search`/`search_index`/`link_graph`.
+The examples are modest fictional content, not a migrated real-site body or hand-built index.
+
+Focused checks (existing Hugo/uv, then `nvm use`; choose unused ports):
+
+```sh
+# Set RUN to a new absolute folder under the migration workspace.
+mkdir -p "$RUN"
+SIDERA_CHECK_DIR="$RUN/native" uv run --no-project --no-managed-python python3 tests/check_discovery.py
+GOMAXPROCS=2 hugo --destination "$RUN/baseline-public" --cacheDir "$RUN/cache" --panicOnWarning
+nvm use
+node tests/check_search_core.mjs
+SIDERA_HTTP_PORT=14510 SIDERA_CDP_PORT=14511 node tests/check_discovery_browser.mjs "$RUN"
+SIDERA_CHECK_DIR="$RUN/native" SIDERA_PREVIEW_PORT=14512 uv run --no-project --no-managed-python python3 tests/check_discovery_preview.py
+```
+
+The browser helper compares generated index sections to every root document's detached
+rendered DOM before exercising actual result clicks/highlights, keyboard/touch and
+failure/freshness states. The native mutation/preview checks verify content-addressed resource changes and
+publication eligibility; no fabricated document/index stands in for Hugo generation. It never loads reference sites, actual Shields providers or user profiles.
+All helpers stop their own servers/browser. Do not publish all-states test output.

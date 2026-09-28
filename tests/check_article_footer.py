@@ -19,7 +19,8 @@ def main():
     def item(d,name):return d.all(**{'data-footer-item':name})
     baseline=check('baseline');local_links(baseline)
     f=footer(baseline);box=f.all(**{'class':'article-footer-box'})[0]
-    assert [n.attrs['data-footer-item'] for n in box.children]==['references','license','share']
+    assert [n.attrs['data-footer-item'] for n in box.children]==['references','outgoing','license','share']
+    assert item(f,'outgoing')[0].all(href='/notes/python-environments/')
     assert item(f,'terms') and item(f,'terms')[0] not in box.all()
     assert 'All rights reserved unless otherwise stated.' in item(f,'license')[0].words()
     assert item(f,'references')[0].all(href='https://realpython.com/intro-to-pyenv/')

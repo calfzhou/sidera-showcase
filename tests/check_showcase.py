@@ -1,6 +1,6 @@
 """The one live root showcase: collection coverage, dated URLs, links and config variants."""
 from pathlib import Path
-import json, os, sys, tempfile
+import json, os, re, sys, tempfile
 sys.dont_write_bytecode=True
 from check_p1a import ROOT, ORGANIZATION, THEME, Page, all_articles, snapshot
 from check_p1b import build, copy_showcase, copy_site, html, local_links
@@ -52,7 +52,7 @@ def main():
     assert len(all_articles(out,'/notes/'))==7
     assert set(a.attrs['href'] for a in nodes(out,'/handbook/').all(id='doc-children')[0].all() if a.tag=='a' and 'card-title' in a.attrs.get('class',''))=={'/handbook/start/','/handbook/workflows/','/handbook/review/','/handbook/reference/'}
     # The live handbook has three levels below its root, with exact native parent ordering.
-    for route,children in [('/handbook/workflows/',['writing','research']),('/handbook/workflows/writing/',['outline','draft']),('/handbook/workflows/research/',['sources','evaluate']),('/handbook/reference/',['frontmatter','markdown','advanced-markdown','content-components','diagrams','video'])]:
+    for route,children in [('/handbook/workflows/',['writing','research']),('/handbook/workflows/writing/',['outline','draft']),('/handbook/workflows/research/',['sources','evaluate']),('/handbook/reference/',['frontmatter','markdown','advanced-markdown','diagrams','content-components','video'])]:
         links=[a.attrs['href'] for a in nodes(out,route).all(id='doc-children')[0].all() if a.tag=='a' and 'card-title' in a.attrs.get('class','')]
         assert links==[route+child+'/' for child in children]
     leaf=nodes(out,'/handbook/workflows/writing/outline/')
@@ -90,6 +90,12 @@ def main():
     assert all_articles(prefixed,'/journal/')==['/preview'+p for p in JOURNAL]
     docs=check('docs-on',('docs-on.toml',));local_links(docs);assert html(docs,'/sidera/').exists()
     off=check('docs-off',('docs-on.toml','docs-off.toml'));assert not html(off,'/sidera/').exists()
+    for destination,enabled in [(docs,True),(off,False)]:
+        search_url=re.search(r'data-index="([^"]+)"',html(destination,'/').read_text())[1]
+        documents=json.loads((destination/search_url.lstrip('/')).read_text())['documents']
+        assert any(d['url']=='/sidera/' for d in documents)==enabled
+        assert all('/preset/' not in d['url'] and '/archives/' not in d['url'] for d in documents)
+
     # Historical expectations still refer to their old inputs, never to the promoted live content.
     legacy=copy_site(run,'organization');assert snapshot(legacy/'content')==snapshot(ORGANIZATION/'content')
     assert (legacy/'hugo.toml').read_bytes()==(ORGANIZATION/'hugo.toml').read_bytes()
