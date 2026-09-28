@@ -32,8 +32,8 @@ can open the same Markdown that Hugo publishes under the journal's dated URL.
 
 ## Find the connection again
 
-The sidebar searches this collection first. Choose **All content** to include the
-Journal: search for **marginalia** to land in the introduction, or **Give a link a
+The sidebar searches this collection first. Type a query, then check **Search all
+content** to include the Journal: search for **marginalia** to land in the introduction, or **Give a link a
 reason** to open that heading with the words highlighted. **连接笔记** finds a short
 bilingual note inside a closed fold; following it reveals only the relevant fold.
 For an exact code example, search Notes for **matching_pair**.

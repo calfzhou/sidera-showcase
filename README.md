@@ -696,7 +696,7 @@ loading/success/failure/recovery and no-JS behavior. No provider images are rewr
 ## P3-E: follow references and search into real content
 
 On your own root `hugo server`, open **Notes → A reading list with room to breathe**
-(`/notes/reading-list/`). The sidebar searches Notes by default. Choose **All content**:
+(`/notes/reading-list/`). The sidebar searches Notes by default. Type a query, then check **Search all content**:
 
 - **marginalia** → Journal's native dated page, introduction highlighted.
 - **Give a link a reason** → the actual native heading, body keywords highlighted.
@@ -727,3 +727,11 @@ rendered DOM before exercising actual result clicks/highlights, keyboard/touch a
 failure/freshness states. The native mutation/preview checks verify content-addressed resource changes and
 publication eligibility; no fabricated document/index stands in for Hugo generation. It never loads reference sites, actual Shields providers or user profiles.
 All helpers stop their own servers/browser. Do not publish all-states test output.
+
+
+For the focused search-control refinement check, additionally build Chinese output in
+`$RUN/chinese-preview-public` using `--config hugo.toml,examples/chinese.toml --baseURL
+https://example.org/_chinese/`, then run `tests/check_search_controls_browser.mjs "$RUN"`
+with the same explicit HTTP/CDP port variables. This checks actual gradient movement,
+reduced motion, full inner-rail width, conditional checkbox/clear reset, keyboard/touch,
+EN/ZH/mobile/no-JS and a real heading-highlight journey; it stops its own processes.

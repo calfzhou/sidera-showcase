@@ -1,0 +1,90 @@
+// Focused P3-E refinement: existing isolated local Chrome/HTTP harness only.
+import assert from 'node:assert/strict';
+import {runBrowser} from './browser.mjs';
+await runBrowser(async b => {
+  const {evaluate:e,navigate:n,key,call,delay,viewport,screenshot}=b;
+  const wait=async expression=>{for(let i=0;i<100;i++){if(await e(expression))return;await delay(50);}assert.fail(expression);};
+  const type=async text=>{
+    await e(`(()=>{const input=document.querySelector('#search-input');input.focus();input.value=${JSON.stringify(text)};input.dispatchEvent(new Event('input',{bubbles:true}));})()`);
+    await wait(`!!document.querySelector('.search-results a')`);
+  };
+  const point=async selector=>e(`(()=>{const r=document.querySelector(${JSON.stringify(selector)}).getBoundingClientRect();return {x:r.x+r.width/2,y:r.y+r.height/2}})()`);
+  const touch=async selector=>{
+    const p=await point(selector);
+    assert(await e(`!!document.elementFromPoint(${p.x},${p.y})?.closest(${JSON.stringify(selector)})`));
+    await call('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[p]});
+    await call('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});
+  };
+  await viewport(1440,960);await n('/notes/reading-list/');
+  assert(await e(`document.querySelector('.search-scope-control').hidden && !document.querySelector('.search-scope').checked`));
+  await e(`document.querySelector('#search-input').focus()`);
+  assert(await e(`document.querySelector('.search-scope-control').hidden`),'Focus alone must not reveal scope');
+  await e(`document.querySelector('#search-input').blur()`);
+  const p=await point('.search-form');
+  await call('Input.dispatchMouseEvent',{type:'mouseMoved',...p});await delay(350);
+  const motion=await e(`(()=>{const s=getComputedStyle(document.querySelector('.search-form'),'::after');return {name:s.animationName,state:s.animationPlayState,opacity:s.opacity,position:s.backgroundPositionX}})()`);
+  assert.equal(motion.name,'sidera-search-glow');assert.equal(motion.state,'running');assert(Number(motion.opacity)>.95);
+  await delay(250);
+  assert.notEqual(await e(`getComputedStyle(document.querySelector('.search-form'),'::after').backgroundPositionX`),motion.position,'Actual animated color position must change');
+  await call('Input.dispatchMouseEvent',{type:'mouseMoved',x:900,y:900});await delay(350);
+  assert.equal(await e(`getComputedStyle(document.querySelector('.search-form'),'::after').animationPlayState`),'paused');
+  // The rail itself is unchanged; remove its extra nested 16px gutters on each side.
+  assert(await e(`(()=>{const rail=document.querySelector('#left-region'),r=rail.getBoundingClientRect(),s=getComputedStyle(rail),form=document.querySelector('.search-form').getBoundingClientRect();return Math.abs(form.width-(r.width-parseFloat(s.paddingLeft)-parseFloat(s.paddingRight)))<1 && form.width>=252})()`));
+  await type('Give a link a reason');
+  assert(await e(`!document.querySelector('.search-scope-control').hidden && document.querySelector('.search-scope').type==='checkbox' && !document.querySelector('.search-scope').checked`));
+  assert(await e(`[...document.querySelectorAll('.search-results a')].every(a=>a.pathname.startsWith('/notes/'))`));
+  const localLabel=await e(`document.querySelector('#search-input').getAttribute('aria-label')`);
+  await key('Tab','Tab',9);assert(await e(`document.activeElement.matches('.search-clear')`));
+  await key('Tab','Tab',9);assert(await e(`document.activeElement.matches('.search-scope')`));
+  await key(' ','Space',32);
+  assert(await e(`document.querySelector('.search-scope').checked && document.querySelector('#search-input').value==='Give a link a reason'`));
+  assert.equal(await e(`document.querySelector('#search-input').getAttribute('aria-label')`),'Search');
+  const target='/journal/2026/04/14/connect-the-useful-parts/';
+  await wait(`!!document.querySelector('.search-results a[href^="${target}"]')`);
+  assert(await e(`document.querySelector('.search-results a').getBoundingClientRect().width>=248`));
+  await e(`Sidera.setColorMode('dark')`);await screenshot('search-refined-desktop');
+  await key(' ','Space',32);
+  assert.equal(await e(`document.querySelector('#search-input').getAttribute('aria-label')`),localLabel);
+  assert(!await e(`!!document.querySelector('.search-results a[href^="${target}"]')`));
+  await key(' ','Space',32);
+  await e(`document.querySelector('.search-results a[href^="${target}"]').focus()`);await key('Enter','Enter',13);
+  await wait(`location.pathname===${JSON.stringify(target)} && location.hash==='#give-a-link-a-reason' && !!document.querySelector(':target [data-search-mark]')`);
+  // Clearing a global query (including whitespace-only input) restores the local default.
+  await n('/notes/reading-list/');await type('matching_pair');
+  await e(`document.querySelector('.search-scope').click();document.querySelector('.search-scope').focus()`);
+  await key('Escape','Escape',27);
+  assert(await e(`document.querySelector('.search-scope-control').hidden && !document.querySelector('.search-scope').checked && document.activeElement.id==='search-input'`));
+  await type('matching_pair');
+  await e(`document.querySelector('.search-scope').click();const i=document.querySelector('#search-input');i.value='   ';i.dispatchEvent(new Event('input'))`);
+  assert(await e(`document.querySelector('.search-scope-control').hidden && !document.querySelector('.search-scope').checked && getComputedStyle(document.querySelector('.site-menu')).display!=='none'`));
+  await call('Emulation.setEmulatedMedia',{features:[{name:'prefers-reduced-motion',value:'reduce'}]});
+  await type('matching_pair');
+  assert.equal(await e(`getComputedStyle(document.querySelector('.search-form'),'::after').animationName`),'none');
+  assert.equal(await e(`getComputedStyle(document.querySelector('.search-form'),'::after').opacity`),'1');
+  await call('Emulation.setEmulatedMedia',{features:[]});
+  // No owner means already-global search: no redundant checkbox before OR after typing.
+  await n('/');assert(!await e(`!!document.querySelector('.search-scope')`));await type('marginalia');
+  assert(!await e(`!!document.querySelector('.search-scope')`));
+  // Chinese mobile, full label touch target, both widths, no overflow.
+  await call('Emulation.setTouchEmulationEnabled',{enabled:true});await viewport(390,844);await n('/_chinese/notes/reading-list/');
+  await e(`Sidera.setColorMode('light');document.querySelector('[data-region="left"]').click()`);await delay(400);
+  assert(await e(`document.querySelector('.search-scope-control').hidden`));
+  await type('Give a link a reason');
+  assert.equal(await e(`document.querySelector('.search-scope-label span').textContent`),'搜索全部内容');
+  assert(await e(`document.querySelector('.search-scope-label').getBoundingClientRect().height>=44`));
+  await touch('.search-scope-label');await wait(`document.querySelector('.search-scope').checked`);
+  await wait(`!!document.querySelector('.search-results a[href^="/_chinese${target}"]')`);
+  assert.equal(await e(`document.querySelector('#search-input').placeholder`),'搜索');
+  await screenshot('search-refined-mobile');
+  assert(await e(`document.documentElement.scrollWidth<=innerWidth`));
+  await touch('.search-clear');await wait(`document.querySelector('.search-scope-control').hidden`);
+  assert(!await e(`document.querySelector('.search-scope').checked`));
+  await viewport(320,740);await delay(200);
+  if(!await e(`document.querySelector('#left-region').matches(':popover-open')`))await e(`document.querySelector('[data-region="left"]').click()`);
+  await type('matching_pair');assert(await e(`document.documentElement.scrollWidth<=innerWidth`));
+  await call('Emulation.setScriptExecutionDisabled',{value:true});await n('/notes/reading-list/',false);
+  assert(await e(`document.querySelector('#search-input').disabled && document.querySelector('.search-scope').disabled && document.querySelector('.search-scope-control').hidden && !document.querySelector('.search-fallback').hidden`));
+  assert.equal(b.errors.length,0,JSON.stringify(b.errors));
+  assert(b.requests.every(url=>url.startsWith(b.origin+'/')),'No external requests');
+  console.log('PASS animated/paused/reduced-motion underline, wider rail-aligned search/results, conditional checkbox, real keyboard/touch scope toggles, reset/global page/EN-ZH/mobile/no-JS and heading body highlights');
+});

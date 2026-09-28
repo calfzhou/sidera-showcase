@@ -19,7 +19,7 @@ await runBrowser(async b => {
     assert.deepEqual(sections,doc.sections,doc.url+' text/heading model');
   }
   const query=async(text,global=false)=>{
-    await e(`(()=>{const input=document.querySelector('#search-input');input.focus();${global?`const s=document.querySelector('.search-scope');if(s){s.value='';s.dispatchEvent(new Event('change'));}`:''}input.value=${JSON.stringify(text)};input.dispatchEvent(new Event('input',{bubbles:true}));})()`);
+    await e(`(()=>{const input=document.querySelector('#search-input');input.focus();input.value=${JSON.stringify(text)};input.dispatchEvent(new Event('input',{bubbles:true}));const s=document.querySelector('.search-scope');if(s){s.checked=${global};s.dispatchEvent(new Event('change'));}})()`);
     await delay(150);
   };
   await query('marginalia',true); await wait(`!!document.querySelector('.search-results a')`);
