@@ -78,7 +78,7 @@ await runBrowser(async b => {
  for(const path of ['/','/journal/','/about/','/notes/page/2/']){await n(path);assert(!await e(`!!${host}`));}
  await n('/unconfigured'+route);assert(await e(`document.querySelector('.article-comments').textContent.includes('not configured')`));assert(!await e(`!!${host}`));assert.equal(clients,before);await e(`document.querySelector('.article-comments').scrollIntoView({block:'center',behavior:'instant'})`);await screenshot('comments-unconfigured');
  await call('Emulation.setScriptExecutionDisabled',{value:true});await n(route,false);
- assert(await e(`${host}.querySelector('button').hidden`));assert(await e(`${host}.textContent.includes('require JavaScript')`));assert.equal(clients,before);await e(`document.querySelector('.article-comments').scrollIntoView({block:'center',behavior:'instant'})`);await screenshot('comments-unconfigured');
+ assert(await e(`${host}.querySelector('button').hidden`));assert(await e(`${host}.textContent.includes('require JavaScript')`));assert.equal(clients,before);await e(`document.querySelector('.article-comments').scrollIntoView({block:'center',behavior:'instant'})`);await screenshot('comments-nojs');
  await call('Emulation.setScriptExecutionDisabled',{value:false});
  assert(captured.every(url=>url.startsWith('https://giscus.app/')));assert.equal(b.errors.length,0,JSON.stringify(b.errors));
  console.log('PASS mocked Giscus: opt-in/noJS/disabled/unconfigured, bounded duplicate activation, origin+source checks, error/empty/timeout, canonical kw/hash mappings, EN/ZH/mobile/manual+OS palette updates. No live provider traffic.');
