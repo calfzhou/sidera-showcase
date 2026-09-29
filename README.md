@@ -786,3 +786,9 @@ The fixture suite remains mocked and separate from the bounded live check above.
 unique Chrome/HTTP instances; it cannot certify remote setup, auth, all browsers or
 CSP/assistive technologies. F1 user review follows; F2/logo/final integration remain
 separate.
+
+Giscus styling follows Sidera's current font stack and light/dark palette, keeping
+provider layout/controls unchanged. This needs no new site settings, font download or
+hosted CSS/CORS service. A preview spanning addition of the theme asset/partial may
+need one cold restart; no cache clearing. The theme's COMMENTS.md defines the small
+fixed-style scope; arbitrary custom site typography/theme editors remain future work.

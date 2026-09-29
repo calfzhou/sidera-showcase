@@ -1,6 +1,6 @@
 """Giscus config/placement/mapping; synthetic IDs exist ONLY in isolated tests."""
 from pathlib import Path
-import os,sys,re,json
+import os,sys,re,json,base64
 sys.dont_write_bytecode=True
 from check_p1b import copy_showcase,build,html
 from check_p2f import nodes
@@ -32,6 +32,14 @@ def main():
   d=nodes(out,route);h=host(out,route);assert len(h)==1,route
   assert h[0].attrs['data-term']==route[1:]
   assert h[0].attrs['data-lang']=='en'
+  for palette in ['light','dark']:
+   uri=h[0].attrs['data-theme-'+palette];assert uri.startswith('data:text/css;base64,')
+   css=base64.b64decode(uri.split(',',1)[1]).decode()
+   assert f'https://giscus.app/themes/{palette}.css' in css
+   assert 'lxgw wenkai' in css.lower() and '--color-fg-default:' in css
+   assert not any(x in css for x in ['@font-face','javascript:','<script','fixture/comments'])
+   assert len(uri)<2048 # Keep provider query payload modest, not a CSS framework.
+
   main=d.all(id='main')[0];comments=d.all(id='sidera-comments')[0]
   assert main.children[-1] is comments and not d.all(**{'class':'article-end'})
   assert comments.attrs['aria-label']=='Comments' and not [n for n in comments.all() if n.tag in ('h1','h2','h3')]

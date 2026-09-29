@@ -20,7 +20,9 @@ def wait(enabled):
   if ('data-sidera-giscus' in text)==enabled and ('/js/giscus.' in text)==enabled:
    assert 'giscus.app/client.js' not in text
    assert ('class="toc-comments"' in text)==enabled
-   if enabled:assert 'data-term="'+ROUTE[1:]+'"' in text
+   if enabled:
+    assert 'data-term="'+ROUTE[1:]+'"' in text
+    assert 'data-theme-light="data:text/css;base64,' in text and 'data-theme-dark="data:text/css;base64,' in text
    return
   time.sleep(.1)
  raise AssertionError('Comment preview did not update')
