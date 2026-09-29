@@ -25,11 +25,13 @@ color_mode = 'dark'
 left = ['menu', 'welcome']
 footer_menu = 'footer'
 footer_text = 'A small, independent notebook. Written to be revisited.'
-# F1: repository verified public; Discussions/App/category setup is pending.
-# No fake IDs: the selected pages show the honest unconfigured state.
+# F1: owner enabled Discussions/App access; metadata verified with Giscus on 2026-09-29.
+# Showcase-owned discussion store; never the theme or real-site repository.
 [params.giscus]
 repo = 'calfzhou/sidera-showcase'
-repo_id = 'R_kgDOUhY4yg' # Verified read-only via GitHub repository API.
+repo_id = 'R_kgDOUhY4yg' # Verified read-only via GitHub and the Giscus configurator.
+category = 'Announcements'
+category_id = 'DIC_kwDOUhY4ys4DGnkG'
 strict = true
 [params.identity]
 image = 'images/sidera-mark.svg'

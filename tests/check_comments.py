@@ -23,7 +23,7 @@ def main():
   if diagnostic:rejections+=1
   else:builds+=1
   return out
- out=check('unconfigured')
+ out=check('unconfigured',"[params.giscus]\ncategory=''\ncategory_id=''\n")
  for route in [ROUTE,'/notes/reading-list/','/handbook/']:
   text=html(out,route).read_text();assert 'not configured' in text and 'js/giscus.' not in text and 'https://giscus.app' not in text
  out=check('baseline',MOCK)

@@ -744,20 +744,19 @@ navigation/docs children and before the final Get in touch text. No separate dem
 or fake production IDs. Run your own normal `hugo server`; a preview predating the
 new partial/controller may need one cold restart, not cache clearing.
 
-**External setup blocked as inspected on 2026-09-28:** the showcase's own repository,
-`calfzhou/sidera-showcase`, is public, but GitHub Settings has Discussions unchecked.
-Its installed GitHub Apps list shows Vercel, not Giscus. The official Giscus
-configurator reports the repository unusable and no categories. The repository node ID is verified via the public GitHub API and stored in config;
-no category/node-ID pair is available while Discussions is disabled. The three pages therefore honestly show
-**Comments are not configured**, with no Giscus request.
+**External setup verified on 2026-09-29:** the owner enabled Discussions and granted
+Giscus access to `calfzhou/sidera-showcase`. The official configurator now reports
+success. Site config contains the verified repository node ID and the existing
+**Announcements** category's name/node ID; its Announcement format was inspected
+read-only on GitHub. No category was created or modified. The former setup blocker
+is resolved; neither the theme repo nor real-site discussions are used.
 
-The owner must explicitly approve/perform enabling Discussions and installing (or
-extending an existing installation of) the Giscus App **only for this repository**.
-Use an Announcements-type category; prefer the existing category if available,
-otherwise approve its creation. Then verify the configurator and fill `repo_id`,
-`category`, `category_id` under the existing `[params.giscus]`. Do not use the theme
-repo or the real site's comment repository. No remote mutations, comments/reactions,
-pushes or deployment were performed for this slice.
+Open **Notes → A reading list with room to breathe** (`/notes/reading-list/`), scroll
+to Comments and click **Load comments**. Read-only live verification from an isolated
+normal Hugo preview loaded the real widget with **0 comments**, **0 reactions** and
+its signed-out form. Dark/light switching visibly updated the same iframe (one client,
+one iframe). No comment/reaction or OAuth sign-in was submitted, and no push/deployment
+was performed. The normal user-owned server reads this configuration directly.
 
 The showcase chooses strict matching for its new isolated repository. The theme's
 compatibility default remains false; changing strict mode for old threads requires
@@ -778,7 +777,7 @@ SIDERA_HTTP_PORT=14540 SIDERA_CDP_PORT=14541 node tests/check_comments_browser.m
 SIDERA_CHECK_DIR="$run/preview" SIDERA_HTTP_PORT=14542 GOMAXPROCS=2 uv run --no-project --no-managed-python python3 tests/check_comments_preview.py
 ```
 
-Mocked communication is not live provider readiness. The harness owns and stops its
+The fixture suite remains mocked and separate from the bounded live check above. The harness owns and stops its
 unique Chrome/HTTP instances; it cannot certify remote setup, auth, all browsers or
 CSP/assistive technologies. F1 user review follows; F2/logo/final integration remain
 separate.
