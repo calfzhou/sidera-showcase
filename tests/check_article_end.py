@@ -9,9 +9,10 @@ from check_p2w import write
 def main():
  run=Path(os.environ['SIDERA_CHECK_DIR']).resolve();run.mkdir(parents=True,exist_ok=False)
  source=copy_showcase(run,'live')
+ write(source,'ending-defaults.toml',"[params]\ncomments=false\n[cascade.params]\narticle_end_text='Have a different approach? [Get in touch](mailto:hello@example.org).'\n")
  def check(label,extra='',diagnostic=None):
   write(source,'ending.toml',extra)
-  return build(source,run,label,diagnostic,('--config','hugo.toml,ending.toml','--printI18nWarnings'))
+  return build(source,run,label,diagnostic,('--config','hugo.toml,ending-defaults.toml,ending.toml','--printI18nWarnings'))
  route='/journal/2026/04/14/connect-the-useful-parts/'
  for label,extra,prefix in [('baseline','',''),('chinese',"defaultContentLanguage='zh'\nlocale='zh-CN'\nbaseURL='https://example.org/_chinese/'\n",'/_chinese')]:
   out=check(label,extra);local_links(out,prefix)

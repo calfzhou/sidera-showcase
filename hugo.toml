@@ -22,6 +22,8 @@ disableAliases = true
 [params]
 # Theme default is auto; this demo deliberately starts new visitors in dark mode.
 color_mode = 'dark'
+# All eligible article/docs pages; individual params.comments=false still opts out.
+comments = true
 left = ['menu', 'welcome']
 footer_menu = 'footer'
 footer_text = 'A small, independent notebook. Written to be revisited.'
@@ -39,8 +41,6 @@ subtitle = 'Notes & everyday tools | Small ideas, kept close'
 [params.profile]
 title = 'A working notebook'
 text = 'Observations from the desk and the field. Small ideas, kept in one place.'
-[cascade.params]
-article_end_text = 'Have a different approach? [Get in touch](mailto:hello@example.org).'
 [[menus.primary]]
 name = 'Overview'
 pageRef = '/'

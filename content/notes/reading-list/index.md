@@ -6,7 +6,6 @@ lastmod: 2026-06-15
 tags: [practice/reading]
 authors: [rowan]
 params:
-  comments: true
   pinned: false
 ---
 ## The idea

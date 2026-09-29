@@ -24,20 +24,28 @@ def main():
   else:builds+=1
   return out
  out=check('unconfigured',"[params.giscus]\ncategory=''\ncategory_id=''\n")
- for route in [ROUTE,'/notes/reading-list/','/handbook/']:
+ for route in [ROUTE,'/notes/reading-list/','/handbook/','/notes/package-management/','/about/']:
   text=html(out,route).read_text();assert 'not configured' in text and 'js/giscus.' not in text and 'https://giscus.app' not in text
  out=check('baseline',MOCK)
  def host(out,route):return [n for n in nodes(out,route).all() if 'data-sidera-giscus' in n.attrs]
- for route in [ROUTE,'/notes/reading-list/','/handbook/']:
+ for route in [ROUTE,'/notes/reading-list/','/handbook/','/notes/package-management/','/about/']:
   d=nodes(out,route);h=host(out,route);assert len(h)==1,route
   assert h[0].attrs['data-term']==route[1:]
   assert h[0].attrs['data-lang']=='en'
-  main=d.all(id='main')[0];comments=d.all(**{'class':'article-comments'})[0];end=d.all(**{'class':'article-end'})[0]
-  assert main.children.index(comments)<main.children.index(end) and main.children[-1] is end
+  main=d.all(id='main')[0];comments=d.all(id='sidera-comments')[0]
+  assert main.children[-1] is comments and not d.all(**{'class':'article-end'})
+  assert comments.attrs['aria-label']=='Comments' and not [n for n in comments.all() if n.tag in ('h1','h2','h3')]
+  assert d.all(href='#sidera-comments')
+  assert not comments.all(**{'class':'comments-load'})
+  assert not comments.all(href='https://github.com/fixture/comments/discussions')
+  assert 'Have a different approach?' not in main.words()
+  for element in d.all(**{'class':'page-navigation'})+d.all(id='doc-children'):
+   # Navigation / docs children stay before the final comment block.
+   assert html(out,route).read_text().index(str(element.attrs.get('id') or 'page-navigation')) < html(out,route).read_text().index('id="sidera-comments"')
   assert len(re.findall(r'src="[^"]*/js/giscus\.',html(out,route).read_text()))==1
   assert not any('data-sidera-giscus' in n.attrs for n in d.all(**{'class':'prose'})[0].all())
- for route in ['/','/journal/','/notes/','/notes/page/2/','/journal/archives/','/journal/tags/','/tags/','/preset/docs/','/about/']:
-  assert not host(out,route),route
+ for route in ['/','/journal/','/notes/','/notes/page/2/','/journal/archives/','/journal/tags/','/tags/','/preset/docs/']:
+  assert not host(out,route) and not nodes(out,route).all(href='#sidera-comments'),route
  # Comment chrome cannot contaminate generated content, reference edges or snippets.
  index=re.search(r'data-index="([^"]+)"',html(out,'/').read_text())[1]
  data=json.loads((out/index.lstrip('/')).read_text())
@@ -48,13 +56,22 @@ def main():
  # Native override, with no preset gate, and per-page opt-out above cascade/site.
  p=source/'content/about.md';s=p.read_text();p.write_text(s.replace('\n---', '\nparams:\n  comments: false\n---',1) if '\nparams:\n' not in s else s.replace('\nparams:\n','\nparams:\n  comments: false\n',1))
  p=source/'content/handbook/_index.md';s=p.read_text();p.write_text(s.replace('  children:\n','  children:\n    page_size: 1\n'))
+ write(source,'content/nohead.md','---\ntitle: No body headings\nparams:\n  comments: true\n---\nA plain body without a heading.\n')
  out=check('site-enabled','[params]\ncomments=true\n'+MOCK)
  assert host(out,'/notes/package-management/') and not host(out,'/about/')
- assert not host(out,'/handbook/page/2/')
+ assert not host(out,'/handbook/page/2/') and not nodes(out,'/handbook/page/2/').all(href='#sidera-comments')
+ assert nodes(out,'/nohead/').all(href='#main') and nodes(out,'/nohead/').all(href='#sidera-comments')
  assert not host(out,'/journal/')
  out=check('disabled','[params]\ncomments=false\n[cascade.params]\ncomments=false\n'+MOCK)
- # Explicit true on the three specimens wins over cascade; untouched page stays off.
- assert not host(out,'/notes/package-management/') and host(out,ROUTE)
+ # Site/cascade false removes the normal pages; an explicit page true still wins.
+ assert not host(out,'/notes/package-management/') and not host(out,ROUTE) and host(out,'/nohead/')
+ assert not nodes(out,ROUTE).all(href='#sidera-comments')
+ # Repeated TOCs share one real target; presentation overrides preserve opt-outs.
+ out=check('repeated-toc',MOCK+"[cascade.params]\nright=['toc','toc']\nicons=false\n")
+ d=nodes(out,ROUTE);links=d.all(href='#sidera-comments');assert len(links)==2
+ assert all(not [n for n in x.all() if n.tag=='svg'] for x in links)
+ assert len(d.all(id='sidera-comments'))==1 and len(host(out,ROUTE))==1
+ assert d.all(id='toc-heading-right') and d.all(id='toc-heading-right-2')
  # Actual filename language variant and subpath identity, not runtime location.
  write(source,'content/locale-probe.md','---\ntitle: Language probe\nparams:\n  comments: true\n---\nEnglish body.\n')
  write(source,'content/locale-probe.zh.md','---\ntitle: Language probe\nparams:\n  comments: true\n---\nChinese body.\n')

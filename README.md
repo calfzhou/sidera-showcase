@@ -715,13 +715,15 @@ Focused checks (existing Hugo/uv, then `nvm use`; choose unused ports):
 # Set RUN to a new absolute folder under the migration workspace.
 mkdir -p "$RUN"
 SIDERA_CHECK_DIR="$RUN/native" uv run --no-project --no-managed-python python3 tests/check_discovery.py
-GOMAXPROCS=2 hugo --destination "$RUN/baseline-public" --cacheDir "$RUN/cache" --panicOnWarning
+HUGO_PARAMS_COMMENTS=false GOMAXPROCS=2 hugo --destination "$RUN/baseline-public" --cacheDir "$RUN/cache" --panicOnWarning
 nvm use
 node tests/check_search_core.mjs
 SIDERA_HTTP_PORT=14510 SIDERA_CDP_PORT=14511 node tests/check_discovery_browser.mjs "$RUN"
 SIDERA_CHECK_DIR="$RUN/native" SIDERA_PREVIEW_PORT=14512 uv run --no-project --no-managed-python python3 tests/check_discovery_preview.py
 ```
 
+The E-only browser build above disables auto-loaded comments explicitly to keep its
+no-external-request assertions scoped to search; the F1 harness mocks Giscus separately.
 The browser helper compares generated index sections to every root document's detached
 rendered DOM before exercising actual result clicks/highlights, keyboard/touch and
 failure/freshness states. The native mutation/preview checks verify content-addressed resource changes and
@@ -738,9 +740,10 @@ EN/ZH/mobile/no-JS and a real heading-highlight journey; it stops its own proces
 
 ## Giscus comments (P3-F1)
 
-The normal root showcase opts in just **Reading List**, **Connect the useful parts**
-(the dated Journal article), and the **Handbook** root. Comments come after reading
-navigation/docs children and before the final Get in touch text. No separate demo
+The normal root showcase now enables comments **site-wide on eligible article/docs
+pages**, not just the three initial review specimens. `params.comments=false` on a
+page (or native cascade/preset defaults) opts out. Theme default remains false. Comments come after reading
+navigation/docs children; the former final Get in touch sentence is removed. No separate demo
 or fake production IDs. Run your own normal `hugo server`; a preview predating the
 new partial/controller may need one cold restart, not cache clearing.
 
@@ -752,7 +755,9 @@ read-only on GitHub. No category was created or modified. The former setup block
 is resolved; neither the theme repo nor real-site discussions are used.
 
 Open **Notes → A reading list with room to breathe** (`/notes/reading-list/`), scroll
-to Comments and click **Load comments**. Read-only live verification from an isolated
+to the article end or use **Join the discussion** beneath Back to top. Giscus loads once
+the section becomes visible; no manual activation, duplicate Comments heading or extra
+explanatory paragraphs. Read-only live verification from an isolated
 normal Hugo preview loaded the real widget with **0 comments**, **0 reactions** and
 its signed-out form. Dark/light switching visibly updated the same iframe (one client,
 one iframe). No comment/reaction or OAuth sign-in was submitted, and no push/deployment
@@ -762,8 +767,8 @@ The showcase chooses strict matching for its new isolated repository. The theme'
 compatibility default remains false; changing strict mode for old threads requires
 separate review. Mapping is the native canonical path, independent of hostname,
 query and hash; keep the same baseURL path in previews. The official client still
-receives the embedding URL after explicit **Load comments** activation, including
-query parameters. No-JS uses a normal GitHub discussions link once configured.
+receives the embedding URL on automatic viewport loading, including query parameters.
+No-JS/unavailable states have a short message; the separate GitHub link is removed.
 See the theme's [complete native config/extension guide](themes/sidera/COMMENTS.md).
 
 Focused tests (synthetic node IDs are confined to copied test sources; every external
