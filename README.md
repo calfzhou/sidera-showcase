@@ -792,3 +792,47 @@ provider layout/controls unchanged. This needs no new site settings, font downlo
 hosted CSS/CORS service. A preview spanning addition of the theme asset/partial may
 need one cold restart; no cache clearing. The theme's COMMENTS.md defines the small
 fixed-style scope; arbitrary custom site typography/theme editors remain future work.
+
+## Configured Markdown mechanism (P3-F2)
+
+The normal root footer now renders **{site.title}** from the current native site;
+its Overview link uses **{url:showcase.home}**, contributed by the single site partial
+`layouts/_partials/config-markdown/values.html`. The Welcome text widget shows
+**{page.title}** on home/standalone pages that select it. View `/` and `/about/` in
+your own normal preview: these are real config values, not pre-expanded demo strings.
+The existing footer wording is site-authored; no content license is assigned.
+
+[Theme mechanism/field/token policy](themes/sidera/CONFIG-MARKDOWN.md) documents
+safe plain-text vs URL insertion, visible missing text, rejected missing URLs,
+literal escaping and the native extension. Only site/page titles ship as built-ins;
+release/author semantics and a full variable catalog are intentionally not defined.
+No dependency, network version lookup or Git checkout is needed at build time.
+A preview spanning newly added partials may need one normal restart, not cache deletion.
+
+Focused stdlib checks (fresh directory):
+
+```sh
+SIDERA_CHECK_DIR="$PWD/.checks/config-markdown-$(date +%Y%m%d_%H%M%S)" \
+  uv run --no-project --no-managed-python python3 tests/check_config_markdown.py
+```
+
+These verify actual consumers/extension, context and locale isolation, native overrides,
+safe link/text interpolation, literal/missing/repeated/code/math cases and body-index/
+graph exclusions. They do not contact Giscus or other external services.
+
+One optional normal-root browser check uses the existing isolated harness (no live
+comments). Build into a fresh test directory, never your preview output:
+
+```sh
+run="$PWD/.checks/config-markdown-browser-$(date +%Y%m%d_%H%M%S)"
+mkdir -p "$run"
+printf '[params]\ncomments=false\n' > "$run/browser.toml"
+hugo --config "hugo.toml,$run/browser.toml" --destination "$run/baseline-public" \
+  --cacheDir "$run/cache" --panicOnWarning
+nvm use
+SIDERA_HTTP_PORT=14580 SIDERA_CDP_PORT=14581 \
+  node tests/check_config_markdown_browser.mjs "$run"
+```
+
+Both ports must be free. The harness verifies its fresh Chrome profile, blocks HTTPS
+and stops its own server/browser; it never attaches to your preview or browser.

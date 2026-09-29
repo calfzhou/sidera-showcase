@@ -26,7 +26,7 @@ color_mode = 'dark'
 comments = true
 left = ['menu', 'welcome']
 footer_menu = 'footer'
-footer_text = 'A small, independent notebook. Written to be revisited.'
+footer_text = '**{site.title}** — a small, independent notebook. [Back to overview]({url:showcase.home}).'
 # F1: owner enabled Discussions/App access; metadata verified with Giscus on 2026-09-29.
 # Showcase-owned discussion store; never the theme or real-site repository.
 [params.giscus]
@@ -115,7 +115,7 @@ title = 'Welcome'
 text = """
 Notes, experiments, and useful things to return to.
 
-Explore the journal, notes, and handbook.
+You are reading **{page.title}**. Explore the journal, notes, and handbook.
 """
 
 [params.widgets.handbook-updates]

@@ -1,0 +1,3 @@
+{{- /* Site-owned extension; no theme fork or component changes. Native home URL
+     follows the active language and deployment prefix. Only this value is exposed. */ -}}
+{{- return (dict "showcase.home" .Page.Site.Home.Permalink) -}}

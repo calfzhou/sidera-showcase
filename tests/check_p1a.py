@@ -18,7 +18,7 @@ def copy_source(run, label, base):
     dest.mkdir()
     for name in ('hugo.toml', 'docs-on.toml', 'docs-off.toml'):
         if (base / name).exists(): shutil.copy2(base / name, dest / name)
-    for name in ('content', 'assets', 'data', 'i18n', 'static', 'examples'):
+    for name in ('content', 'assets', 'data', 'i18n', 'static', 'layouts', 'examples'):
         if (base / name).exists(): shutil.copytree(base / name, dest / name)
     shutil.copytree(ROOT / 'themes', dest / 'themes', ignore=shutil.ignore_patterns('.git'))
     return dest
