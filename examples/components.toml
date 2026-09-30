@@ -50,5 +50,5 @@ recent_count = 3
 [cascade.target]
 path = '/notes/color'
 [cascade.params.cover]
-image = 'images/sidera-mark.svg'
+image = 'images/sidera-parallax-square.svg'
 alt = 'Fieldbook mark'

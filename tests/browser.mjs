@@ -16,7 +16,7 @@ const chromePath = process.env.CHROME_BIN || '/Applications/Google Chrome.app/Co
 const profile = resolve(run, `chrome-profile-${Date.now()}`);
 const origin = `http://127.0.0.1:${port}`;
 const delay = ms => new Promise(r => setTimeout(r, ms));
-const mime = { '.html': 'text/html', '.css': 'text/css', '.js': 'text/javascript', '.svg': 'image/svg+xml', '.mp4': 'video/mp4' };
+const mime = { '.html': 'text/html', '.css': 'text/css', '.js': 'text/javascript', '.svg': 'image/svg+xml', '.png': 'image/png', '.ico': 'image/x-icon', '.mp4': 'video/mp4' };
 const server = createServer(async (req, res) => {
   try {
     if (req.url === '/__p2a') { res.end(run); return; }

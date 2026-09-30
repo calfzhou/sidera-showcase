@@ -118,6 +118,9 @@ title: Source link checks
 [Web](../color/)
 [Site URL](/journal/2026/04/14/connect-the-useful-parts/)
 [Missing web](ordinary-web-route/)
+[Home](/)
+[Home query](/?x=a%20b#top)
+[Directory](./)
 [Escaped \[label\] & **bold**](../../journal/edge/index.md "&quot; onmouseover=&quot;never")
 
 Paragraph [with link](../../journal/edge/index.md).
@@ -150,6 +153,7 @@ Paragraph [with link](../../journal/edge/index.md).
         'HTTP': 'https://external.example/path.md?q=1#part', 'Network': '//external.example/path.md',
         'Mail': 'mailto:reader@example.org', 'Tel': 'tel:+123456789', 'Fragment': '#local-heading',
         'Web': '../color/', 'Site URL': ROUTE, 'Missing web': 'ordinary-web-route/',
+        'Home': '/', 'Home query': '/?x=a%20b#top', 'Directory': './',
     }
     for label, href in expected.items():
         assert unquote(result[label]['href']) == unquote(href), (label, result[label])

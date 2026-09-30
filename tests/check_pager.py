@@ -14,7 +14,7 @@ def main():
         write(source,f'content/{section}/_index.md',f'---\ntitle: Pager example\nparams:\n  show_list: true\n  page_size: 1\n  list_order: title\n---\n')
         for n in range(1,count+1):
             write(source,f'content/{section}/entry-{n:02}.md',f'---\ntitle: Entry {n:02}\n---\nA small entry for checking native page navigation.\n')
-    for label,config,prefix in [('baseline','',''),('chinese',"defaultContentLanguage='zh'\nlocale='zh-CN'\nbaseURL='https://example.org/_chinese/'\n",'/_chinese'),('subpath',"baseURL='https://example.org/preview/'\n",'/preview')]:
+    for label,config,prefix in [('baseline','',''),('chinese',"defaultContentLanguage='zh'\nlocale='zh-CN'\nbaseURL='https://example.org/_chinese/'\n",'/_chinese'),('subpath',"baseURL='https://example.org/preview/'\n",'/preview'),('icons-off',"baseURL='https://example.org/_off/'\n[cascade.params]\nicons=false\n",'/_off'),('chinese-icons-off',"defaultContentLanguage='zh'\nlocale='zh-CN'\nbaseURL='https://example.org/_zh-off/'\n[cascade.params]\nicons=false\n",'/_zh-off')]:
         write(source,'pager.toml',config)
         out=build(source,run,label,flags=('--config','hugo.toml,pager.toml','--printI18nWarnings'))
         for section,count in [('pager-demo',6),('pager-long',12),('pager-single',1),('pager-empty',0)]:
@@ -32,5 +32,12 @@ def main():
         assert nodes(out,'/notes/').all(**{'class':'pagination'})
         assert nodes(out,'/pager-empty/').all(**{'class':'pagination'})[0].words().strip()
         assert not nodes(out,'/pager-empty/').all(**{'class':'pagination-pages'})
+        if label.endswith('icons-off'):
+            for route in ['/pager-demo/', '/pager-demo/page/2/', '/pager-long/page/12/', '/notes/']:
+                bar=nodes(out,route).all(**{'class':'pagination'})[0]
+                assert not any(n.tag=='svg' for n in bar.all()), route
+                for arrow in bar.all(**{'class':'pagination-arrow'}):
+                    assert arrow.words().strip()==arrow.attrs['aria-label']
+                assert bar.all(**{'aria-current':'page'})
     print('PASS native pager first/previous/next/last URLs, order, 0/1/6/12 pages, windows/gaps, EN/ZH/subpath; retained',run)
 if __name__=='__main__':main()

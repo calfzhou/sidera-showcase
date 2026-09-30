@@ -3,7 +3,9 @@
 One normal, fictional site for developing and reviewing Sidera. **Root `content/` is the only
 live showcase source.** The active `themes/sidera` Git submodule is the theme-development checkout.
 No alternate example site, duplicate theme checkout, symlink, Go-module change or package install
-is required. P2 visual review is ongoing; this is not a production migration or phase-closure claim.
+is required. A–F2 are user-accepted within their documented scope. Approved Parallax is installed;
+combined final review remains open for the user-specific icon requirement and user acceptance.
+This is not a production migration or phase-closure claim.
 
 ## Clone, preview and build
 
@@ -134,9 +136,8 @@ The native parser import is limited to `markup.goldmark.parser` (deep, including
 attrs); passthrough and TOC have their own imports. No renderer.unsafe permission.
 `params.auto_caption` defaults true and supports page/cascade/preset/site overrides.
 Theme [MARKDOWN.md](themes/sidera/MARKDOWN.md) states tested limits: no markdown-it
-inline-attrs/colon-container grammar, direct standalone captions only, and top-level
-Markdown-notation block containers. Nested ordinary content works; nested shortcodes
-are rejected, with actual diagram integration deferred to D. Own test instances stop.
+inline-attrs/colon-container grammar, direct standalone captions only, and native outer-`%`/nested-`<` component composition. C2 and D now supply the
+verified nested snippets/cards/images/math/diagrams; see COMPONENTS.md and DIAGRAMS.md. Own test instances stop.
 
 ## Ordinary Markdown inspection
 
@@ -491,7 +492,7 @@ in chronological order, with the current part highlighted; the general collectio
 unchanged. The showcase contact sentence moved from cascade.params.article_text to
 cascade.params.article_end_text: it appears after navigation and any docs child cards as the final
 article section. Footer article_text remains available independently for authored footer content.
-No comment system is installed; sidera/article-end.html is the final integration slot for later.
+Giscus now occupies the canonical article-end slot before optional final text; see COMMENTS.md.
 `check_article_end.py` and `check_article_end_browser.mjs` verify placement, safe Markdown/empty
 values, canonical-only rendering, no duplicate controls, and native chapter links in EN/ZH/mobile.
 
@@ -878,3 +879,56 @@ shield-user/#03a9f4, reviewed shield-check/#4caf50, polished shield-up/#4caf50,
 generated shield-warning/#ff9800. `params.icons: false` hides only the decorative
 icon. The metadata checks verify exact SVG path attributes and computed colors;
 contrast is recorded, not asserted as AA-compliant for these upstream light colors.
+
+## Approved Parallax and final integration checkpoint
+
+The normal showcase uses the approved circle SVG in its identity and the larger
+square SVG plus a transparent 32px PNG as favicon candidates. No hidden overlay is
+needed. [Asset sources, fixed colors, overrides and limits](themes/sidera/IDENTITY.md).
+The two SVG copies are unchanged from the approved design. The old temporary mark
+remains only for historical fixtures; no reference/history/scaffold was deleted.
+
+Identity stays in site/language `params.identity`. Favicons are deliberately authored
+in this site's native `layouts/_partials/sidera/head-extra.html`, not forced on all
+Sidera consumers. Replace that hook for your own favicon; native asset lookup permits
+site overrides. No GoCalf assets or real-site configuration were changed.
+
+`tests/check_logo.py` verifies fixed SVG hashes, the 32px rendition, native subpaths,
+site asset/head-hook precedence, no theme-imposed favicon and published notices.
+Its browser companion checks normal dark/light/mobile/no-JS identity and a small
+mask/size contact sheet. Use a fresh output directory and explicit free ports:
+
+```sh
+run="$PWD/.checks/logo-$(date +%Y%m%d_%H%M%S)"
+SIDERA_CHECK_DIR="$run" uv run --no-project --no-managed-python python3 tests/check_logo.py
+nvm use
+SIDERA_HTTP_PORT=14610 SIDERA_CDP_PORT=14611 node tests/check_logo_browser.mjs "$run"
+```
+
+Ordinary `[Home](/)` and directory URLs no longer enter file-resource publication.
+They retain their authored host-root/web URL semantics, including query/fragment;
+they are not automatically localized or prefixed. Source `_index.md` links and the
+configured native Home.Permalink extension remain the deployment-aware alternatives.
+`check_source_links.py` and `check_config_markdown.py` cover both paths.
+
+Pagers now honor the displayed Page's resolved icons setting: with icons off,
+visible localized Previous/Next text replaces arrows without hiding links/current
+state. `check_pager.py` and its browser companion include EN/ZH icons-off and no-JS.
+The historical G suite's default-footer expectations now include accepted E graph
+components. Its all-SVG icons-off assertion is **still present and currently fails
+on the search magnifier** (not the pager). That issue awaits the user's specific
+icon-consistency requirement; no whole-product pass is claimed.
+
+### Distribution boundaries
+
+The theme's retained Stellar/React Bits/Solar and renderer/font notices remain.
+A verbatim native notice resource now accompanies rendered CSS/JS even when
+minification strips CSS comments; vendor license resources remain conditional.
+No Sidera software/logo license or trademark clearance has been selected or granted.
+
+The inactive `themes/skeleton` scaffold, including its demo JPEG and favicon, has
+no tracked standalone license/attribution file in this checkout. It is not loaded
+or published by the normal Sidera build. The owner must resolve provenance/notices
+or separately authorize exclusion before distributing the complete showcase source
+bundle. This is distinct from local technical P4 preparation; no removal, remote
+publication, release or migration is authorized by this review.

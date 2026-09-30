@@ -40,3 +40,5 @@ For an exact code example, search Notes for **matching_pair**.
 
 The footer distinguishes authored references from pages cited in the body and pages
 that link back here. Several links to the same Journal article count as one source.
+
+`[Home](/)` retains its host-root URL, even on a subpath deployment. Use a source link to `../../_index.md` when the destination should follow the native deployment home.

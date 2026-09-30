@@ -9,7 +9,10 @@ from check_p2w import write
 
 def main():
     run=Path(os.environ.get('SIDERA_CHECK_DIR') or tempfile.mkdtemp(prefix='social-',dir=ROOT/'.checks')).resolve();run.mkdir(parents=True,exist_ok=True)
-    source=copy_showcase(run,'live');config=source/'hugo.toml';original=config.read_text()
+    source=copy_showcase(run,'live');config=source/'hugo.toml'
+    # F1 lifecycle is verified separately with mocked provider responses.
+    config.write_text(config.read_text().replace('comments = true','comments = false'))
+    original=config.read_text()
     def check(label,extra='',diagnostic=None):
         write(source,'social-check.toml',extra)
         return build(source,run,label,diagnostic,('--config','hugo.toml,social-check.toml','--printI18nWarnings'))

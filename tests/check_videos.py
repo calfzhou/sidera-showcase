@@ -15,6 +15,8 @@ def main():
     run = Path(os.environ.get('SIDERA_CHECK_DIR') or tempfile.mkdtemp(prefix='videos-', dir=ROOT/'.checks')).resolve()
     run.mkdir(parents=True, exist_ok=True)
     s = copy_showcase(run, 'live'); passed = []; rejected = []
+    # F1 is not the subject of this media-only no-network browser fixture.
+    config=s/'hugo.toml';config.write_text(config.read_text().replace('comments = true','comments = false'))
     def check(label, diagnostic=None, flags=()):
         out = build(s, run, label, diagnostic, ('--printI18nWarnings', *flags))
         (rejected if diagnostic else passed).append(label)

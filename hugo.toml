@@ -36,7 +36,7 @@ category = 'Announcements'
 category_id = 'DIC_kwDOUhY4ys4DGnkG'
 strict = true
 [params.identity]
-image = 'images/sidera-mark.svg'
+image = 'images/sidera-parallax-circle.svg'
 subtitle = 'Notes & everyday tools | Small ideas, kept close'
 [params.profile]
 title = 'A working notebook'

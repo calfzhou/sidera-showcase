@@ -37,7 +37,21 @@ await runBrowser(async b=>{
  const visible=await e(`(()=>{const p=[...document.querySelectorAll('.pagination-pages')].find(p=>getComputedStyle(p).display!=='none');return{radius:p.dataset.radius,current:p.querySelector('[aria-current]').textContent.trim(),width:p.scrollWidth,client:p.clientWidth}})()`);
  assert.equal(visible.radius,'1');assert.equal(visible.current,'6');assert(visible.width<=visible.client+1);
  await e(`document.querySelector('[data-page-link=previous]').focus()`);await key('Enter','Enter',13);await delay(150);assert.equal(await e('location.pathname'),'/pager-long/page/5/');
+
+ // Icons off is a presentation policy, not a navigation opt-out.
  await call('Emulation.setScriptExecutionDisabled',{value:false});
+ for(const [prefix,word,width] of [['/_off','Next',390],['/_zh-off','下一页',320]]){
+  await v(width,960);await n(prefix+'/pager-demo/page/2/');
+  assert.equal(await e(`document.querySelectorAll('.pagination svg').length`),0);
+  assert.equal(await e(`document.querySelector('[data-page-link=next]').textContent.trim()`),word);
+  assert(await e(`(()=>{const p=document.querySelector('.pagination');return p.getBoundingClientRect().width<=innerWidth && [...p.querySelectorAll('.pagination-arrow')].every(a=>a.scrollWidth<=a.clientWidth+1&&a.getBoundingClientRect().width>=44)})()`));
+  await call('Emulation.setScriptExecutionDisabled',{value:true});
+  await e(`document.querySelector('[data-page-link=next]').focus()`);await key('Enter','Enter',13);await delay(200);
+  assert.equal(await e('location.pathname'),prefix+'/pager-demo/page/3/');
+  assert(await e(`!!document.querySelector('[aria-current="page"]')`));
+  await call('Emulation.setScriptExecutionDisabled',{value:false});
+ }
+
  // Reproduce the user's two-page Notes view and keep each number's metrics stable.
  await v(1440,960);const metrics=[];
  for(const [route,name] of [['/notes/','notes-first'],['/notes/page/2/','notes-second']]){
@@ -49,4 +63,4 @@ await runBrowser(async b=>{
  assert.deepEqual(metrics[0],metrics[1],'Numbers must not change typography or width when current state changes');
  assert.equal(b.errors.length,0,JSON.stringify(b.errors));assert(b.requests.every(u=>u.startsWith(b.origin+'/')));
  console.log('PASS pager: Stellar bar/number/arrow geometry, responsive windows, first/middle/last, palettes, EN/ZH/subpath, native keyboard/AX/no-JS links; uniform selected/unselected font and stable two-page metrics');
-},{'/_chinese':'chinese-public'});
+},{'/_chinese':'chinese-public','/_off':'icons-off-public','/_zh-off':'chinese-icons-off-public'});

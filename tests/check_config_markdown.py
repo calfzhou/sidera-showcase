@@ -12,6 +12,7 @@ SOURCE = RUN / 'source'
 VALUES = {
     'test.text': 'A ](https://injected.invalid/) <img src=x> &copy; *bold* `code` $1 \\ 连接 {site.title}',
     'test.url': 'https://example.org/a_(b)?x=1&y=2',
+    'test.root': '/?x=a%20b#top',
     'test.source': '/journal/target/index.md#destination',
     'test.empty': '',
     'test.collision': '{test.text}',
@@ -121,6 +122,7 @@ Plain body, no math.
         'attack': '**{test.text}** [{test.text}]({url:test.url})',
         'code': '`{page.title}` ``a `{page.title}` b``\n\n~~~text\n{page.title}\n~~~\n\n````text\n```\n{page.title}\n```\n````\n\n    {page.title}\n\nAfter {page.title}',
         'math': '$\\text{ {page.title} }$ and $$\\text{ {page.title} }$$ then {page.title}',
+        'root': '[Root](/) [Root query]({url:test.root})',
         'no_token': '**Keep** [Target](../../journal/target/index.md#destination) &amp; `a{b}`',
         'image': '![Kept](pixel.svg)\n{.no-caption}',
     }
@@ -163,6 +165,7 @@ Plain body, no math.
     d=nodes(out,'/notes/a/')
     assert 'Translation {site.title}' in d.words()
     probe=json.loads(d.all(id='config-probe')[0].words())
+    assert 'href="/"' in probe['root']['rendered'] and 'href="/?x=a%20b#top"' in probe['root']['rendered']
     assert probe['repeat']['rendered']=='<p>Alpha / Alpha</p>\n'
     assert probe['absent']['raw']==cases['absent']
     assert '{test.text}' in probe['single']['rendered'] and 'injected' not in probe['single']['rendered']

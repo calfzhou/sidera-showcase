@@ -1,0 +1,6 @@
+{{- /* Showcase-owned favicon policy. Native resource lookup permits site overrides;
+     the reusable theme deliberately imposes no favicon on consuming sites. */ -}}
+{{- $png := resources.Get "images/sidera-parallax-32.png" -}}
+{{- $svg := resources.Get "images/sidera-parallax-square.svg" -}}
+<link rel="icon" type="image/png" sizes="32x32" href="{{ $png.RelPermalink }}">
+<link rel="icon" type="image/svg+xml" sizes="any" href="{{ $svg.RelPermalink }}">

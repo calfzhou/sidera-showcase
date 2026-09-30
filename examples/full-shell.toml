@@ -4,7 +4,7 @@
 menu = 'expanded'
 [params.identity]
 subtitle = 'A place for evolving ideas'
-image = 'images/sidera-mark.svg'
+image = 'images/sidera-parallax-circle.svg'
 [params.profile]
 title = 'The publishing notebook'
 text = 'Blogs, evolving notes, and a small **handbook**. One native reading space.'

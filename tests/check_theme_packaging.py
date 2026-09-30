@@ -122,7 +122,7 @@ def main():
     run = Path(tempfile.mkdtemp(prefix='theme-packaging-', dir=ROOT / '.checks'))
     print('Retained run:', run, flush=True)
     (run / 'version.txt').write_text(subprocess.check_output(['hugo', 'version'], text=True, timeout=10))
-    assert not (ROOT / 'layouts').exists(), 'Site templates would mask theme coverage'
+    assert not (ORGANIZATION / 'layouts').exists(), 'Fixture templates would mask theme coverage'
     assert not (ROOT / 'content/_content.gotmpl').exists()
     skeleton_before = snapshot(ROOT / 'themes/skeleton')
     baseline_source = copy_site(run, 'baseline')
