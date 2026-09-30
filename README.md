@@ -871,3 +871,10 @@ Both ports must be free. The harness disables comments in its test copy, blocks 
 verifies its isolated Chrome profile and stops its own services. Native type/cascade/
 local resets, EN/ZH labels, false/unknown-input rejection, search exclusion, keyboard/
 TOC/no-JS, responsive typography/caption/code isolation and label contrast are covered.
+
+
+AI labels now reuse Stellar's exact local Solar shields and colors: manual
+shield-user/#03a9f4, reviewed shield-check/#4caf50, polished shield-up/#4caf50,
+generated shield-warning/#ff9800. `params.icons: false` hides only the decorative
+icon. The metadata checks verify exact SVG path attributes and computed colors;
+contrast is recorded, not asserted as AA-compliant for these upstream light colors.

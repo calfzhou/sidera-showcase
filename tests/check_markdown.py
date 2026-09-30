@@ -1,7 +1,7 @@
 """Ordinary Markdown: one live specimen, native body/anchor/resource/option contracts."""
 from pathlib import Path
 from urllib.parse import unquote
-import json, os, re, sys
+import hashlib, json, os, re, sys
 sys.dont_write_bytecode=True
 from check_p1b import copy_showcase, build, local_links, html
 from check_p2f import nodes
@@ -122,6 +122,14 @@ def metadata():
    assert 'data-story' not in article(out,route).attrs,route
   for route in ['/journal/','/notes/','/metadata/']:
    assert not nodes(out,route).all(**{'class':'ai-label'})
+  # Exact geometry of the four Stellar 1.44.0 Solar shields (canonical path attrs).
+  icon_hashes = {'manual': '228678c588d52dc57f8c284a520212fe979f054f9cc22085f00e0c3658019822', 'reviewed': '1a9bf6b648a20edf689720565371de300514a619f1beea88d8ee79c58b9778a6', 'polished': '6c41115c1dba4c493480ae93ed838666db477e9aa1d9ad887b0c51ae7bf21170', 'generated': '544c50c614edde3e92e3410a18294c1cf99f39eb33ecc470a5815eba477063d3'}
+  for key,route in [('manual','/metadata/manual/'),('reviewed','/metadata/story/'),('polished','/journal/2026/04/12/a-walk-without-a-checklist/'),('generated','/journal/2026/04/10/beginning/')]:
+   badge=nodes(out,route).all(**{'data-ai-label':key})[0]
+   icons=[x for x in badge.all() if x.tag=='svg'];assert len(icons)==1
+   assert icons[0].attrs=={'class':'icon','viewbox':'0 0 24 24','aria-hidden':'true','focusable':'false'}
+   paths=[x.attrs for x in icons[0].all() if x.tag=='path']
+   assert hashlib.sha256(json.dumps(paths,sort_keys=True,separators=(',',':')).encode()).hexdigest()==icon_hashes[key]
   assert label(out,'/metadata/manual/')==labels[:1]
   assert label(out,'/metadata/story/')==labels[1:2]
   assert label(out,'/journal/2026/04/12/a-walk-without-a-checklist/')==labels[2:3]
@@ -138,6 +146,9 @@ def metadata():
   payload=(out/uri.removeprefix(prefix)).read_text()
   assert all(text not in payload for text in labels)
   assert nodes(out,'/handbook/workflows/writing/outline/').all(href=prefix+'handbook/workflows/writing/')
+ out=check('icons-off',"[cascade.params]\nicons=false\n")
+ badge=nodes(out,'/metadata/story/').all(**{'class':'ai-label'})[0]
+ assert badge.words()=='AI-reviewed' and not any(x.tag=='svg' for x in badge.all())
  # No dates/authors needed; site/language fallback and explicit local clears remain meaningful.
  out=check('site-default',"[params]\nai_label='polished'\n")
  assert label(out,'/about/')==['AI-polished'] and not label(out,'/metadata/plain/')
@@ -155,7 +166,7 @@ def metadata():
  check('invalid-site',"[params]\nai_label='unknown'\n",'ai_label must be')
  write(source,'content/preset/disclosure/_index.md','---\ntitle: Invalid preset\nparams:\n  defaults:\n    params:\n      ai_label: false\n---\n')
  check('invalid-preset',diagnostic='ai_label must be')
- print('PASS story/AI: 3 builds / 7 expected rejections; native type/cascade/local reset, all labels EN/ZH, presets/site/default/empty/drafts, body index and native IDs/routes preserved; retained',run)
+ print('PASS story/AI: 4 builds / 7 expected rejections; exact shield paths and icon opt-out; native type/cascade/local reset, all labels EN/ZH, presets/site/default/empty/drafts, body index and native IDs/routes preserved; retained',run)
 
 if __name__=='__main__':
  if '--metadata' in sys.argv:metadata()

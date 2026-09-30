@@ -130,10 +130,20 @@ async function metadata(b){
   assert.equal(state.quote,'center');assert.equal(state.listIndent,'0px');assert.equal(state.hiddenMarker,'0');
   assert.equal(state.label,prefix?'已 AI 润色':'AI-polished');states.push(state);
  }
- // Each disclosure has real readable text and adequate composited contrast in both palettes.
+ // Exact Stellar colors/icons in both palettes. Record contrast honestly: the user
+ // explicitly chose fidelity over the previous palette-adjusted AA colors.
  const contrasts=[];
  for(const mode of ['dark','light'])for(const [path,label] of [[walk,'polished'],['/journal/2026/04/10/beginning/','generated'],['/metadata/story/','reviewed'],['/metadata/manual/','manual']]){
   await n(path);await e(`Sidera.setColorMode('${mode}')`);
+  const expected={manual:'rgb(3, 169, 244)',reviewed:'rgb(76, 175, 80)',polished:'rgb(76, 175, 80)',generated:'rgb(255, 152, 0)'}[label];
+  const rendered=await e(`(()=>{const x=document.querySelector('.ai-label'),icon=x.querySelector('svg'),r=x.getBoundingClientRect(),parent=x.parentElement.getBoundingClientRect();return {
+   color:getComputedStyle(x).color,iconColor:getComputedStyle(icon).color,
+   hidden:icon.getAttribute('aria-hidden'),focusable:icon.getAttribute('focusable'),
+   width:icon.getBoundingClientRect().width,paths:icon.querySelectorAll('path').length,
+   inside:r.left>=parent.left&&r.right<=parent.right};})()`);
+  assert.equal(rendered.color,expected);assert.equal(rendered.iconColor,expected);
+  assert.equal(rendered.hidden,'true');assert.equal(rendered.focusable,'false');assert.equal(rendered.paths,2);
+  assert(rendered.inside&&Math.abs(rendered.width-16.25)<.1,JSON.stringify(rendered));
   const contrast=await e(`(()=>{
    const node=document.querySelector('.ai-label');const canvas=document.createElement('canvas'),ctx=canvas.getContext('2d');
    const rgba=s=>{ctx.clearRect(0,0,1,1);ctx.fillStyle=s;ctx.fillRect(0,0,1,1);return [...ctx.getImageData(0,0,1,1).data].map((v,i)=>i===3?v/255:v)};
@@ -144,7 +154,7 @@ async function metadata(b){
    const fg=over(rgba(getComputedStyle(node).color),bg),a=lum(fg),b=lum(bg);
    return (Math.max(a,b)+.05)/(Math.min(a,b)+.05);
   })()`);
-  contrasts.push({mode,label,contrast});assert(contrast>=4.5,JSON.stringify(contrasts));
+  contrasts.push({mode,label,contrast});
  }
  // CSS is isolated: body code sizes, caption spacing, indented lists, and ordinary tech markers survive.
  await v(390,960);await n('/metadata/story/');
@@ -177,5 +187,5 @@ async function metadata(b){
  await v(1280,1000);await n(walk);await e(`Sidera.setColorMode('dark');document.querySelector('#notice-what-changed').scrollIntoView({behavior:'instant'})`);await b.screenshot('story-details-dark');
  await writeFile(b.run+'/story-browser.json',JSON.stringify({browser:b.version.Browser,states,contrasts,story,plain},null,2));
  assert.equal(b.errors.length,0,JSON.stringify(b.errors));assert(b.requests.every(u=>u.startsWith(b.origin+'/')||u.startsWith('data:image/svg+xml,')),JSON.stringify(b.requests.filter(u=>!u.startsWith(b.origin+'/'))));
- console.log('PASS story/AI: 4 viewport/locale/palette states; all label contrast, ordinary/code/caption isolation, native TOC/keyboard/no-JS; three captures; no live services.');
+ console.log('PASS story/AI: 4 viewport/locale/palette states; exact Stellar label icons/colors (contrast recorded), ordinary/code/caption isolation, native TOC/keyboard/no-JS; three captures; no live services.');
 }
