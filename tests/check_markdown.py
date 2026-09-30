@@ -1,7 +1,7 @@
 """Ordinary Markdown: one live specimen, native body/anchor/resource/option contracts."""
 from pathlib import Path
 from urllib.parse import unquote
-import json, os, sys
+import json, os, re, sys
 sys.dont_write_bytecode=True
 from check_p1b import copy_showcase, build, local_links, html
 from check_p2f import nodes
@@ -12,6 +12,10 @@ ROUTE='/handbook/reference/markdown/'
 def main():
  run=Path(os.environ['SIDERA_CHECK_DIR']).resolve();run.mkdir(parents=True,exist_ok=False)
  source=copy_showcase(run,'live')
+ # F1's normal showcase deliberately has no final contact text and enables comments.
+ # This isolated body test explicitly exercises the optional end slot, without live Giscus.
+ config=source/'hugo.toml'
+ config.write_text(config.read_text().replace('comments = true','comments = false')+"\n[cascade.params]\narticle_end_text='A test-only final note.'\n")
  specimen=source/'content/handbook/reference/markdown'
  passed=[]
  def check(label,flags=(),diagnostic=None):
@@ -87,4 +91,72 @@ plain <script> is text, not markup
  check('unsafe',diagnostic='Raw HTML omitted')
  (run/'results.json').write_text(json.dumps({'passed':passed,'strict_builds':4,'expected_rejections':1,'specimen':ROUTE,'native_options_anchors_resources_security':True},indent=2))
  print('PASS ordinary Markdown semantic/context/resource/security checks; retained',run)
-if __name__=='__main__':main()
+def metadata():
+ """Story/AI follow-up only; outputs stay in the supplied isolated run directory."""
+ run=Path(os.environ['SIDERA_CHECK_DIR']).resolve();run.mkdir(parents=True,exist_ok=False)
+ source=copy_showcase(run,'live')
+ write(source,'metadata.toml',"[params]\ncomments=false\n")
+ def check(label,extra='',diagnostic=None):
+  write(source,'metadata-extra.toml',extra)
+  return build(source,run,label,diagnostic,('--config','hugo.toml,metadata.toml,metadata-extra.toml','--printI18nWarnings'))
+ # Native cascade sets type independently of preset/list mode; local type and empty
+ # disclosure override it. The same ordinary Markdown tests rich-body inheritance.
+ write(source,'content/metadata/_index.md',"---\ntitle: Story context\ncascade:\n  type: story\n  params:\n    ai_label: reviewed\n---\n")
+ body=(source/'content/handbook/reference/markdown/index.md').read_text().split('---',2)[2]
+ for slug,fields in [('story',''),('plain','type: tech\nparams:\n  ai_label: \"\"\n'),('manual','params:\n  ai_label: manual\n')]:
+  write(source,f'content/metadata/{slug}/index.md','---\ntitle: Metadata '+slug+'\n'+fields+'---\n'+body)
+  (source/f'content/metadata/{slug}/sample.svg').write_bytes((source/'content/handbook/reference/markdown/sample.svg').read_bytes())
+ write(source,'content/metadata/nested/_index.md','---\ntitle: Nested reset\ncascade:\n  type: tech\n  params:\n    ai_label: \"\"\n---\n')
+ write(source,'content/metadata/nested/leaf.md','---\ntitle: Nested leaf\n---\nNo disclosure.\n')
+ # One custom preset's two targets verify normal presentation fallback (not native type).
+ write(source,'content/preset/disclosure/_index.md','---\ntitle: Disclosure defaults\nparams:\n  defaults:\n    params:\n      list_mode: children\n      ai_label: manual\n    cascade:\n      params:\n        ai_label: generated\n---\n')
+ write(source,'content/disclosure/_index.md','---\ntitle: Disclosure section\npreset: disclosure\n---\nA section body.\n')
+ write(source,'content/disclosure/child.md','---\ntitle: Disclosure child\n---\nA child body.\n')
+ def article(out,route):return nodes(out,route).all(**{'data-renderer':'shared-article'})[0]
+ def label(out,route):return [n.words() for n in nodes(out,route).all(**{'class':'ai-label'})]
+ for name,config,labels in [('baseline','',['Written entirely by a human','AI-reviewed','AI-polished','AI-generated']),('chinese',"defaultContentLanguage='zh'\nlocale='zh-CN'\nbaseURL='https://example.org/_chinese/'\n",['本文完全由人类完成','已 AI 审核','已 AI 润色','由 AI 生成'])]:
+  out=check(name,config)
+  for route in ['/journal/2026/04/12/a-walk-without-a-checklist/','/handbook/workflows/writing/','/handbook/workflows/writing/outline/','/metadata/story/']:
+   assert 'data-story' in article(out,route).attrs,route
+  for route in [ROUTE,'/journal/2026/04/10/beginning/','/metadata/plain/','/metadata/nested/leaf/']:
+   assert 'data-story' not in article(out,route).attrs,route
+  for route in ['/journal/','/notes/','/metadata/']:
+   assert not nodes(out,route).all(**{'class':'ai-label'})
+  assert label(out,'/metadata/manual/')==labels[:1]
+  assert label(out,'/metadata/story/')==labels[1:2]
+  assert label(out,'/journal/2026/04/12/a-walk-without-a-checklist/')==labels[2:3]
+  assert label(out,'/journal/2026/04/10/beginning/')==labels[3:4]
+  assert label(out,'/disclosure/')==labels[:1]
+  assert label(out,'/disclosure/child/')==labels[3:4]
+  for route in ['/metadata/plain/','/metadata/nested/leaf/',ROUTE]:assert not label(out,route)
+  story=article(out,'/metadata/story/');plain=article(out,'/metadata/plain/')
+  assert story.attrs['data-collection']==('/_chinese' if name=='chinese' else '')+'/metadata/'
+  assert [x.attrs['id'] for x in story.all() if x.tag.startswith('h') and 'id' in x.attrs]==[x.attrs['id'] for x in plain.all() if x.tag.startswith('h') and 'id' in x.attrs]
+  assert story.all(id='code-and-data') and story.all(id='fn:1')
+  prefix='/_chinese/' if name=='chinese' else '/'
+  home=html(out,'/').read_text();uri=re.search(r'data-index="([^"]+)"',home)[1]
+  payload=(out/uri.removeprefix(prefix)).read_text()
+  assert all(text not in payload for text in labels)
+  assert nodes(out,'/handbook/workflows/writing/outline/').all(href=prefix+'handbook/workflows/writing/')
+ # No dates/authors needed; site/language fallback and explicit local clears remain meaningful.
+ out=check('site-default',"[params]\nai_label='polished'\n")
+ assert label(out,'/about/')==['AI-polished'] and not label(out,'/metadata/plain/')
+ assert label(out,'/metadata/story/')==['AI-reviewed']
+ for key,front,diagnostic in [
+  ('invalid',"params:\n  ai_label: invented\n",'ai_label must be'),
+  ('bool',"params:\n  ai_label: false\n",'ai_label must be'),
+  ('wrong-level',"ai_label: generated\n",'ai_label belongs under params'),
+  ('draft',"draft: true\nparams:\n  ai_label: '<script>'\n",'ai_label must be'),
+  ('cascade',"cascade:\n  params:\n    ai_label: [generated]\n",'ai_label must be')]:
+  write(source,'content/metadata/invalid.md','---\ntitle: Invalid disclosure\n'+front+'---\n')
+  check(key,diagnostic=diagnostic)
+ # Replace the owned invalid probe with valid metadata; no unrelated source deletion.
+ write(source,'content/metadata/invalid.md','---\ntitle: Valid disclosure\n---\n')
+ check('invalid-site',"[params]\nai_label='unknown'\n",'ai_label must be')
+ write(source,'content/preset/disclosure/_index.md','---\ntitle: Invalid preset\nparams:\n  defaults:\n    params:\n      ai_label: false\n---\n')
+ check('invalid-preset',diagnostic='ai_label must be')
+ print('PASS story/AI: 3 builds / 7 expected rejections; native type/cascade/local reset, all labels EN/ZH, presets/site/default/empty/drafts, body index and native IDs/routes preserved; retained',run)
+
+if __name__=='__main__':
+ if '--metadata' in sys.argv:metadata()
+ else:main()

@@ -2,6 +2,8 @@
 title: "Writing a note"
 date: 2026-03-12
 lastmod: 2026-05-20
+cascade:
+  type: story
 params:
   children:
     order: [outline, draft]

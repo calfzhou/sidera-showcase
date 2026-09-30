@@ -1,6 +1,8 @@
 ---
 title: Begin with a small notebook
 date: 2026-04-10
+params:
+  ai_label: generated
 authors: [rowan]
 series: making-notes
 tags: [practice/notes, writing]

@@ -4,6 +4,7 @@ import {writeFile} from 'node:fs/promises';
 import {runBrowser} from './browser.mjs';
 const route='/handbook/reference/markdown/';
 await runBrowser(async b=>{
+ if(process.argv.includes('--metadata')){await metadata(b);return;}
  const {evaluate:e,navigate:n,viewport:v,call,key,delay}=b,states=[];
  await call('Emulation.setEmulatedMedia',{features:[{name:'prefers-reduced-motion',value:'reduce'}]});
  for(const prefix of ['', '/_chinese'])for(const mode of ['dark','light'])for(const width of [1440,768,390,320]){
@@ -101,3 +102,80 @@ await runBrowser(async b=>{
  assert.equal(b.errors.length,0,JSON.stringify(b.errors));assert(b.requests.every(u=>u.startsWith(b.origin+'/')));
  console.log('PASS 16 body states; native keyboard scroll/TOC/footnotes/links, resources, section/standalone, no-JS enlarged text, contrast; own browser stopped');
 },{'/_chinese':'chinese-public','/preview':'contexts-public'});
+
+
+async function metadata(b){
+ const {evaluate:e,navigate:n,viewport:v,call,key}=b,states=[];
+ const walk='/journal/2026/04/12/a-walk-without-a-checklist/';
+ for(const [prefix,mode,width] of [['','dark',1280],['','light',390],['/_chinese','dark',1280],['/_chinese','light',320]]){
+  await v(width,960);await n(prefix+walk);await e(`Sidera.setColorMode('${mode}')`);
+  const state=await e(`(()=>{
+   const p=document.querySelector('.prose'),h=p.querySelector('h2'),label=document.querySelector('.ai-label');
+   const c=getComputedStyle(label),box=document.querySelector('.article-header').getBoundingClientRect(),r=label.getBoundingClientRect();
+   return {width:innerWidth,overflow:document.documentElement.scrollWidth>innerWidth,
+    story:!!document.querySelector('article[data-story]'),size:getComputedStyle(p).fontSize,
+    indent:getComputedStyle(p.querySelector(':scope > p')).textIndent,heading:getComputedStyle(h).textAlign,
+    slash:getComputedStyle(h.querySelector('.heading-text'),'::before').width,
+    arrow:getComputedStyle(p.querySelector('h3 .heading-text'),'::before').maskImage,
+    label:label.textContent,inside:r.left>=box.left && r.right<=box.right && r.top>=box.top && r.bottom<=box.bottom,
+    quote:getComputedStyle(p.querySelector('blockquote')).textAlign,
+    listIndent:getComputedStyle(p.querySelector('li')).textIndent,
+    hiddenMarker:getComputedStyle(h.querySelector('a')).opacity,
+    footer:getComputedStyle(document.querySelector('.article-footer')).textAlign,
+    comments:!!document.querySelector('#sidera-comments')};
+  })()`);
+  assert(state.story && !state.overflow && state.inside && !state.comments,JSON.stringify(state));
+  assert.equal(state.size,'20px');assert.equal(state.indent,'40px');assert.equal(state.heading,'center');
+  assert.equal(state.slash,'12px');assert(state.arrow.startsWith('url("data:image/svg+xml,'));
+  assert.equal(state.quote,'center');assert.equal(state.listIndent,'0px');assert.equal(state.hiddenMarker,'0');
+  assert.equal(state.label,prefix?'已 AI 润色':'AI-polished');states.push(state);
+ }
+ // Each disclosure has real readable text and adequate composited contrast in both palettes.
+ const contrasts=[];
+ for(const mode of ['dark','light'])for(const [path,label] of [[walk,'polished'],['/journal/2026/04/10/beginning/','generated'],['/metadata/story/','reviewed'],['/metadata/manual/','manual']]){
+  await n(path);await e(`Sidera.setColorMode('${mode}')`);
+  const contrast=await e(`(()=>{
+   const node=document.querySelector('.ai-label');const canvas=document.createElement('canvas'),ctx=canvas.getContext('2d');
+   const rgba=s=>{ctx.clearRect(0,0,1,1);ctx.fillStyle=s;ctx.fillRect(0,0,1,1);return [...ctx.getImageData(0,0,1,1).data].map((v,i)=>i===3?v/255:v)};
+   const over=(a,b)=>a.slice(0,3).map((v,i)=>v*a[3]+b[i]*(1-a[3]));
+   const lum=a=>a.map(v=>v/255).map(v=>v<=.04045?v/12.92:((v+.055)/1.055)**2.4).reduce((a,v,i)=>a+v*[.2126,.7152,.0722][i],0);
+   let bg=[255,255,255],parents=[];for(let x=node;x;x=x.parentElement)parents.unshift(x);
+   for(const x of parents)bg=over(rgba(getComputedStyle(x).backgroundColor),bg);
+   const fg=over(rgba(getComputedStyle(node).color),bg),a=lum(fg),b=lum(bg);
+   return (Math.max(a,b)+.05)/(Math.min(a,b)+.05);
+  })()`);
+  contrasts.push({mode,label,contrast});assert(contrast>=4.5,JSON.stringify(contrasts));
+ }
+ // CSS is isolated: body code sizes, caption spacing, indented lists, and ordinary tech markers survive.
+ await v(390,960);await n('/metadata/story/');
+ const story=await e(`(()=>{const p=document.querySelector('.prose');return {
+  code:getComputedStyle(p.querySelector('pre')).fontSize,caption:getComputedStyle(p.querySelector('figcaption h4')).fontSize,
+  captionMargin:getComputedStyle(p.querySelector('figcaption h4')).marginTop,
+  list:getComputedStyle(p.querySelector('li')).textIndent,overflow:document.documentElement.scrollWidth>innerWidth
+ }})()`);
+ await n('/metadata/plain/');
+ const plain=await e(`(()=>{const p=document.querySelector('.prose');return {
+  story:!!document.querySelector('[data-story]'),label:!!document.querySelector('.ai-label'),size:getComputedStyle(p).fontSize,
+  indent:getComputedStyle(p.querySelector('p')).textIndent,code:getComputedStyle(p.querySelector('pre')).fontSize,
+  marker:getComputedStyle(p.querySelector('a.heading-anchor')).opacity,overflow:document.documentElement.scrollWidth>innerWidth
+ }})()`);
+ assert(!story.overflow&&!plain.overflow&&!plain.story&&!plain.label);assert.equal(plain.size,'18px');assert.equal(plain.indent,'0px');
+ assert.equal(story.code,plain.code);assert.equal(story.list,'0px');assert.equal(plain.marker,'1');
+ assert(parseFloat(story.caption)<20 && parseFloat(story.captionMargin)<8,JSON.stringify(story));
+ // Keyboard focus reveals the native heading permalink; native TOC and no-JS work.
+ await v(1280,960);await n(walk);
+ await e(`document.querySelector('.prose a.heading-anchor').focus()`);
+ assert.equal(await e(`getComputedStyle(document.activeElement).opacity`),'1');
+ await key('Enter','Enter',13);assert.equal(await e('location.hash'),'#leave-room-for-an-interruption');
+ await e(`document.querySelector('[data-toc] a[href="#notice-what-changed"]').focus()`);await key('Enter','Enter',13);
+ assert.equal(await e('location.hash'),'#notice-what-changed');
+ await call('Emulation.setScriptExecutionDisabled',{value:true});await n('/_chinese'+walk,false);
+ assert(await e(`document.querySelector('[data-story]') && document.querySelector('.ai-label').textContent==='已 AI 润色'`));
+ await call('Emulation.setScriptExecutionDisabled',{value:false});
+ await v(1280,1000);await n(walk);await e(`Sidera.setColorMode('dark')`);await b.screenshot('story-desktop-dark');
+ await v(390,1000);await n('/_chinese'+walk);await e(`Sidera.setColorMode('light')`);await b.screenshot('story-mobile-light');
+ await v(1280,1000);await n(walk);await e(`Sidera.setColorMode('dark');document.querySelector('#notice-what-changed').scrollIntoView({behavior:'instant'})`);await b.screenshot('story-details-dark');
+ await writeFile(b.run+'/story-browser.json',JSON.stringify({browser:b.version.Browser,states,contrasts,story,plain},null,2));
+ assert.equal(b.errors.length,0,JSON.stringify(b.errors));assert(b.requests.every(u=>u.startsWith(b.origin+'/')||u.startsWith('data:image/svg+xml,')),JSON.stringify(b.requests.filter(u=>!u.startsWith(b.origin+'/'))));
+ console.log('PASS story/AI: 4 viewport/locale/palette states; all label contrast, ordinary/code/caption isolation, native TOC/keyboard/no-JS; three captures; no live services.');
+}

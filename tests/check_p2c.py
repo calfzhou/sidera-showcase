@@ -152,9 +152,9 @@ def main():
             assert f'[{key}]\nother = "{label}"' in catalog
     keys = set(re.findall(r'^\[([^]]+)\]', en_catalog, re.M))
     assert keys == set(re.findall(r'^\[([^]]+)\]', zh_catalog, re.M))
-    assert len(keys) == 170, keys # Deliberate UI inventory: update alongside I18N.md.
+    assert len(keys) == 174, keys # Deliberate UI inventory: update alongside I18N.md.
     assert en_catalog.count('other = ') == zh_catalog.count('other = ') == len(keys)
-    # Literal call sites plus the four deliberately native dynamic message groups.
+    # Literal call sites plus the deliberately native dynamic message groups.
     implementation = '\n'.join(p.read_text() for directory in ['layouts', 'content']
                                for p in (ROOT / THEME / directory).rglob('*') if p.is_file())
     used = set(re.findall(r'\bT "([a-z_]+)"', implementation))
@@ -163,11 +163,13 @@ def main():
                  'order_title', 'date_published', 'date_modified', 'date_updated', 'published_undated',
                  'series_order_publication','series_order_weight', 'modified_undated', 'tags', 'categories', 'authors', 'series', 'preset', 'article_count'])
     used.update(['outgoing','backlinks'])
+    used.update(['ai_label_manual','ai_label_reviewed','ai_label_polished','ai_label_generated'])
     used.update(['diagram_zoom_out','diagram_zoom_in','diagram_fit','diagram_expand'])
     used.update(['alert_note','alert_tip','alert_important','alert_warning','alert_caution'])
     assert keys == used, (keys-used, used-keys)
     css = (ROOT / THEME / 'assets/css/sidera.css').read_text()
-    assert all(value.strip() == "none" or not value.strip(" \"'") for value in re.findall(r'(?:^|[;{])\s*content\s*:\s*([^;}]*)', css)), 'CSS must not generate untranslated text'
+    # Story's quotation punctuation explicitly has empty accessible text; no UI words in CSS.
+    assert all(value.strip() in ("none", '"“" / ""', '"”" / ""') or not value.strip(" \"'") for value in re.findall(r'(?:^|[;{])\s*content\s*:\s*([^;}]*)', css)), 'CSS must not generate untranslated text'
     assert 'aria-label=' not in css, 'Styles must not depend on translated labels'
     en = copy_site(run, 'baseline'); color_mode_control(en)
     baseline = build(en, run, 'baseline', flags=('--printI18nWarnings',))

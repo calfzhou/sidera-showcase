@@ -836,3 +836,38 @@ SIDERA_HTTP_PORT=14580 SIDERA_CDP_PORT=14581 \
 
 Both ports must be free. The harness verifies its fresh Chrome profile, blocks HTTPS
 and stops its own server/browser; it never attaches to your preview or browser.
+
+
+## Story typography and AI labels (F2 follow-up)
+
+The normal preview now includes these small committed examples:
+
+- `/journal/2026/04/12/a-walk-without-a-checklist/`: local native `type: story`,
+  `params.ai_label: polished`; centered decorative headings, spacious/indented
+  paragraphs and an ordinary quote.
+- `/journal/2026/04/10/beginning/`: AI-generated label with **ordinary** typography,
+  demonstrating that AI disclosure is independent of story mode.
+- `/handbook/workflows/writing/` and its Outline/Draft pages: native section
+  `cascade.type: story`, with the existing docs tree/order/navigation unchanged.
+
+These are fictional showcase presentation/disclosure examples, not analysis or
+certification of another author's work. Pages whose effective native type is not story keep ordinary styling; labels require
+an explicitly provided/inherited value.
+[Authoring and exact boundaries](themes/sidera/MARKDOWN.md#story-typography-and-ai-disclosure):
+`type` stays top-level; `ai_label` belongs under params, accepts manual/reviewed/polished/
+generated, and `''` clears inheritance. No JS/provider/automatic AI detection.
+
+Focused repeatable checks, using a fresh isolated directory (nothing touches your
+normal `public` or preview). Existing Python and browser checkers have a narrow mode:
+
+```sh
+run="$PWD/.checks/story-ai-$(date +%Y%m%d_%H%M%S)"
+SIDERA_CHECK_DIR="$run" uv run --no-project --no-managed-python python3 tests/check_markdown.py --metadata
+nvm use
+SIDERA_HTTP_PORT=14584 SIDERA_CDP_PORT=14585 node tests/check_markdown_browser.mjs "$run" --metadata
+```
+
+Both ports must be free. The harness disables comments in its test copy, blocks HTTPS,
+verifies its isolated Chrome profile and stops its own services. Native type/cascade/
+local resets, EN/ZH labels, false/unknown-input rejection, search exclusion, keyboard/
+TOC/no-JS, responsive typography/caption/code isolation and label contrast are covered.
