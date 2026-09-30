@@ -34,6 +34,7 @@ def main():
     custom='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 44 44"><circle cx="22" cy="22" r="10" fill="red"/></svg>'
     write(source,'assets/images/sidera-parallax-circle.svg',custom)
     write(source,'layouts/_partials/sidera/head-extra.html','<link rel="icon" href="{{ "favicon.ico" | relURL }}">')
+    (source/'static').mkdir(exist_ok=True)  # Git does not preserve an empty static directory.
     (source/'static/favicon.ico').write_bytes(b'site-owned-favicon-test')
     out=build(source,run,'override',flags=('--baseURL','https://example.org/preview/'))
     assert (out/'images/sidera-parallax-circle.svg').read_text()==custom
