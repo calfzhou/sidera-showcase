@@ -932,3 +932,10 @@ or published by the normal Sidera build. The owner must resolve provenance/notic
 or separately authorize exclusion before distributing the complete showcase source
 bundle. This is distinct from local technical P4 preparation; no removal, remote
 publication, release or migration is authorized by this review.
+
+Transparent identity images retain a hollow 2px rainbow on hover/keyboard focus,
+not a rainbow disk behind the image. After `tests/check_identity.py` prepares a run,
+`node tests/check_identity_ring_browser.mjs "$run"` adds painted-pixel checks for
+transparent SVG/PNG and opaque images, both palettes/widths, focus, reduced motion
+and no-JS. Use the same explicit free HTTP/CDP ports as the existing identity test.
+It checks real interior/background pixels, not only the presence of a CSS mask.
