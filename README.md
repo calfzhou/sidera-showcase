@@ -4,7 +4,7 @@ One normal, fictional site for developing and reviewing Sidera. **Root `content/
 live showcase source.** The active `themes/sidera` Git submodule is the theme-development checkout.
 No alternate example site, duplicate theme checkout, symlink, Go-module change or package install
 is required. A–F2 are user-accepted within their documented scope. Approved Parallax is installed;
-combined final review remains open for the user-specific icon requirement and user acceptance.
+the approved named Solar registry is implemented; combined final user acceptance remains open.
 This is not a production migration or phase-closure claim.
 
 ## Clone, preview and build
@@ -313,8 +313,9 @@ neutral for current pages, with keyboard/hover feedback retained.
 
 The bottom of the left bar is a configurable `left_footer` region, defaulting to the `social`
 component. Root `menus.social` currently demonstrates Email, Code and the optional color-mode
-action. The two local SVGs live in `assets/icons`; they are site-owned examples, not theme/vendor
-logos. Replace the menu destinations/assets with the site owner's choices (maximum six entries).
+action. The icons are inline Solar entries selected with params.icon; no standalone UI
+image files are used. Site data/icons.yaml supplies additions/overrides. Replace
+menu destinations/keys with the site owner's choices (maximum six entries).
 
 Set `params.color_mode` to `dark`, `light` or `auto` (Sidera defaults to auto; Fieldbook explicitly
 chooses dark). A saved visitor choice wins. The optional menu action uses
@@ -915,9 +916,9 @@ Pagers now honor the displayed Page's resolved icons setting: with icons off,
 visible localized Previous/Next text replaces arrows without hiding links/current
 state. `check_pager.py` and its browser companion include EN/ZH icons-off and no-JS.
 The historical G suite's default-footer expectations now include accepted E graph
-components. Its all-SVG icons-off assertion is **still present and currently fails
-on the search magnifier** (not the pager). That issue awaits the user's specific
-icon-consistency requirement; no whole-product pass is claimed.
+components. Its all-SVG icons-off assertion is **still present and now passes** after the
+approved named Solar integration, including the formerly unguarded search magnifier.
+This implementation result does not claim final user acceptance.
 
 ### Distribution boundaries
 
@@ -939,3 +940,31 @@ not a rainbow disk behind the image. After `tests/check_identity.py` prepares a 
 transparent SVG/PNG and opaque images, both palettes/widths, focus, reduced motion
 and no-JS. Use the same explicit free HTTP/CDP ports as the existing identity test.
 It checks real interior/background pixels, not only the presence of a CSS mask.
+
+## Named Solar icons
+
+The normal menu now has distinct Home/About/Blog/Notes/Docs Solar identities; social
+Email/Code/Color mode and all theme-owned UI operations are inline registry icons.
+Sidera owns the semantic names. Theme data/sidera/icon_sources.yaml records each
+corresponding Solar name/style/revision/author/hash for reference; see
+[ICONS.md](themes/sidera/ICONS.md) for the complete table and trust boundary.
+
+`data/icons.yaml` demonstrates site-owned `reading` (Solar book-2, Bold Duotone)
+in normal link cards and Notes' practice/notes tag cues. Site keys also work in
+menu params.icon and collection/preset params.icon; a matching name overrides a
+built-in without a template edit. Former social params.image and card image-valued
+icon inputs diagnose; use named SVG data. Ordinary logo/content images are unchanged.
+Old social files are retained as unused history, not automatically deleted.
+
+```sh
+run="$PWD/.checks/icons-$(date +%Y%m%d_%H%M%S)"
+SIDERA_CHECK_DIR="$run" GOMAXPROCS=2 uv run --no-project --no-managed-python python3 tests/check_icons.py
+nvm use
+SIDERA_HTTP_PORT=14620 SIDERA_CDP_PORT=14621 node tests/check_icons_browser.mjs "$run"
+```
+
+Checks cover real catalogue/provenance, site replacements/custom/empty keys, native
+consumers/presets, strict geometry validation (including unused definitions),
+icons-off localized operations, both palettes/mobile/keyboard/no-JS, dynamic
+search/external/modal icon templates and inherited size/color. Giscus is disabled
+in this icon-only fixture; Shields is mocked, never contacted.

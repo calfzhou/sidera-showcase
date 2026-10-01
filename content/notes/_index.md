@@ -7,8 +7,10 @@ params:
   page_size: 5
   left: [menu, taxonomies, recent-published]
   taxonomy_navigation: [tags]
+  tag_icons: {"practice/notes": reading}
 cascade:
   params:
     left: [menu, taxonomies, recent-published]
     taxonomy_navigation: [tags]
+    tag_icons: {"practice/notes": reading}
 ---

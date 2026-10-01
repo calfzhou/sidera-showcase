@@ -20,13 +20,14 @@ def main():
     d=nodes(baseline,'/about/');buttons=[n for n in d.all() if 'data-color-mode-cycle' in n.attrs]
     assert len(buttons)==1 and 'hidden' in buttons[0].attrs
     assert 'onclick=' not in html(baseline,'/about/').read_text()
-    assert d.all(src='/icons/email.svg') and d.all(src='/icons/code.svg')
+    social=d.all(**{'class':'social-links'})[0]
+    assert len([n for n in social.all() if n.tag=='svg'])==3 and not social.all(src='/icons/email.svg')
     assert 'data-color-mode-default="dark"' in html(baseline,'/').read_text()
     # No owner setting means auto, independently from whether a switch is exposed.
     config.write_text(original.replace("color_mode = 'dark'\n",''));check('default-auto');config.write_text(original)
     check('default-light',"[params]\ncolor_mode='light'\n")
     check('default-auto-owner',"[params]\ncolor_mode='auto'\n")
-    check('no-button',"[params]\nsocial_menu='plain-social'\n[[menus.plain-social]]\nname='Email'\nurl='mailto:hello@example.org'\n[menus.plain-social.params]\nimage='icons/email.svg'\n")
+    check('no-button',"[params]\nsocial_menu='plain-social'\n[[menus.plain-social]]\nname='Email'\nurl='mailto:hello@example.org'\n[menus.plain-social.params]\nicon='email'\n")
     off=check('off',"[params]\nleft_footer=false\n")
     assert not any('data-color-mode-cycle' in n.attrs for n in nodes(off,'/about/').all())
     compact=check('compact',"[cascade.params]\nleft=false\nright=false\n")
@@ -45,8 +46,8 @@ def main():
       ('bad-default-type',"[params]\ncolor_mode=true\n",'params.color_mode'),
       ('bad-action',"onclick='alert(1)'",'onclick accepts only'),
       ('bad-type','onclick=true','params.onclick must be a string'),
-      ('image-remote',"image='https://example.org/x.svg'",'local resource/path'),
-      ('image-missing',"image='missing.svg'",'missing local image'),
+      ('image-remote',"image='https://example.org/x.svg'",'social params.image is retired'),
+      ('image-missing',"image='missing.svg'",'social params.image is retired'),
     ]:
         if label.startswith('bad-default'):check(label,extra,diag)
         else:
@@ -58,7 +59,7 @@ def main():
     check('no-destination',"[params]\nsocial_menu='bad'\n[[menus.bad]]\nname='Bad'\n",'requires a destination')
     check('old-config',"[params]\nappearance='light'\n",'renamed to params.color_mode')
     check('old-action',"[params]\nsocial_menu='old'\n[[menus.old]]\nname='Old action'\n[menus.old.params]\nonclick='Sidera.cycleAppearance()'\n",'onclick accepts only Sidera.cycleColorMode()')
-    check('old-icon',"[params]\nsocial_menu='old'\n[[menus.old]]\nname='Old icon'\nurl='https://example.org/'\n[menus.old.params]\nicon='appearance'\n",'renamed to color-mode')
+    check('old-icon',"[params]\nsocial_menu='old'\n[[menus.old]]\nname='Old icon'\nurl='https://example.org/'\n[menus.old.params]\nicon='appearance'\n",'unknown icon')
     write(source,'content/invalid-social.md',"---\ntitle: Bad\nparams:\n  color_mode: light\n---\n")
     check('page-default',diagnostic='site/language params.color_mode')
     (run/'results.json').write_text(json.dumps({'checks':'site default auto/overrides, optional switch, native local images/URLs, compact/no-icons, six-entry bound, EN/ZH/subpath, strict action/default/image safety'},indent=2))

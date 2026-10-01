@@ -43,14 +43,15 @@ await runBrowser(async b=>{
  const r=await e(`(()=>{const r=document.querySelector('.left-region .sidebar-footer').getBoundingClientRect();return{x:r.x+scrollX,y:r.y+scrollY,width:r.width,height:r.height}})()`);
  const image=await call('Page.captureScreenshot',{format:'png',clip:{...r,scale:2}});await writeFile(resolve(b.run,'social-footer.png'),Buffer.from(image.data,'base64'));
  const link='.social-links a';const box=await e(`document.querySelector('${link}').getBoundingClientRect().toJSON()`);
- assert.equal(await e(`getComputedStyle(document.querySelector('${link}')).filter`),'grayscale(1)');
- await call('Input.dispatchMouseEvent',{type:'mouseMoved',x:box.x+18,y:box.y+18});await delay(220);assert.equal(await e(`getComputedStyle(document.querySelector('${link}')).filter`),'none');
+ assert(await e(`getComputedStyle(document.querySelector('${link} svg')).color===getComputedStyle(document.querySelector('${link}')).color`));
+ await call('Input.dispatchMouseEvent',{type:'mouseMoved',x:box.x+18,y:box.y+18});await delay(220);assert(await e(`getComputedStyle(document.querySelector('${link} svg')).color===getComputedStyle(document.querySelector('${link}')).color`));
  // All compact/narrow/social configurations remain reachable and stay within the viewport.
  for(const [prefix,width] of [['',390],['/_compact',1440],['/_off',390],['/_six',390],['/_text',390],['/_chinese',390]]){
   await v(width,844);await n(prefix+'/about/');
   if(width===390&&prefix!=='/_compact'){await e(`document.querySelector('[data-region="left"]').click()`);await delay(420);}
   assert(await e('document.documentElement.scrollWidth<=innerWidth'));
-  assert(await e(`[...document.querySelectorAll('.social-links img')].every(i=>i.complete&&i.naturalWidth>0)`));
+  assert.equal(await e(`document.querySelectorAll('.social-links img').length`),0);
+  if(!['/_off','/_text'].includes(prefix))assert(await e(`!!document.querySelector('.social-links svg.icon')`));
   if(prefix==='/_off')assert.equal(await e(`document.querySelectorAll('.social-links').length`),0);
   if(prefix==='/_six')assert.equal(await e(`document.querySelectorAll('.social-links a').length`),6);
   if(prefix==='/_chinese')assert(await e(`document.querySelector('[data-color-mode-cycle]').title.includes('配色模式')`));

@@ -27,6 +27,8 @@ A wrapping [link with several words and a final label](https://external.example/
 def main():
  run=Path(os.environ['SIDERA_CHECK_DIR']).resolve();run.mkdir(parents=True,exist_ok=False)
  source=copy_showcase(run,'live')
+ # F1 viewport loading is verified separately with provider mocks.
+ config=source/'hugo.toml';config.write_text(config.read_text().replace('comments = true','comments = false'))
  port=os.environ.get('SIDERA_HTTP_PORT','14462')
  write(source,'content/link-check/index.md',FIXTURE+f'\n[Same-origin absolute](http://127.0.0.1:{port}/handbook/) · [Different port](http://127.0.0.1:{int(port)+20}/handbook/)\n')
  (source/'content/link-check/sample.svg').write_bytes((source/'content/handbook/reference/markdown/sample.svg').read_bytes())

@@ -72,7 +72,7 @@ name = 'About'
 pageRef = '/about'
 weight = 5
 [menus.primary.params]
-icon = 'star'
+icon = 'about'
 [[menus.footer]]
 identifier = 'fieldbook'
 name = 'Fieldbook'
@@ -125,19 +125,19 @@ order = 'modification'
 count = 8
 
 
-# Social images are site-owned local assets, not a required theme icon framework.
+# Social icons are named inline entries, with site additions in data/icons.yaml.
 [[menus.social]]
 name = 'Email'
 url = 'mailto:hello@example.org'
 weight = 10
 [menus.social.params]
-image = 'icons/email.svg'
+icon = 'email'
 [[menus.social]]
 name = 'Code'
 url = 'https://github.com/'
 weight = 20
 [menus.social.params]
-image = 'icons/code.svg'
+icon = 'code'
 [[menus.social]]
 name = 'Color mode'
 weight = 30

@@ -86,10 +86,10 @@ Spaced: A {{< u text="aa" >}} bcc.
          ('script-url','{{< link text="x" href="javascript:alert(1)" >}}','unsafe URL'),
          ('protocol-relative','{{< link text="x" href="//bad.test/x" >}}','unsafe URL'),
          ('missing-source','{{< link text="x" href="missing.md" >}}','Sidera link source'),
-         ('missing-icon','{{< link text="x" href="/" icon="missing.png" >}}','missing local image'),
-         ('encoded-icon','{{< link text="x" href="/" icon="%2e%2e/private.svg" >}}','invalid local image'),
-         ('traversal-icon','{{< link href="/" text="x" icon="../private.svg" >}}','invalid local image'),
-         ('raw-svg','{{< link href="/" text="x" icon="<svg onload=bad()>" >}}','unsupported image extension'),
+         ('missing-icon','{{< link text="x" href="/" icon="missing.png" >}}','unknown icon'),
+         ('encoded-icon','{{< link text="x" href="/" icon="%2e%2e/private.svg" >}}','unknown icon'),
+         ('traversal-icon','{{< link href="/" text="x" icon="../private.svg" >}}','unknown icon'),
+         ('raw-svg','{{< link href="/" text="x" icon="<svg onload=bad()>" >}}','unknown icon'),
          ('retired-emoji','{{< emoji src="signal.svg" alt="x" >}}','failed to extract shortcode'),
          ('unsupported-parent','{{< unsupported >}}{{< copy text="x" >}}{{< /unsupported >}}','unsupported parent'),
          ('markdown-notation','{{% quot text="x" %}}','Raw HTML omitted'),
@@ -100,7 +100,7 @@ Spaced: A {{< u text="aa" >}} bcc.
     write(source,'content/negative.md','---\ntitle: Repaired\n---\nNo unsafe input.\n')
     # Project shortcode and resolver overrides; old Markdown hook precedence remains native.
     write(source,'layouts/_shortcodes/kbd.html','{{ $html := printf `<kbd data-site-kbd="true">%s</kbd>` (htmlEscape (.Get "text")) | safeHTML }}{{ partial "components/leaf.html" (dict "shortcode" . "html" $html "inline" true) | safeHTML }}')
-    write(source,'layouts/_partials/links/destination.html','{{ return "/site-destination/" }}')
+    write(source,'layouts/_partials/links/resolve.html','{{ return (dict "href" "/site-destination/" "target" false) }}')
     write(source,'i18n/en.toml','[content_copy_success]\nother = "<img src=x onerror=bad()> & copied"\n')
     out=check('overrides');d=body(out)
     assert d.all(**{'data-site-kbd':'true'})

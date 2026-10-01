@@ -116,7 +116,7 @@ async function metadata(b){
     story:!!document.querySelector('article[data-story]'),size:getComputedStyle(p).fontSize,
     indent:getComputedStyle(p.querySelector(':scope > p')).textIndent,heading:getComputedStyle(h).textAlign,
     slash:getComputedStyle(h.querySelector('.heading-text'),'::before').width,
-    arrow:getComputedStyle(p.querySelector('h3 .heading-text'),'::before').maskImage,
+    arrow:p.querySelectorAll('h3 .heading-text .story-ornament svg').length,
     label:label.textContent,inside:r.left>=box.left && r.right<=box.right && r.top>=box.top && r.bottom<=box.bottom,
     quote:getComputedStyle(p.querySelector('blockquote')).textAlign,
     listIndent:getComputedStyle(p.querySelector('li')).textIndent,
@@ -126,7 +126,7 @@ async function metadata(b){
   })()`);
   assert(state.story && !state.overflow && state.inside && !state.comments,JSON.stringify(state));
   assert.equal(state.size,'20px');assert.equal(state.indent,'40px');assert.equal(state.heading,'center');
-  assert.equal(state.slash,'12px');assert(state.arrow.startsWith('url("data:image/svg+xml,'));
+  assert.equal(state.slash,'12px');assert.equal(state.arrow,2);
   assert.equal(state.quote,'center');assert.equal(state.listIndent,'0px');assert.equal(state.hiddenMarker,'0');
   assert.equal(state.label,prefix?'已 AI 润色':'AI-polished');states.push(state);
  }

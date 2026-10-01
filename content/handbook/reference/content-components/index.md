@@ -43,7 +43,7 @@ The first card resolves the editor-relative Markdown file to Journal’s native 
 URL, including its query and heading. The second opens an adjacent harmless file.
 There is no preview-metadata service and no remote request to invent a description.
 
-{{< link href="../../../journal/connect-the-useful-parts/index.md?from=components#give-a-link-a-reason" text="Connect the useful parts — a reason to follow the link" icon="signal.svg" >}}
+{{< link href="../../../journal/connect-the-useful-parts/index.md?from=components#give-a-link-a-reason" text="Connect the useful parts — a reason to follow the link" icon="reading" >}}
 
 {{< link href="example.txt" text="Open the harmless example file" >}}
 
@@ -87,7 +87,7 @@ and $a^2+b^2=c^2$ still use the existing hooks.
 {{< cell >}}
 ![Original signal|96](signal.svg "A visible caption")
 
-{{< link href="../../../journal/connect-the-useful-parts/index.md#give-a-link-a-reason" text="Read the connected article" icon="signal.svg" >}}
+{{< link href="../../../journal/connect-the-useful-parts/index.md#give-a-link-a-reason" text="Read the connected article" icon="reading" >}}
 {{< /cell >}}
 {{< cell class="no-caption" >}}
 ![Explicitly inverted signal|96](signal.svg "This caption is suppressed by the cell")

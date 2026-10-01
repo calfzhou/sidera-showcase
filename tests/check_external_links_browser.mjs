@@ -5,10 +5,10 @@ await runBrowser(async b=>{
  const {evaluate:e,navigate:n,viewport:v,call,key,delay}=b,rows=[];
  for(const prefix of ['', '/_chinese'])for(const mode of ['dark','light'])for(const width of [1440,320]){
   await v(width,1000);await n(prefix+'/link-check/');await e(`Sidera.setColorMode('${mode}')`);
-  const state=await e(`(()=>{const body=document.querySelector('article .prose');return {overflow:document.documentElement.scrollWidth>innerWidth,links:[...body.querySelectorAll('a')].map(a=>({href:a.getAttribute('href'),marker:!!a.querySelector('.external-link-marker'),text:a.textContent,target:a.getAttribute('target'),rel:a.getAttribute('rel')})),suffixes:[...body.querySelectorAll('.external-link-marker')].map(m=>({text:m.textContent,hidden:m.getAttribute('aria-hidden'),size:parseFloat(getComputedStyle(m).fontSize)/parseFloat(getComputedStyle(m.parentElement).fontSize),label:m.nextElementSibling.textContent}))}})()`);
+  const state=await e(`(()=>{const body=document.querySelector('article .prose');return {overflow:document.documentElement.scrollWidth>innerWidth,links:[...body.querySelectorAll('a')].map(a=>({href:a.getAttribute('href'),marker:!!a.querySelector('.external-link-marker'),text:a.textContent,target:a.getAttribute('target'),rel:a.getAttribute('rel')})),suffixes:[...body.querySelectorAll('.external-link-marker')].map(m=>({text:m.textContent,svg:!!m.querySelector("svg.icon"),hidden:m.getAttribute('aria-hidden'),size:parseFloat(getComputedStyle(m).fontSize)/parseFloat(getComputedStyle(m.parentElement).fontSize),label:m.nextElementSibling.textContent}))}})()`);
   assert(!state.overflow);assert.equal(state.suffixes.length,7,JSON.stringify(state));
   const plainLabel=prefix?'（外部链接）':'(external link)';
-  assert(state.suffixes.every(x=>x.hidden==='true'&&x.text.endsWith('↗')&&Math.abs(x.size-.7)<.01&&x.label.trim()===plainLabel));
+  assert(state.suffixes.every(x=>x.hidden==='true'&&x.svg&&x.text==='\u2060\u202f'&&Math.abs(x.size-.7)<.01&&x.label.trim()===plainLabel));
   for(const link of state.links){
    assert.equal(link.target,null);assert.equal(link.rel,null);
    if(link.href.startsWith('mailto:')||link.href.startsWith('tel:')||link.href.startsWith('#')||link.href.startsWith('../')||link.href==='/handbook/'||link.href===b.origin+'/handbook/'||link.href.endsWith('/image/'))assert(!link.marker,JSON.stringify(link));
