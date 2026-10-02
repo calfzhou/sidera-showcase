@@ -968,3 +968,10 @@ consumers/presets, strict geometry validation (including unused definitions),
 icons-off localized operations, both palettes/mobile/keyboard/no-JS, dynamic
 search/external/modal icon templates and inherited size/color. Giscus is disabled
 in this icon-only fixture; Shields is mocked, never contacted.
+
+Leftbar footer controls use red `#f44336` on hover and keyboard focus, inherited
+by their inline SVGs; resting/sibling icons stay muted. The same footer placement
+keeps that feedback in mobile drawers and the compact header. Focused check:
+build the root to a fresh run's `baseline-public` and a cascade left=false/right=false
+overlay to `compact-public`, then run `tests/check_social_hover_browser.mjs <run>`
+with explicit free SIDERA_HTTP_PORT/SIDERA_CDP_PORT. It makes no external requests.
