@@ -4,7 +4,7 @@ A small fictional site for developing [Sidera](https://github.com/calfzhou/hugo-
 a journal, notes, an example handbook, native authors/series and rendering specimens.
 `content/` is the single live demo; the theme's manual is mounted directly from its submodule.
 
-**Pages destination:** <https://calfzhou.github.io/sidera-showcase/> — deployment pending.
+**Live demo:** <https://calfzhou.github.io/sidera-showcase/>
 
 ## Clone and preview
 
@@ -82,7 +82,7 @@ focused regressions and isolated browser tests. Only browser tests require Node
 (`nvm use`, version in `.nvmrc`) and an installed Chrome; no browser/package download.
 
 The workflow builds/tests/uploads an artifact for PRs to `main`. PRs never deploy.
-Once Pages is enabled with **GitHub Actions**, successful pushes to `main`
+Pages uses **GitHub Actions**. Successful pushes to `main`
 **automatically deploy**; failed or non-main builds cannot publish. A manual run is
 build-only unless `deploy` is selected on main. Use merge commits when merging PRs;
 do not squash/rebase or automatically delete branches. Direct owner commits on main
