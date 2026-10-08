@@ -3,9 +3,9 @@ from pathlib import Path
 from urllib.parse import unquote
 import hashlib, json, os, re, sys
 sys.dont_write_bytecode=True
-from check_p1b import copy_showcase, build, local_links, html
-from check_p2f import nodes
-from check_p2w import write
+from check_tag_routes import copy_showcase, build, local_links, html
+from check_shell import nodes
+from check_docs import write
 
 ROUTE='/handbook/reference/markdown/'
 

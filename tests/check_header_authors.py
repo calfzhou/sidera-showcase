@@ -2,14 +2,14 @@
 from pathlib import Path
 import os,sys
 sys.dont_write_bytecode=True
-from check_p1b import copy_showcase,build,local_links
-from check_p2f import nodes
-from check_p2w import write
+from check_tag_routes import copy_showcase,build,local_links
+from check_shell import nodes
+from check_docs import write
 
 def main():
  run=Path(os.environ['SIDERA_CHECK_DIR']).resolve();run.mkdir(parents=True,exist_ok=False)
  source=copy_showcase(run,'live')
- write(source,'content/authors/second/_index.md','---\ntitle: Second Writer\nslug: second\nparams:\n  avatar: images/sidera-mark.svg\n---\n')
+ write(source,'content/authors/second/_index.md','---\ntitle: Second Writer\nslug: second\nparams:\n  avatar: images/sidera-parallax-circle.svg\n---\n')
  for name,authors,dates,extra in [('single','[rowan]',True,''),('multiple','[second, second, rowan]',True,''),('none','[]',True,''),('only-authors','[rowan]',False,''),('empty','[]',False,''),('hidden','[rowan]',True,'params:\n  show_authors: false\n')]:
   write(source,f'content/notes/author-{name}.md','---\ntitle: Author '+name+'\nauthors: '+authors+'\n'+('publishDate: 2025-01-01\nlastmod: 2025-04-01\n' if dates else '')+extra+'---\nA small attribution example.\n')
  def check(label,extra=''):

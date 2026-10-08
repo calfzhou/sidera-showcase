@@ -2,10 +2,10 @@
 from pathlib import Path
 import json, os, sys, tempfile
 sys.dont_write_bytecode=True
-from check_p1a import ROOT, THEME
-from check_p1b import copy_showcase, build, html, local_links
-from check_p2f import nodes
-from check_p2w import write
+from check_organization import ROOT, THEME
+from check_tag_routes import copy_showcase, build, html, local_links
+from check_shell import nodes
+from check_docs import write
 
 def main():
     run=Path(os.environ.get('SIDERA_CHECK_DIR') or tempfile.mkdtemp(prefix='social-',dir=ROOT/'.checks')).resolve();run.mkdir(parents=True,exist_ok=True)

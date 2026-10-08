@@ -2,10 +2,10 @@
 from pathlib import Path
 import json, os, sys, tempfile
 sys.dont_write_bytecode=True
-from check_p1a import ROOT
-from check_p1b import build, copy_site, html, local_links
-from check_p2f import nodes
-from check_p2w import write, replace
+from check_organization import ROOT
+from check_tag_routes import build, copy_site, html, local_links
+from check_shell import nodes
+from check_docs import write, replace
 
 CONFIG='''[params]
 text='Base text'
@@ -16,7 +16,7 @@ footer_menu='primary'
 [params.profile]
 title='Base profile'
 text='Base profile body'
-image='images/sidera-mark.svg'
+image='images/sidera-parallax-circle.svg'
 menu='primary'
 [params.tag_icons]
 science='star'
@@ -67,7 +67,7 @@ def main():
     assert len(instance(d,'left-recent-2').all(**{'data-recent':'publication'})[0].children)==2
     assert len(instance(d,'left-recent-3').all(**{'data-recent':'modification'})[0].children)==1
     assert len(instance(d,'left-recent-1').all(**{'data-recent':'modification'})[0].children)==5
-    assert instance(d,'left-profile-1').all(src='/images/sidera-mark.svg')
+    assert instance(d,'left-profile-1').all(src='/images/sidera-parallax-circle.svg')
     second=instance(d,'left-profile-2');assert 'Instance profile' in second.words() and 'Local profile' in second.words()
     assert not any(x.tag in ('img','a') for x in second.all())
     assert 'Base profile' not in second.words()

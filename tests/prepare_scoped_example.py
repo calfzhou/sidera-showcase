@@ -5,8 +5,8 @@ Then: hugo server --source <output>/example-source --config hugo.toml,full-shell
 from pathlib import Path
 import sys
 sys.dont_write_bytecode = True
-from check_p1a import ORGANIZATION, ROOT
-from check_p1b import copy_site
+from check_organization import ORGANIZATION, ROOT
+from check_tag_routes import copy_site
 
 def apply(source):
     values = {

@@ -2,8 +2,8 @@
 from pathlib import Path
 import os, sys
 sys.dont_write_bytecode=True
-from check_p1a import ROOT
-from check_p1b import copy_showcase, copy_site, build
+from check_organization import ROOT
+from check_tag_routes import copy_showcase, copy_site, build
 
 def prepare(run):
     run.mkdir(parents=True,exist_ok=False)

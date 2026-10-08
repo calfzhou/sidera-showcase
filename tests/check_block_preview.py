@@ -7,8 +7,8 @@ from pathlib import Path
 from urllib.request import urlopen
 import json, os, socket, subprocess, sys, tempfile, time
 sys.dont_write_bytecode = True
-from check_p1b import ROOT, build, copy_showcase, html
-from check_p2f import DOM
+from check_tag_routes import ROOT, build, copy_showcase, html
+from check_shell import DOM
 
 ROUTE = '/handbook/reference/advanced-markdown/'
 PORT = int(os.environ.get('SIDERA_HTTP_PORT', '14476'))

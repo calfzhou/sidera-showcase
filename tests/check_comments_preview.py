@@ -3,7 +3,7 @@ from pathlib import Path
 from urllib.request import urlopen
 import os,sys,time,socket
 sys.dont_write_bytecode=True
-from check_p1b import copy_showcase
+from check_tag_routes import copy_showcase
 from check_block_preview import server,PORT
 from check_comments import MOCK,ROUTE
 run=Path(os.environ['SIDERA_CHECK_DIR']).resolve();run.mkdir(parents=True,exist_ok=False)

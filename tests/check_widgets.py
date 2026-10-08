@@ -2,10 +2,10 @@
 from pathlib import Path
 import json, os, sys, tempfile
 sys.dont_write_bytecode=True
-from check_p1a import ROOT, THEME
-from check_p1b import copy_showcase, build, html, local_links
-from check_p2f import nodes
-from check_p2w import write, replace
+from check_organization import ROOT, THEME
+from check_tag_routes import copy_showcase, build, html, local_links
+from check_shell import nodes
+from check_docs import write, replace
 
 CONFIG='''[params.widgets.notice]
 component='text'
@@ -30,7 +30,7 @@ component='profile'
 [params.widgets.author-card.config]
 title='Named profile'
 text='Shared profile text'
-image='images/sidera-mark.svg'
+image='images/sidera-parallax-circle.svg'
 [params.widgets.closing]
 component='authors'
 [params.widgets.closing.config]
@@ -69,7 +69,7 @@ def main():
     assert instance(d,'right-text-3').words()==instance(d,'right-text-1').words() and 'Shared' in instance(d,'right-text-3').words()
     assert not any(n.tag=='svg' for n in instance(d,'right-links-1').all())
     assert any(n.tag=='svg' for n in instance(d,'right-links-2').all())
-    assert instance(d,'right-profile-1').all(src='/images/sidera-mark.svg')
+    assert instance(d,'right-profile-1').all(src='/images/sidera-parallax-circle.svg')
     assert not any(n.tag in ('img','a') for n in instance(d,'right-profile-2').all())
     assert 'Shared profile text' in instance(d,'right-profile-1').words()
     assert 'Local closing body' in instance(d,'article-footer-text-2').words()

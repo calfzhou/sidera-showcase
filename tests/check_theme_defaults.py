@@ -9,9 +9,9 @@ import sys
 import tempfile
 
 sys.dont_write_bytecode = True
-from check_p1a import ROOT, THEME, Page, all_articles, check_baseline
-from check_p1b import copy_site, build, html, local_links
-from check_p2w import write, replace
+from check_organization import ROOT, THEME, Page, all_articles, check_baseline
+from check_tag_routes import copy_site, build, html, local_links
+from check_docs import write, replace
 
 
 def probe(out, route='/'):

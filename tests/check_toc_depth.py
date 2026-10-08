@@ -2,9 +2,9 @@
 from pathlib import Path
 import json,os,subprocess,sys
 sys.dont_write_bytecode=True
-from check_p1b import build
-from check_p2f import nodes
-from check_p2w import write
+from check_tag_routes import build
+from check_shell import nodes
+from check_docs import write
 from prepare_toc_browser import prepare
 
 def links(out,route):

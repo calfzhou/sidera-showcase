@@ -2,10 +2,10 @@
 from pathlib import Path
 import hashlib, os, struct, sys
 sys.dont_write_bytecode = True
-from check_p1a import ROOT
-from check_p1b import copy_showcase, copy_site, build
-from check_p2f import nodes
-from check_p2w import write
+from check_organization import ROOT
+from check_tag_routes import copy_showcase, copy_site, build
+from check_shell import nodes
+from check_docs import write
 
 HASHES = {'circle':'ebe20ad690732ea31d77b7a7de72308f305b5927ca2c87fb07b7a007a9b85a68',
           'square':'f21dc7afd04c9f4d4873ac39ee03e77d6affc093780d669177636b36e215ec7c'}

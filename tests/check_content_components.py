@@ -2,9 +2,9 @@
 from pathlib import Path
 import json, os, sys, tempfile
 sys.dont_write_bytecode = True
-from check_p1b import ROOT, copy_showcase, build
-from check_p2f import nodes
-from check_p2w import write
+from check_tag_routes import translate_menu_targets, ROOT, copy_showcase, build
+from check_shell import nodes
+from check_docs import write
 
 ROUTE='/handbook/reference/content-components/'
 VALUE='AAAA BBBB CCCC DDDD  EEEE FFFF 0000 1111'
@@ -14,7 +14,7 @@ def main():
     source=copy_showcase(run,'live');passed=[];rejected=[]
     def check(label,diagnostic=None,flags=()):
         out=build(source,run,label,diagnostic,('--printI18nWarnings',*flags));(rejected if diagnostic else passed).append(label);return out
-    def verify(out,prefix=''):
+    def verify(out,prefix='',manual=False):
         d=body(out)
         assert [x.words() for x in d.all(**{'class':'content-kbd'})][:4]==['Ctrl','`','⌘ Cmd','F4']
         assert [x.words() for x in d.all(**{'class':'content-mark'})]==['✓','✗','?']
@@ -34,8 +34,8 @@ def main():
         assert '<u class="content-u">aa</u>bcc.' in (out/ROUTE.strip('/')/'index.html').read_text()
         assert nodes(out,ROUTE).all(href='#inside-the-existing-top-level-block')
         assert nodes(out,ROUTE).all(**{'data-sidera-math':''}) or 'data-sidera-math' in (out/ROUTE.strip('/')/'index.html').read_text()
-        assert not (out/'sidera').exists()
-    out=build(ROOT,run,'normal',flags=('--printI18nWarnings',));passed.append('normal');verify(out)
+        assert (out/'sidera').exists() is manual
+    out=build(ROOT,run,'normal',flags=('--baseURL','https://example.org/','--printI18nWarnings',));passed.append('normal');verify(out,manual=True)
     out=check('baseline');verify(out)
     out=check('chinese',flags=('--config','hugo.toml,examples/chinese.toml','--baseURL','https://example.org/_chinese/'));verify(out,'/_chinese')
     assert body(out).all(**{'class':'content-copy'})[0].all(**{'class':'code-copy'})[0].attrs['aria-label']=='复制文本'
@@ -67,6 +67,7 @@ Spaced: A {{< u text="aa" >}} bcc.
     assert json.loads(d.all(**{'class':'content-copy'})[0].attrs['data-code-source'])=='  α & <tag>  β  '
     assert 'data-sidera-math' not in (out/'component-safety/index.html').read_text()
     # Real authored Chinese + native language filenames and subpath, not just a UI overlay.
+    translate_menu_targets(source)
     write(source,'locales.toml',"defaultContentLanguageInSubdir=true\n[languages.en]\nlocale='en-US'\n[languages.zh]\nlocale='zh-CN'\n")
     write(source,'content/component-safety.zh.md',text.replace('Component safety','组件检查').replace('A real heading','真实标题').replace('3, -2, 3','所选文字'))
     write(source,'content/about.zh.md','---\ntitle: About\n---\nLocale probe.\n')
@@ -74,7 +75,7 @@ Spaced: A {{< u text="aa" >}} bcc.
     assert body(out,'/zh/component-safety/').all(**{'class':'content-u'})[-1].words()=='所选文字'
     assert body(out,'/en/component-safety/').all(**{'class':'content-u'})[-1].words()=='3, -2, 3'
     # Existing documentation remains default-off and can still be mounted explicitly.
-    out=check('docs',flags=('--config','hugo.toml,docs-on.toml'))
+    out=check('docs',flags=('--config','hugo.toml,manual-on.toml'))
     assert (out/'sidera').is_dir()
     # Unknown args/types/protocols/paths fail with useful source position; no guards weakened.
     bad=[('unknown','{{< kbd text="x" onclick="bad()" >}}','unsupported parameter'),

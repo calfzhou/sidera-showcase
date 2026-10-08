@@ -2,9 +2,9 @@
 from pathlib import Path
 import os,sys
 sys.dont_write_bytecode=True
-from check_p1b import copy_showcase,build
-from check_p2f import nodes
-from check_p2w import write
+from check_tag_routes import copy_showcase,build
+from check_shell import nodes
+from check_docs import write
 
 CODE='''---
 title: Code block controls

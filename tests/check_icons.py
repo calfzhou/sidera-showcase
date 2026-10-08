@@ -4,10 +4,10 @@ No Solar sibling dependency, installs or remote calls. One current-source copy.
 from pathlib import Path
 import hashlib,json,os,re,sys
 sys.dont_write_bytecode=True
-from check_p1a import ROOT
-from check_p1b import copy_showcase,build
-from check_p2f import nodes
-from check_p2w import write
+from check_organization import ROOT
+from check_tag_routes import copy_showcase,build
+from check_shell import nodes
+from check_docs import write
 
 def svg_shapes(node):
     return [[x.tag,x.attrs] for x in node.all() if x.tag in ('path','circle','rect','g','ellipse','line','polygon','polyline')]

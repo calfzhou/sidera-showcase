@@ -2,7 +2,7 @@ baseURL = 'https://example.org/'
 locale = 'en-US'
 title = 'Sidera showcase'
 timeZone = 'Asia/Shanghai'
-# Active development checkout is a pinned Git submodule; skeleton remains a reference.
+# Tests use the current pinned Sidera submodule.
 theme = 'sidera'
 disableKinds = ['RSS']
 # Import Sidera's taxonomy definitions, without redefining them here.
@@ -28,3 +28,11 @@ journal = '/journal/:year/:month/:day/:slugorcontentbasename/'
 _merge = 'shallow'
 [markup.tableOfContents]
 _merge = 'shallow'
+
+# Native parser defaults required by the current optional manual's examples.
+[markup.goldmark.parser]
+_merge = 'deep'
+[markup.goldmark.parser.attribute]
+_merge = 'shallow'
+[markup.goldmark.extensions.passthrough]
+_merge = 'deep'

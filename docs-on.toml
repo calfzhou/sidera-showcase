@@ -1,7 +1,0 @@
-# Consumer opt-in only; use with --config hugo.toml,docs-on.toml.
-[[module.mounts]]
-source = 'content'
-target = 'content'
-[[module.mounts]]
-source = 'themes/sidera/docs/content'
-target = 'content/sidera'

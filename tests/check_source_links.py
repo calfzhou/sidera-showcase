@@ -5,10 +5,10 @@ from pathlib import Path
 from urllib.parse import unquote, urlsplit, parse_qs
 import json, os, subprocess, sys, tempfile
 sys.dont_write_bytecode = True
-from check_p1a import ROOT
-from check_p1b import build, copy_showcase
-from check_p2f import nodes
-from check_p2w import write
+from check_organization import ROOT
+from check_tag_routes import build, copy_showcase
+from check_shell import nodes
+from check_docs import write
 
 NOTE = 'content/notes/reading-list/index.md'
 POST = 'content/journal/connect-the-useful-parts/index.md'
@@ -70,13 +70,13 @@ def main():
     acceptance(source, out, '/preview')
     out = build(source, run, 'chinese', flags=('--config', 'hugo.toml,examples/chinese.toml'))
     acceptance(source, out)
-    out = build(source, run, 'docs-on', flags=('--config', 'hugo.toml,docs-on.toml'))
-    assert links(out, '/sidera/')['the authoring example']['href'] == '/sidera/authoring/'
-    assert links(out, '/sidera/publishing/')['Return to the documentation root']['href'] == '/sidera/'
-    write(source, 'alternate.toml', (source / 'docs-on.toml').read_text().replace('content/sidera', 'content/manual/sidera'))
+    out = build(source, run, 'docs-on', flags=('--config', 'hugo.toml,manual-on.toml'))
+    assert links(out, '/sidera/')['Write content']['href'] == '/sidera/authoring/'
+    assert links(out, '/sidera/publishing/')['Credits and licenses']['href'] == '/sidera/publishing/credits/'
+    write(source, 'alternate.toml', (source / 'manual-on.toml').read_text().replace('content/sidera', 'content/manual/sidera'))
     out = build(source, run, 'docs-alternate', flags=('--config', 'hugo.toml,alternate.toml'))
-    assert links(out, '/manual/sidera/')['the mounting note']['href'] == '/manual/sidera/publishing/'
-    assert links(out, '/manual/sidera/authoring/')['Continue to the example']['href'] == '/manual/sidera/authoring/example/'
+    assert links(out, '/manual/sidera/')['Embed this manual']['href'] == '/manual/sidera/getting-started/embed/'
+    assert links(out, '/manual/sidera/authoring/')['small live example']['href'] == '/manual/sidera/authoring/example/'
     assert not (run / 'baseline-public/sidera').exists()
 
     write(source, 'content/journal/storage/a/plain.md', '---\ntitle: First plain\ndate: 2026-01-02\nslug: first-plain\n---\n## Native heading\n\n[Back](../../../notes/link-probe/index.md#local-heading)\n')
@@ -221,6 +221,7 @@ Paragraph [with link](../../journal/edge/index.md).
     write(source, 'content/journal/storage/draft.md', '---\ntitle: Valid draft\ndraft: true\n---\n')
     write(source, 'content/notes/link-probe/index.md', body)
     write(source, 'bilingual.toml', "[languages.en]\nweight=1\nlocale='en-US'\n[languages.zh]\nweight=2\nlocale='zh-CN'\n")
+    write(source, 'content/handbook/_index.zh.md', '---\ntitle: Handbook\n---\nLanguage fixture.\n')
     write(source, 'content/about.zh.md', '---\ntitle: About this example\n---\nSynthetic translation fixture.\n')
     write(source, 'content/journal/edge/index.zh.md', '---\ntitle: Chinese target\ndate: 2026-01-05\nslug: chinese-route\n---\n## 中文标题\n')
     write(source, 'content/notes/link-probe/index.zh.md', '---\ntitle: Chinese note\n---\n[Chinese target](../../journal/edge/index.zh.md#中文标题)\n[English target](../../journal/edge/index.md#native-heading)\n[Shared file](a%20file.txt)\n')

@@ -2,10 +2,10 @@
 from pathlib import Path
 import json, os, re, sys, tempfile
 sys.dont_write_bytecode=True
-from check_p1a import ROOT, ORGANIZATION, THEME, Page, all_articles, snapshot
-from check_p1b import build, copy_showcase, copy_site, html, local_links
-from check_p2f import nodes
-from check_p2w import write
+from check_organization import ROOT, ORGANIZATION, THEME, Page, all_articles, snapshot
+from check_tag_routes import build, copy_showcase, copy_site, html, local_links
+from check_shell import nodes
+from check_docs import write
 
 JOURNAL=[
  '/journal/2026/04/16/a-small-maintenance-window/', # Pinned standalone entry.
@@ -28,7 +28,7 @@ def main():
     assert not (ROOT/'examples/notebook').exists(), 'Retired alternate showcase source remains'
     assert (ORGANIZATION/'content/field-notes/alpha/sample.svg').is_file()
     assert not (ORGANIZATION/'themes').exists(), 'Regression fixtures must use the live theme'
-    source=copy_showcase(run,'live');passed=[]
+    source=copy_showcase(run,'live',manual=True);passed=[]
     def check(label,configs=(),flags=()):
         out=build(source,run,label,flags=('--config',','.join(['hugo.toml',*configs]),'--printI18nWarnings',*flags))
         passed.append(label);return out
@@ -42,12 +42,12 @@ def main():
         if identifier=='doc-children':assert d.all(id='children-heading')
         else:assert listing.attrs.get('aria-description') and listing.attrs.get('data-list-order')
 
-    roots=Page(html(out,'/')).links['collections'];assert set(roots)=={'/journal/','/notes/','/handbook/'}
+    roots=Page(html(out,'/')).links['collections'];assert set(roots)=={'/journal/','/notes/','/handbook/','/sidera/'}
     for preset,root in [('blog','journal'),('notes','notes'),('docs','handbook')]:
-        assert all_articles(out,'/preset/'+preset+'/')==['/'+root+'/']
+        assert set(all_articles(out,'/preset/'+preset+'/'))==({'/handbook/','/sidera/'} if preset=='docs' else {'/'+root+'/'})
     assert all_articles(out,'/journal/')==JOURNAL
     for route in JOURNAL:assert html(out,route).exists()
-    for old in ['/journal/beginning/','/journal/returning/','/field-notes/','/lab-notes/','/dispatches/','/guidebook/','/sidera/']:
+    for old in ['/journal/beginning/','/journal/returning/','/field-notes/','/lab-notes/','/dispatches/','/guidebook/']:
         assert not html(out,old).exists(),old
     assert len(all_articles(out,'/notes/'))==7
     assert set(a.attrs['href'] for a in nodes(out,'/handbook/').all(id='doc-children')[0].all() if a.tag=='a' and 'card-title' in a.attrs.get('class',''))=={'/handbook/start/','/handbook/workflows/','/handbook/review/','/handbook/reference/'}
@@ -88,13 +88,11 @@ def main():
         assert "journal = '/journal/:year/:month/:day/:slugorcontentbasename/'" in config
     prefixed=check('subpath',flags=('--baseURL','https://example.org/preview/'));local_links(prefixed,'/preview')
     assert all_articles(prefixed,'/journal/')==['/preview'+p for p in JOURNAL]
-    docs=check('docs-on',('docs-on.toml',));local_links(docs);assert html(docs,'/sidera/').exists()
-    off=check('docs-off',('docs-on.toml','docs-off.toml'));assert not html(off,'/sidera/').exists()
-    for destination,enabled in [(docs,True),(off,False)]:
-        search_url=re.search(r'data-index="([^"]+)"',html(destination,'/').read_text())[1]
-        documents=json.loads((destination/search_url.lstrip('/')).read_text())['documents']
-        assert any(d['url']=='/sidera/' for d in documents)==enabled
-        assert all('/preset/' not in d['url'] and '/archives/' not in d['url'] for d in documents)
+    assert html(out,'/sidera/').exists()
+    search_url=re.search(r'data-index="([^"]+)"',html(out,'/').read_text())[1]
+    documents=json.loads((out/search_url.lstrip('/')).read_text())['documents']
+    assert sum(d['url'].startswith('/sidera/') for d in documents)==24
+    assert all('/preset/' not in d['url'] and '/archives/' not in d['url'] for d in documents)
 
     # Historical expectations still refer to their old inputs, never to the promoted live content.
     legacy=copy_site(run,'organization');assert snapshot(legacy/'content')==snapshot(ORGANIZATION/'content')

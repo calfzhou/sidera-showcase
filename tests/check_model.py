@@ -2,10 +2,10 @@
 from pathlib import Path
 import json, os, re, sys, tempfile, shutil
 sys.dont_write_bytecode=True
-from check_p1a import ORGANIZATION, ROOT, THEME, Page, all_articles
-from check_p1b import build, copy_site, html, local_links
-from check_p2w import write, replace
-from check_p2f import nodes
+from check_organization import ORGANIZATION, ROOT, THEME, Page, all_articles
+from check_tag_routes import build, copy_site, html, local_links
+from check_docs import write, replace
+from check_shell import nodes
 
 
 def branch(source,path,fm='',body='Synthetic branch.'):
@@ -79,7 +79,7 @@ right=[]''')
     assert probe(out,'/fourth/a/')['settings']['text']=='Descendant default'
     assert probe(out,'/fourth/a/')['preset']==0
     assert probe(out,'/fourth/nested/a/')['owner']=='/fourth'
-    assert probe(out,'/fourth/nested/a/')['settings']['left']==['menu','taxonomies','recent']
+    assert probe(out,'/fourth/nested/a/')['settings']['left']==['menu',{'component':'taxonomies','config':{'taxonomies':['tags']}},'recent-published']
     assert probe(out,'/fourth/nested/a/')['settings']['byline']=='Preset credit'
     assert probe(out,'/fourth/clear/a/')['settings']['byline']=='Site credit'
     empty=probe(out,'/fourth/empty/')['settings'];assert empty['left']==[] and empty['right']==[] and empty['byline']=='' and empty['show_updated'] is False and empty['profile']=={}

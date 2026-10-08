@@ -4,8 +4,8 @@ from html.parser import HTMLParser
 from urllib.parse import urlsplit, unquote
 import json, os, sys, tempfile
 sys.dont_write_bytecode = True
-from check_p1b import ROOT, copy_showcase, build
-from check_p2w import write
+from check_tag_routes import translate_menu_targets, ROOT, copy_showcase, build
+from check_docs import write
 
 ROUTE = '/notes/code-inclusion/'
 class Codes(HTMLParser):
@@ -49,7 +49,7 @@ def main():
     pair=(source/'content/notes/code-inclusion/pairs.py').read_bytes();shared=(source/'assets/snippets/labels.py').read_bytes()
     live=[(pair,pair),(b''.join(pair.splitlines(keepends=True)[3:8]),pair),(shared,shared)]
     # Actual normal-root build, not solely a copied source or test-only config.
-    out=build(ROOT,run,'normal',flags=('--printI18nWarnings',));passed.append('normal');verify(out,ROUTE,live)
+    out=build(ROOT,run,'normal',flags=('--baseURL','https://example.org/','--printI18nWarnings',));passed.append('normal');verify(out,ROUTE,live)
     payloads=[b'',b'x',b'x\n',b'x\n\n',b'\n\t  <script>& ``` {{< nope >}} {{% nope %}}  \n\n',b'\t one  \r\n\r\nlast', '你好 \ufffd\n'.encode(), b'\xef\xbb\xbfx\n', b'a\r\nb\nc\r\n']
     body='---\ntitle: Exact source tests\n---\n\n';expected=[]
     for i,data in enumerate(payloads):
@@ -87,6 +87,7 @@ def main():
     out=check('chinese',flags=('--config','hugo.toml,examples/chinese.toml','--baseURL','https://example.org/_chinese/'))
     verify(out,ROUTE,live,'/_chinese');verify(out,'/journal/2026/04/21/snippet-route/',[(b'dated\n',)*2],'/_chinese')
     assert '下载完整源码' in (out/ROUTE.strip('/')/'index.html').read_text()
+    translate_menu_targets(source)
     write(source,'locales.toml',"defaultContentLanguageInSubdir=true\n[languages.en]\nlocale='en-US'\n[languages.zh]\nlocale='zh-CN'\n")
     write(source,'content/snippet-check/index.zh.md',body)
     write(source,'content/about.zh.md','---\ntitle: About\n---\nLocale test.')
@@ -95,7 +96,7 @@ def main():
     # Opt-in mounted docs use native resources; off keeps original bundled docs absent.
     write(source,'themes/sidera/docs/content/inclusion/index.md','---\ntitle: Mounted inclusion\n---\n{{< snippet src="local.py" >}}')
     write(source,'themes/sidera/docs/content/inclusion/local.py','mounted\n')
-    out=check('docs',flags=('--config','hugo.toml,docs-on.toml'))
+    out=check('docs',flags=('--config','hugo.toml,manual-on.toml'))
     verify(out,'/sidera/inclusion/',[(b'mounted\n',)*2])
     # A narrow explicit native mount supports a shared utility without publishing its siblings.
     write(source,'approved-code/mounted.py','shared mount\n')

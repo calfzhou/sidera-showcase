@@ -2,8 +2,8 @@
 from pathlib import Path
 import os,sys
 sys.dont_write_bytecode=True
-from check_p1b import copy_showcase,build
-from check_p2w import write
+from check_tag_routes import copy_showcase,build
+from check_docs import write
 
 def prepare(run):
     run.mkdir(parents=True,exist_ok=False);source=copy_showcase(run,'live')

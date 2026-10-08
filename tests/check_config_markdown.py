@@ -4,8 +4,8 @@ Run with SIDERA_CHECK_DIR pointing to a fresh ignored .checks/ directory.
 from pathlib import Path
 import json, os, re, subprocess, sys
 sys.dont_write_bytecode = True
-from check_p2f import nodes
-from check_p1a import ROOT
+from check_shell import nodes
+from check_organization import ROOT
 
 RUN = Path(os.environ['SIDERA_CHECK_DIR']).resolve()
 SOURCE = RUN / 'source'

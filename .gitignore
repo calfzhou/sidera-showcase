@@ -12,7 +12,7 @@ hugo.linux
 # Temporary lock file while building
 /.hugo_build.lock
 
-# Isolated, retained P1 check runs (build output and test copies)
+# Isolated check runs (build output, caches and test copies)
 /.checks/
 
 # Python integration-check bytecode (checks themselves disable new writes)

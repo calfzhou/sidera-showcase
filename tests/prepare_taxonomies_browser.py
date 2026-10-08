@@ -2,10 +2,10 @@
 from pathlib import Path
 import os,sys,json
 sys.dont_write_bytecode=True
-from check_p1a import ROOT
-from check_p1b import copy_site,build
-from check_p2w import write
-from check_p2c import configure
+from check_organization import ROOT
+from check_tag_routes import copy_site,build
+from check_docs import write
+from check_localization import configure
 
 def prepare(run):
     run.mkdir(parents=True,exist_ok=False)

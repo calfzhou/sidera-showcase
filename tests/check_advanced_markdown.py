@@ -3,9 +3,9 @@ from pathlib import Path
 from urllib.parse import urlparse, unquote
 import hashlib, json, os, re, subprocess, sys, tempfile
 sys.dont_write_bytecode = True
-from check_p1b import ROOT, copy_showcase, build, html, local_links
-from check_p2f import nodes
-from check_p2w import write
+from check_tag_routes import ROOT, copy_showcase, build, html, local_links
+from check_shell import nodes
+from check_docs import write
 ROUTE = '/handbook/reference/advanced-markdown/'
 TARGET = '/journal/2026/04/14/connect-the-useful-parts/#give-a-link-a-reason'
 def body(out, route=ROUTE): return nodes(out, route).all(**{'class':'prose'})[0]

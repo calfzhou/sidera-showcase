@@ -4,7 +4,7 @@ No whole-site copies, parallel builds, dependency installation or external reque
 from pathlib import Path
 import hashlib,json,os,re,subprocess,sys
 sys.dont_write_bytecode=True
-from check_p2f import DOM
+from check_shell import DOM
 ROOT=Path(__file__).resolve().parents[1]
 THEME=ROOT/'themes/sidera'
 RUN=Path(os.environ['SIDERA_CHECK_DIR']).resolve()

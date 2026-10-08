@@ -1,4 +1,4 @@
-"""Active-theme packaging invariants and historical bundled-skeleton comparison.
+"""Active-theme packaging invariants, native overrides and effective local edits.
 Also verifies the Sidera submodule handoff and local theme edits.
 No downloads; only synthetic .checks copies are modified.
 """
@@ -6,25 +6,20 @@ from html.parser import HTMLParser
 from pathlib import Path
 import json
 import shutil
+import os
 import subprocess
 import sys
 import tempfile
 from urllib.parse import unquote, urljoin, urlparse
 
 sys.dont_write_bytecode = True
-from check_p1a import ORGANIZATION, ROOT, THEME, COLLECTIONS, article_route, check_baseline, snapshot
-from check_p1b import build, copy_site as copy_fixture, html, http_smoke, tag_checks, FIELD, LAB
-from check_p1c import baseline_checks
+from check_organization import ORGANIZATION, ROOT, THEME, COLLECTIONS, article_route, check_baseline, snapshot
+from check_tag_routes import build, copy_site as copy_fixture, html, http_smoke, tag_checks, FIELD, LAB
+from check_ordering import baseline_checks
 
 
 def copy_site(run, label):
-    source = copy_fixture(run, label)
-    # Compare packaging at equal native configuration. Loading theme config as an
-    # explicit primary config in-place otherwise enables B parser defaults which
-    # the old organization fixture never imported in the theme-based control.
-    with (source/'hugo.toml').open('a') as f:
-        f.write("\n[markup.goldmark.parser]\n_merge='deep'\n[markup.goldmark.extensions.passthrough]\n_merge='deep'\n")
-    return source
+    return copy_fixture(run, label)
 
 
 class Scan(HTMLParser):
@@ -77,54 +72,14 @@ def missing_targets(out):
     return missing
 
 
-def skeleton_checks(out, samples):
-    article_routes = ['/about/'] + [article_route(owner, name)
-        for owner, (_, _, names) in COLLECTIONS.items() for name in names]
-    for route in article_routes:
-        file = html(out, route)
-        assert file.is_file(), route
-        if route != '/about/':
-            assert 'This is the synthetic <strong>' in file.read_text(), route
-    for name in ('sample.py', 'sample.svg'):
-        assert (out / 'field-notes/alpha' / name).read_bytes() == (ORGANIZATION / 'content/field-notes/alpha' / name).read_bytes()
-    assert not (out / 'field-notes/tags').exists()
-    assert not (out / 'field-notes/page').exists()
-    assert not (out / 'field-notes/alpha/resource-note/index.html').exists()
-    home = Scan(html(out, '/'))
-    expected = article_routes + ([f'/posts/post-{i}/' for i in range(1, 4)] if samples else [])
-    assert set(home.titles) == set(expected), home.titles
-    lab = Scan(html(out, '/lab-notes/'))
-    assert '/lab-notes/storage/' in lab.titles
-    assert '/lab-notes/storage/epsilon/' not in lab.titles
-    field = Scan(html(out, '/field-notes/'))
-    assert field.titles[0] == '/field-notes/epsilon/', field.titles
-    assert 'Field team' not in html(out, '/field-notes/alpha/').read_text()
-    assert Scan(html(out, '/about/')).dates[0].startswith('0001-01-01')
-    missing = missing_targets(out)
-    # Bundle-relative links survive on article pages, but not necessarily in excerpts.
-    assert not [m for m in missing if m['page'] in article_routes]
-    assert any(m['page'] == '/field-notes/' and m['resolved'] == '/field-notes/sample.svg' for m in missing)
-    return {'article_routes_preserved': len(article_routes), 'home_article_count': len(home.titles),
-            'field_list': field.titles, 'lab_list': lab.titles,
-            'about_date': Scan(html(out, '/about/')).dates,
-            'missing_local_targets': missing, 'home_anchors_without_href': home.empty_anchors}
-
-
-def skeleton_scope(source):
-    """Keep the original P1 comparison corpus; never back-convert authored metadata."""
-    config = source / 'hugo.toml'
-    text = config.read_text().split('# Consumer opt-in only;')[0].replace("disableKinds = ['RSS']", "disableKinds = ['taxonomy', 'term', 'RSS']")
-    config.write_text(text + "\n[[module.mounts]]\nsource='content'\ntarget='content'\nfiles=['! guidebook/**']\n")
-
-
 def main():
     (ROOT / '.checks').mkdir(exist_ok=True)
-    run = Path(tempfile.mkdtemp(prefix='theme-packaging-', dir=ROOT / '.checks'))
+    run = Path(os.environ.get('SIDERA_CHECK_DIR') or tempfile.mkdtemp(prefix='theme-packaging-', dir=ROOT / '.checks'))
+    run.mkdir(parents=True, exist_ok=True)
     print('Retained run:', run, flush=True)
     (run / 'version.txt').write_text(subprocess.check_output(['hugo', 'version'], text=True, timeout=10))
     assert not (ORGANIZATION / 'layouts').exists(), 'Fixture templates would mask theme coverage'
     assert not (ROOT / 'content/_content.gotmpl').exists()
-    skeleton_before = snapshot(ROOT / 'themes/skeleton')
     baseline_source = copy_site(run, 'baseline')
     baseline = build(baseline_source, run, 'sidera')
     check_baseline(baseline)
@@ -170,33 +125,11 @@ def main():
     assert 'data-renderer="site-override"' in html(custom, '/field-notes/alpha/').read_text()
     assert snapshot(override / THEME) == snapshot(ROOT / THEME)
 
-    stock = copy_site(run, 'skeleton-stock')
-    skeleton_scope(stock)
-    stock_out = build(stock, run, 'skeleton-stock', flags=('--theme', 'skeleton'))
     results = {'packaging_byte_identical': True, 'active_functional_invariants': True,
-               'local_theme_edits_effective': True, 'optional_site_override': True,
-               'skeleton_stock': skeleton_checks(stock_out, samples=True)}
-
-    # Park starter demo content outside this scratch source; never delete it or edit the original theme.
-    clean = copy_site(run, 'skeleton-content-only')
-    (clean / 'themes/skeleton/content').rename(run / 'retained-skeleton-demo-content')
-    skeleton_scope(clean)
-    clean_out = build(clean, run, 'skeleton-content-only', flags=('--theme', 'skeleton'))
-    results['skeleton_content_only'] = skeleton_checks(clean_out, samples=False)
-
-    # Config-only contrast: skeleton supports native GLOBAL tags, not notebook unions.
-    config = clean / 'hugo.toml'
-    config.write_text(config.read_text().replace("disableKinds = ['taxonomy', 'term', 'RSS']", "disableKinds = ['RSS']").replace("[taxonomies]\n_merge = 'shallow'", "[taxonomies]\ntag = 'tags'\ncategory = 'categories'"))
-    native = build(clean, run, 'skeleton-native-tags', flags=('--theme', 'skeleton'))
-    basics = Scan(html(native, '/tags/science/quantum/basics/')).titles
-    assert set(basics) == {'/field-notes/alpha/', '/field-notes/beta/', '/lab-notes/alpha/'}, basics
-    assert not html(native, '/tags/science/').exists(), 'Unexpected automatic ancestor term'
-    assert not (native / 'field-notes/tags').exists()
-    results['native_tags'] = {'basics_members': basics, 'implicit_science_ancestor': False}
-    http_smoke(clean_out, run, routes=['/', '/about/', '/field-notes/alpha/', '/lab-notes/storage/epsilon/'])
-    assert snapshot(ROOT / 'themes/skeleton') == skeleton_before
+               'local_theme_edits_effective': True, 'optional_site_override': True}
+    http_smoke(baseline, run, routes=['/', '/about/', '/field-notes/alpha/', '/lab-notes/storage/epsilon/'])
     (run / 'results.json').write_text(json.dumps(results, indent=2, ensure_ascii=False))
-    print('PASS Sidera functional invariants, local theme edits, packaging, optional override and measured skeleton gaps.')
+    print('PASS Sidera functional invariants, local theme edits, packaging, optional override.')
 
 
 if __name__ == '__main__':

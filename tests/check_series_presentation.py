@@ -2,10 +2,10 @@
 from pathlib import Path
 import os,sys
 sys.dont_write_bytecode=True
-from check_p1a import all_articles
-from check_p1b import copy_showcase,build,local_links
-from check_p2f import nodes
-from check_p2w import write
+from check_organization import all_articles
+from check_tag_routes import copy_showcase,build,local_links
+from check_shell import nodes
+from check_docs import write
 from check_showcase import JOURNAL,SERIES
 
 def main():

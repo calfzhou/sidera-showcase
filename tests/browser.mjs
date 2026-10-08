@@ -18,6 +18,7 @@ const origin = `http://127.0.0.1:${port}`;
 const delay = ms => new Promise(r => setTimeout(r, ms));
 const mime = { '.html': 'text/html', '.css': 'text/css', '.js': 'text/javascript', '.svg': 'image/svg+xml', '.png': 'image/png', '.ico': 'image/x-icon', '.mp4': 'video/mp4' };
 const server = createServer(async (req, res) => {
+  let root;
   try {
     if (req.url === '/__p2a') { res.end(run); return; }
     let path = decodeURIComponent(new URL(req.url, origin).pathname);
@@ -25,7 +26,7 @@ const server = createServer(async (req, res) => {
     const mount = Object.entries(mounts).find(([prefix]) => path.startsWith(prefix + '/'));
     if (mount) { source = mount[1]; path = path.slice(mount[0].length); }
     else path = path.replace(/^\/(?:_chinese|_stress|preview)(?=\/)/, '');
-    const root = resolve(run, source);
+    root = resolve(run, source);
     const file = resolve(root, '.' + path + (path.endsWith('/') ? 'index.html' : ''));
     assert(file.startsWith(root + sep));
     res.setHeader('Content-Type', mime[extname(file)] || 'application/octet-stream');
@@ -47,7 +48,12 @@ const server = createServer(async (req, res) => {
     }
     res.setHeader('Content-Length', data.length);
     res.end(data);
-  } catch { res.writeHead(404); res.end('Not found'); }
+  } catch {
+    // Match static Pages hosting: missing paths serve the site's 404 with status 404.
+    res.writeHead(404, {'Content-Type': 'text/html'});
+    try { res.end(root ? await readFile(resolve(root, '404.html')) : 'Not found'); }
+    catch { res.end('Not found'); }
+  }
 });
 let chrome, socket, log;
 const pending = new Map();

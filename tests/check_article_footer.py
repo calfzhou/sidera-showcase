@@ -3,10 +3,10 @@ from pathlib import Path
 from urllib.parse import urlsplit,parse_qs,unquote
 import json,os,sys
 sys.dont_write_bytecode=True
-from check_p1a import ROOT
-from check_p1b import copy_showcase,build,local_links
-from check_p2f import nodes
-from check_p2w import write
+from check_organization import ROOT
+from check_tag_routes import copy_showcase,build,local_links
+from check_shell import nodes
+from check_docs import write
 
 def main():
     run=Path(os.environ['SIDERA_CHECK_DIR']).resolve();run.mkdir(parents=True,exist_ok=False)
@@ -52,7 +52,7 @@ params:
 Ordinary test content.
 '''
     write(source,'content/notes/footer-probe.md',fm)
-    write(source,'content/authors/rowan/_index.md','---\ntitle: Rowan\nparams:\n  avatar: images/sidera-mark.svg\n---\n')
+    write(source,'content/authors/rowan/_index.md','---\ntitle: Rowan\nparams:\n  avatar: images/sidera-parallax-circle.svg\n---\n')
     full=check('full');local_links(full);route='/notes/footer-probe/';d=footer(full,route)
     share=item(d,'share')[0];u='https://example.org'+route
     assert share.all(**{'data-share-url':u})

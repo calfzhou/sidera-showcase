@@ -27,26 +27,13 @@ imports in included Python are not followed or executed.
 
 {{< snippet src="labels.py" scope="shared" lang="python" >}}
 
-## Convert a Hexo call
+## Compose with ordinary Markdown
 
-Before:
+Use the angle-bracket shortcode on its own line with surrounding blank lines.
+It works alongside [source links](../reading-list/index.md), alerts and math.
+Inside a fold, box or grid, use `%` for the outer container and `<` for nested
+shortcodes, including `snippet`. See the
+[component examples](../../handbook/reference/content-components/index.md).
 
-```text
-{% snippet solution.py %}
-```
-
-After, keeping `solution.py` beside this bundle's `index.md`:
-
-```text
-{{</* snippet src="solution.py" */>}}
-```
-
-A custom title becomes `title="Solution"`; `lang:python` becomes `lang="python"`.
-Explicit `from:4 to:8` becomes `from=4 to=8`, now inclusive with no trimming.
-Omitting both bounds shows the full file, including its last line. Do not preserve
-the old plugin's default-end/off-by-one behavior.
-
-Use the standard angle-bracket shortcode on its own line with surrounding blank
-lines. It works alongside ordinary Markdown, [source links](../reading-list/index.md),
-alerts and math. Do not nest it inside B's `block` shortcode; folding/grid and other
-component composition remain C2 work.
+A custom title uses `title="Solution"`; an explicit language uses `lang="python"`.
+Omitting both line bounds shows the full file, including its final line.

@@ -4,9 +4,9 @@ date: 2026-05-22
 summary: "Native folds, boxes and grids alongside keyboard tokens, status marks, links and exact copy text."
 ---
 
-This C2 inspection page combines native folds, boxes and grids with the independent
-content primitives. Emoji, timeline and enhanced-image components are retired; ordinary
-Markdown images remain. See also [code inclusion](../../../notes/code-inclusion/index.md)
+This page combines native folds, boxes and grids with keyboard tokens, marks,
+links and exact-copy text. Each specimen keeps its source close to the rendered result.
+See also [code inclusion](../../../notes/code-inclusion/index.md)
 and [advanced Markdown](../advanced-markdown/index.md).
 
 ## Read the small signals

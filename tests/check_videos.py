@@ -2,9 +2,9 @@
 from pathlib import Path
 import json, os, sys, tempfile
 sys.dont_write_bytecode = True
-from check_p1b import ROOT, build, copy_showcase, html
-from check_p2f import nodes
-from check_p2w import write
+from check_tag_routes import translate_menu_targets, ROOT, build, copy_showcase, html
+from check_shell import nodes
+from check_docs import write
 
 ROUTE = '/handbook/reference/video/'
 def players(out, route=ROUTE):
@@ -22,7 +22,7 @@ def main():
         (rejected if diagnostic else passed).append(label)
         return out
     clip = (s/'content/handbook/reference/video/motion.mp4').read_bytes()
-    def live(out, prefix=''):
+    def live(out, prefix='', manual=False):
         ps = players(out); assert len(ps) == 2
         for p in ps:
             assert 'src' not in p.attrs and not p.all() and p.attrs['preload'] == 'none'
@@ -33,9 +33,9 @@ def main():
         assert (out/ROUTE.strip('/')/'motion.mp4').read_bytes() == clip
         assert nodes(out, ROUTE).all(**{'data-state':'disabled'})
         assert not script(out, '/') and not script(out, '/notes/reading-list/')
-        assert not script(out, '/handbook/reference/') and not (out/'sidera').exists()
+        assert not script(out, '/handbook/reference/') and (out/'sidera').exists() is manual
         assert 'data-sidera-leaf=' not in html(out, ROUTE).read_text()
-    out = build(ROOT, run, 'normal', flags=('--printI18nWarnings',)); passed.append('normal'); live(out)
+    out = build(ROOT, run, 'normal', flags=('--baseURL','https://example.org/','--printI18nWarnings',)); passed.append('normal'); live(out,manual=True)
     # Build fixtures remain harmless: no real provider/media calls even in browser tests.
     write(s, 'content/video-probe/index.md', '''---
 title: Video checks
@@ -87,6 +87,7 @@ After summary.
     out = check('chinese', flags=('--config','hugo.toml,examples/chinese.toml','--baseURL','https://example.org/_chinese/')); live(out, '/_chinese')
     assert nodes(out, ROUTE).all(**{'class':'video-load'})[0].words() == '加载视频'
     assert nodes(out, '/video-disabled/').all(**{'class':'video-status'})[0].words().startswith('嵌入播放已禁用')
+    translate_menu_targets(s)
     write(s, 'locales.toml', "defaultContentLanguageInSubdir=true\n[languages.en]\nlocale='en-US'\n[languages.zh]\nlocale='zh-CN'\n")
     write(s, 'content/about.zh.md', '---\ntitle: About\n---\nLocale probe.\n')
     write(s, 'content/video-child/index.zh.md', '---\ntitle: 本地视频\n---\n{{< video src="clip.mp4" title="中文示例" >}}')
@@ -99,7 +100,7 @@ After summary.
     (s/'themes/sidera/docs/content/video/clip.mp4').write_bytes(clip)
     write(s, 'content/journal/video/index.md', '---\ntitle: Dated video\ndate: 2026-04-21\n---\n{{< video src="clip.mp4" >}}')
     (s/'content/journal/video/clip.mp4').write_bytes(clip)
-    out = check('docs', flags=('--config','hugo.toml,docs-on.toml','--baseURL','https://example.org/preview/'))
+    out = check('docs', flags=('--config','hugo.toml,manual-on.toml','--baseURL','https://example.org/preview/'))
     assert players(out, '/sidera/video/')[0].attrs['data-video-src'] == '/preview/sidera/video/clip.mp4'
     assert players(out, '/journal/2026/04/21/video/')[0].attrs['data-video-src'] == '/preview/journal/2026/04/21/video/clip.mp4'
     assert (out/'sidera/video/clip.mp4').read_bytes() == clip

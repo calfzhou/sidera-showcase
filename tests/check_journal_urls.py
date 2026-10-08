@@ -7,8 +7,8 @@ import sys
 import tempfile
 
 sys.dont_write_bytecode = True
-from check_p1a import ORGANIZATION, ROOT, JOURNAL_ROUTES, Page, check_baseline, snapshot
-from check_p1b import build, copy_site, html, local_links, http_smoke
+from check_organization import ORGANIZATION, ROOT, JOURNAL_ROUTES, Page, check_baseline, snapshot
+from check_tag_routes import build, copy_site, html, local_links, http_smoke
 
 
 PATTERN = "[permalinks.page]\njournal = '/journal/:year/:month/:day/:slugorcontentbasename/'\n"

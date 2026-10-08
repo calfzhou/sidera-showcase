@@ -5,9 +5,9 @@ from pathlib import Path
 from urllib.request import Request, urlopen
 import json, os, sys, tempfile, time
 sys.dont_write_bytecode = True
-from check_p1b import ROOT, copy_showcase
+from check_tag_routes import ROOT, copy_showcase
 from check_block_preview import server, PORT
-from check_p2f import DOM
+from check_shell import DOM
 ROUTE='/handbook/reference/video/'
 
 def main():

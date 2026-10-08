@@ -2,9 +2,9 @@
 from pathlib import Path
 import os,sys
 sys.dont_write_bytecode=True
-from check_p1b import build,copy_showcase,local_links
-from check_p2f import nodes
-from check_p2w import write
+from check_tag_routes import build,copy_showcase,local_links
+from check_shell import nodes
+from check_docs import write
 
 FIXTURE='''---
 title: Link destinations

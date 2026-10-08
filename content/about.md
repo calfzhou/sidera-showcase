@@ -3,7 +3,7 @@ title: About Fieldbook
 ---
 ## A place to return to
 
-Fieldbook is a fictional personal site: a few evolving notes, a journal, and a small handbook. It demonstrates a normal live Sidera configuration without any external services.
+Fieldbook is a fictional personal site: a few evolving notes, a journal, and a small handbook. It demonstrates Sidera with local search, a theme manual and optional showcase-owned Giscus comments. Diagram and badge examples identify their external services.
 
 ## Get in touch
 

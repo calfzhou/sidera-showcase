@@ -2,9 +2,9 @@
 from pathlib import Path
 import json,os,sys,tempfile
 sys.dont_write_bytecode=True
-from check_p1b import ROOT,copy_showcase,build
-from check_p2w import write
-from check_p2f import nodes
+from check_tag_routes import translate_menu_targets, ROOT,copy_showcase,build
+from check_docs import write
+from check_shell import nodes
 from check_snippets import Codes
 ROUTE='/handbook/reference/content-components/'
 def cls(node,name): return [n for n in node.all() if name in n.attrs.get('class','').split()]
@@ -33,7 +33,7 @@ def main():
   assert 'data-sidera-math' in (out/ROUTE.strip('/')/'index.html').read_text()
   assert any(n.tag=='blockquote' and 'Fieldbook example' in n.words() and any(c.tag=='em' and c.words()=='Notes on writing' for c in n.all()) for n in d.all())
   assert 'data-sidera-container=' not in (out/ROUTE.strip('/')/'index.html').read_text()
- out=build(ROOT,run,'normal',flags=('--printI18nWarnings',));passed.append('normal');live(out)
+ out=build(ROOT,run,'normal',flags=('--baseURL','https://example.org/','--printI18nWarnings',));passed.append('normal');live(out)
  # Two siblings with the SAME local shortcode ordinal must retain independent output,
  # source selection, IDs and cell attrs. Cover all leaf types and exact inline text.
  fixture=r'''---
@@ -106,6 +106,7 @@ A{{< u text="aa" >}}bcc|{{< mark text="✓ & <tag> $not_math$" color="green" >}}
  out=check('chinese',flags=('--config','hugo.toml,examples/chinese.toml','--baseURL','https://example.org/_chinese/'));live(out,'/_chinese')
  assert '下载完整源码' in (out/'composition/index.html').read_text()
  # Native filename locales keep distinct page-scoped bridges and native resources.
+ translate_menu_targets(s)
  write(s,'locales.toml',"defaultContentLanguageInSubdir=true\n[languages.en]\nlocale='en-US'\n[languages.zh]\nlocale='zh-CN'\n")
  write(s,'content/about.zh.md','---\ntitle: About\n---\nLocale test.\n')
  write(s,'content/composition/index.zh.md',fixture.replace('First card','第一张卡片').replace('Second card','第二张卡片'))
@@ -117,7 +118,7 @@ A{{< u text="aa" >}}bcc|{{< mark text="✓ & <tag> $not_math$" color="green" >}}
  write(s,'themes/sidera/docs/content/composed/local.txt','MOUNTED\n')
  write(s,'content/journal/composed/index.md','---\ntitle: Dated fold\ndate: 2026-04-21\n---\n{{% box %}}\n{{< snippet src="local.txt" >}}\n{{% /box %}}')
  write(s,'content/journal/composed/local.txt','DATED\n')
- out=check('docs',flags=('--config','hugo.toml,docs-on.toml','--baseURL','https://example.org/preview/'))
+ out=check('docs',flags=('--config','hugo.toml,manual-on.toml','--baseURL','https://example.org/preview/'))
  assert nodes(out,'/sidera/composed/').all(href='/preview/sidera/authoring/')
  assert Codes(out/'sidera/composed/index.html').blocks[0]['urls']==['/preview/sidera/composed/local.txt']
  assert Codes(out/'journal/2026/04/21/composed/index.html').blocks[0]['urls']==['/preview/journal/2026/04/21/composed/local.txt']

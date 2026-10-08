@@ -2,10 +2,10 @@
 from pathlib import Path
 import json, os, re, sys, tempfile
 sys.dont_write_bytecode=True
-from check_p1a import ROOT, THEME, Page
-from check_p1b import copy_site,build,html
-from check_p2w import write,replace
-from check_p2f import nodes
+from check_organization import ROOT, THEME, Page
+from check_tag_routes import copy_site,build,html
+from check_docs import write,replace
+from check_shell import nodes
 
 def main():
     (ROOT/'.checks').mkdir(exist_ok=True)

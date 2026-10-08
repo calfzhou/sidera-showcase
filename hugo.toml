@@ -1,4 +1,4 @@
-baseURL = 'https://example.org/'
+baseURL = 'https://calfzhou.github.io/sidera-showcase/'
 title = 'Fieldbook'
 theme = 'sidera'
 locale = 'en-US'
@@ -27,7 +27,7 @@ comments = true
 left = ['menu', 'welcome']
 footer_menu = 'footer'
 footer_text = '**{site.title}** — a small, independent notebook. [Back to overview]({url:showcase.home}).'
-# F1: owner enabled Discussions/App access; metadata verified with Giscus on 2026-09-29.
+# Owner-enabled Discussions/App access; preserve these showcase-owned identifiers.
 # Showcase-owned discussion store; never the theme or real-site repository.
 [params.giscus]
 repo = 'calfzhou/sidera-showcase'
@@ -70,7 +70,7 @@ icon = 'docs'
 [[menus.primary]]
 name = 'About'
 pageRef = '/about'
-weight = 5
+weight = 6
 [menus.primary.params]
 icon = 'about'
 [[menus.footer]]
@@ -153,3 +153,17 @@ _merge = 'deep'
 _merge = 'deep'
 [markup.goldmark.parser.attribute]
 _merge = 'shallow'
+
+# Embedded theme manual: source stays in the pinned submodule.
+[[module.mounts]]
+source = 'content'
+target = 'content'
+[[module.mounts]]
+source = 'themes/sidera/docs/content'
+target = 'content/sidera'
+[[menus.primary]]
+name = 'Sidera manual'
+pageRef = '/sidera'
+weight = 5
+[menus.primary.params]
+icon = 'sidera-bold-duotone'

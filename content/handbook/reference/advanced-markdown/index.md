@@ -5,7 +5,7 @@ lastmod: 2026-05-20
 ---
 ## Native callouts
 
-This B specimen combines native Markdown with a small general block container.
+This specimen combines native Markdown with a small general block container.
 It does not require a Markdown preprocessor or browser math renderer.
 
 > [!Note]
@@ -18,7 +18,7 @@ It does not require a Markdown preprocessor or browser math renderer.
 > > An ordinary quotation nested inside the callout stays a quotation.
 
 > [!tip]
-> A small example is easier to inspect than an entire migrated site.
+> A small example is easier to inspect than a large site.
 
 > [!important]
 > A published URL is not the same thing as an editor source path.
@@ -27,7 +27,7 @@ It does not require a Markdown preprocessor or browser math renderer.
 > Test changes before publication.
 
 > [!caution]
-> Keep the original sources read-only until migration is authorized.
+> Keep a backup before replacing an original source.
 
 This titled form deliberately remains an ordinary quotation, as in the source renderer:
 
@@ -51,17 +51,15 @@ This next-line suppression keeps the alternative description but omits a caption
 
 An image inside ordinary prose has no generated caption: ![Small diagram|40](../markdown/sample.svg).
 
-### Source conversion, kept explicit
+### Native attribute placement
 
-The old attribute placement was `![alt](diagram.svg){.invert-when-dark}`.
-Use the same class on the **next line**, as above. No image shortcode is required.
+Place the class on the **next line** after the image, as above. No image shortcode is required.
 A palette class applies to the marked element; a figure's caption is not inverted
 unless its enclosing block is deliberately marked.
 
 ## General Markdown blocks
 
-The old palette wrapper was `::: invert-when-dark … :::`. The compatible form is a
-general container, not a palette-specific shortcode:
+Use a general container to apply a palette class to a group:
 
 ```text
 {{%/* block class="invert-when-dark" */%}}
@@ -98,8 +96,9 @@ A native paragraph can carry the class too. This authored dark surface becomes
 light in light mode; pairing foreground and background keeps it readable.
 {.invert-when-light #adaptive-paragraph style="color:#fff;background:#17191b;padding:1em"}
 
-Use `block` at the top level with Markdown notation. Nested ordinary Markdown works;
-shortcode nesting is rejected because of Hugo's separate nested-shortcode render pass.
+Use `%` notation for the outer container and `<` notation for nested shortcodes,
+as demonstrated on the [components page](../content-components/index.md).
+Ordinary Markdown remains native inside each container.
 Do not mark both a parent and its children unless compounded inversion is intended.
 
 ## Inline and display equations

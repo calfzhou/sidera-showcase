@@ -2,10 +2,10 @@
 from pathlib import Path
 import json, os, sys, tempfile
 sys.dont_write_bytecode=True
-from check_p1a import ROOT, all_articles
-from check_p1b import build, copy_site, html, local_links
-from check_p2f import nodes
-from check_p2w import write, replace
+from check_organization import ROOT, all_articles
+from check_tag_routes import build, copy_site, html, local_links
+from check_shell import nodes
+from check_docs import write, replace
 
 TITLE='A very long <sample> & "quoted" title that stays on one line and keeps its full tooltip'
 

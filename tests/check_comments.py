@@ -2,9 +2,9 @@
 from pathlib import Path
 import os,sys,re,json,base64
 sys.dont_write_bytecode=True
-from check_p1b import copy_showcase,build,html
-from check_p2f import nodes
-from check_p2w import write
+from check_tag_routes import translate_menu_targets, copy_showcase,build,html
+from check_shell import nodes
+from check_docs import write
 ROUTE='/journal/2026/04/14/connect-the-useful-parts/'
 MOCK="""[params.giscus]
 repo='fixture/comments'
@@ -57,7 +57,7 @@ def main():
  # Comment chrome cannot contaminate generated content, reference edges or snippets.
  index=re.search(r'data-index="([^"]+)"',html(out,'/').read_text())[1]
  data=json.loads((out/index.lstrip('/')).read_text())
- assert not any('Giscus' in json.dumps(d['sections']) or 'R_mock' in json.dumps(d) for d in data['documents'])
+ assert not any('giscus.app/client.js' in json.dumps(d['sections']) or 'R_mock' in json.dumps(d) for d in data['documents'])
  out=check('chinese',"defaultContentLanguage='zh'\nlocale='zh-CN'\nbaseURL='https://example.org/_chinese/'\n"+MOCK)
  h=host(out,ROUTE)[0];assert h.attrs['data-lang']=='zh-CN' and h.attrs['data-term']=='_chinese'+ROUTE
  assert '评论' in html(out,ROUTE).read_text()
@@ -84,6 +84,7 @@ def main():
  write(source,'content/locale-probe.md','---\ntitle: Language probe\nparams:\n  comments: true\n---\nEnglish body.\n')
  write(source,'content/locale-probe.zh.md','---\ntitle: Language probe\nparams:\n  comments: true\n---\nChinese body.\n')
  write(source,'content/about.zh.md',(source/'content/about.md').read_text())
+ translate_menu_targets(source)
  out=check('bilingual',"baseURL='https://example.org/preview/'\n[languages.en]\nweight=1\nlocale='en-US'\n[languages.zh]\nweight=2\nlocale='zh-CN'\n"+MOCK)
  assert host(out,'/locale-probe/')[0].attrs['data-term']=='preview/locale-probe/'
  assert host(out,'/zh/locale-probe/')[0].attrs['data-term']=='preview/zh/locale-probe/'
