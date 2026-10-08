@@ -1,4 +1,4 @@
 [submodule "themes/sidera"]
 	path = themes/sidera
-	url = git@github.com:calfzhou/hugo-theme-sidera.git
+	url = https://github.com/calfzhou/hugo-theme-sidera.git
 	branch = main
