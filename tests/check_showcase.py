@@ -52,7 +52,7 @@ def main():
     assert len(all_articles(out,'/notes/'))==7
     assert set(a.attrs['href'] for a in nodes(out,'/handbook/').all(id='doc-children')[0].all() if a.tag=='a' and 'card-title' in a.attrs.get('class',''))=={'/handbook/start/','/handbook/workflows/','/handbook/review/','/handbook/reference/'}
     # The live handbook has three levels below its root, with exact native parent ordering.
-    for route,children in [('/handbook/workflows/',['writing','research']),('/handbook/workflows/writing/',['outline','draft']),('/handbook/workflows/research/',['sources','evaluate']),('/handbook/reference/',['frontmatter','markdown','advanced-markdown','diagrams','content-components','video'])]:
+    for route,children in [('/handbook/workflows/',['writing','research']),('/handbook/workflows/writing/',['outline','draft']),('/handbook/workflows/research/',['sources','evaluate']),('/handbook/reference/',['frontmatter','markdown','advanced-markdown','diagrams','charts','content-components','video'])]:
         links=[a.attrs['href'] for a in nodes(out,route).all(id='doc-children')[0].all() if a.tag=='a' and 'card-title' in a.attrs.get('class','')]
         assert links==[route+child+'/' for child in children]
     leaf=nodes(out,'/handbook/workflows/writing/outline/')
@@ -91,7 +91,7 @@ def main():
     assert html(out,'/sidera/').exists()
     search_url=re.search(r'data-index="([^"]+)"',html(out,'/').read_text())[1]
     documents=json.loads((out/search_url.lstrip('/')).read_text())['documents']
-    assert sum(d['url'].startswith('/sidera/') for d in documents)==24
+    assert sum(d['url'].startswith('/sidera/') for d in documents)==25
     assert all('/preset/' not in d['url'] and '/archives/' not in d['url'] for d in documents)
 
     # Historical expectations still refer to their old inputs, never to the promoted live content.

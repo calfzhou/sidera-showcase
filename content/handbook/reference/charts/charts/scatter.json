@@ -1,0 +1,6 @@
+{
+  "tooltip": {},
+  "xAxis": {"name": "Minutes", "nameLocation": "middle", "nameGap": 25},
+  "yAxis": {"name": "Pages"},
+  "series": [{"name": "Session", "type": "scatter", "symbolSize": 12, "data": [[10, 4], [20, 7], [25, 9], [35, 11], [45, 16]]}]
+}

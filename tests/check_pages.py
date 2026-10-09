@@ -74,7 +74,7 @@ def main():
         text = file.read_text()
         assert 'fixture/comments' not in text and 'gocalf.com/discussions' not in text
         for tag, attrs in dom.nodes:
-            for key in ('href', 'src', 'poster', 'data-index', 'data-worker', 'data-mermaid', 'data-drawio'):
+            for key in ('href', 'src', 'poster', 'data-index', 'data-worker', 'data-mermaid', 'data-drawio', 'data-frame'):
                 if attrs.get(key):
                     target(attrs[key], route, fragment=(tag == 'a' and key == 'href'))
             if 'srcset' in attrs:
@@ -98,8 +98,8 @@ def main():
     if search.get('data-worker'):
         target(search['data-worker'], BASE)
     docs = index['documents']
-    assert len(docs) == 59, len(docs)
-    assert sum(d['url'].startswith(PREFIX + 'sidera/') for d in docs) == 24
+    assert len(docs) == 61, len(docs)
+    assert sum(d['url'].startswith(PREFIX + 'sidera/') for d in docs) == 25
     for doc in docs:
         target(doc['url'], BASE)
         for section in doc['sections']:
@@ -109,7 +109,7 @@ def main():
 
     theme = ROOT / 'themes/sidera'
     manual_sources = list((theme / 'docs/content').rglob('*.md'))
-    assert len(manual_sources) == 24
+    assert len(manual_sources) == 25
     for source in manual_sources:
         rel = source.relative_to(theme / 'docs/content')
         route = rel.parent if source.stem in ('index', '_index') else rel.with_suffix('')
@@ -134,12 +134,21 @@ def main():
     assert giscus['data-category-id'] == config['params']['giscus']['category_id']
     assert any(a.get('href') == PREFIX for _, a in doms[out / '404.html'].nodes)
 
+    chart = doms[out / 'handbook/reference/charts/index.html']
+    assert sum('data-sidera-chart' in a for _, a in chart.nodes) == 5
+    controller = next(a for _, a in chart.nodes if 'data-sidera-charts-script' in a)
+    assert controller['data-frame'].startswith(PREFIX + 'charts/')
+    assert 'data-sidera-charts-script' not in (out / 'sidera/authoring/charts/index.html').read_text()
+
     # Representative public attachments are intentional, byte-preserved resources.
     for route in ('notes/code-inclusion/pairs.py', 'handbook/reference/diagrams/flow.drawio',
-                  'handbook/reference/video/motion.mp4'):
+                  'handbook/reference/video/motion.mp4',
+                  'handbook/reference/charts/charts/monthly.json',
+                  'handbook/reference/charts/charts/scatter.json',
+                  'handbook/reference/charts/data/monthly.json'):
         assert (out / route).read_bytes() == (ROOT / 'content' / route).read_bytes()
     print(f'PASS Pages artifact: {len(doms)} HTML files, {checked} local references, '
-          f'{fragments} fragments, {len(docs)} search documents, 24 manual nodes; '
+          f'{fragments} fragments, {len(docs)} search documents, 25 manual nodes; '
           'native authors/series, comments isolation, licenses, resources and 404')
 
 

@@ -1,0 +1,8 @@
+{
+  "tooltip": {"trigger": "axis"},
+  "legend": {"top": 0},
+  "xAxis": {"type": "category"},
+  "yAxis": {"type": "value", "name": "Sessions"},
+  "dataZoom": [{"type": "slider", "start": 0, "end": 100}],
+  "series": [{"name": "Sessions", "type": "line", "encode": {"x": "month", "y": "sessions"}}]
+}

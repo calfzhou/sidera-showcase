@@ -23,6 +23,7 @@ caches, private all-states builds and failure fixtures must never be deployed.
 | Native theme packaging/overrides | `check_theme_packaging.py`, `check_theme_defaults.py` |
 | UI/localization/configuration | `check_shell.py`, `check_presentation.py`, `check_localization.py`, `check_instances.py` |
 | Markdown/math/code/components | `check_markdown.py`, `check_advanced_markdown.py`, `check_snippets.py`, `check_content_components.py`, `check_composition.py` |
+| Charts | Theme `tests/check_charts.py <fresh-absolute-output>`; `check_charts_browser.mjs <same-output>` |
 | Diagrams/video | `check_diagrams.py`, `check_videos.py`, their preview/browser peers |
 | Search/references/comments | `check_discovery.py`, `check_search_core.mjs`, `check_comments.py` and browser peers |
 | Watcher/publication behavior | `check_preview_lifecycle.py`, focused `*_preview.py` suites |
@@ -68,3 +69,23 @@ and stops only its own HTTP/Chrome processes. Never attach to a user profile/ser
 Use SIDERA_HTTP_PORT/SIDERA_CDP_PORT to select other free ports; CHROME_BIN can name an
 installed Chrome on another OS. Browser tests are optional locally, not normal Hugo
 build dependencies. Do not post comments/reactions or test real provider permissions.
+
+## Interactive chart checks
+
+Build the isolated theme fixture, then use its output with the owned browser harness:
+
+```sh
+run="$PWD/.checks/charts-$(date +%Y%m%d_%H%M%S)"
+uv run --no-project --no-managed-python --python ">=3.11" --no-python-downloads python themes/sidera/tests/check_charts.py "$run"
+nvm use
+SIDERA_HTTP_PORT=14960 SIDERA_CDP_PORT=14961 node tests/check_charts_browser.mjs "$run"
+```
+
+The fixture covers native fences, paired/self-closing shortcodes, bundle JSON,
+separate/multiple datasets, nested components, conditional host Content/Summary,
+root/project-prefix/Chinese builds and rejected unsafe inputs. Browser checks keep
+all renderer requests local and verify live SVG, native legend interaction, keyboard-accessible source viewing,
+self-contained downloads, legend/zoom state, palette/motion/resize, lazy folds and
+no-JS/failure fallbacks.
+The live specimen is `content/handbook/reference/charts/`; private fixtures are not
+mounted into the production site. Test artifacts stay under the fresh `.checks` run.

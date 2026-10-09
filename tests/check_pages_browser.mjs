@@ -34,6 +34,20 @@ await runBrowser(async b => {
   }
   assert(await e(`[...document.querySelectorAll('.diagram-renderer')].length===2&&[...document.querySelectorAll('.diagram-renderer')].every(f=>new URL(f.src).pathname.startsWith('${prefix}/diagrams/')&&f.getAttribute('sandbox')==='allow-scripts')`));
   results.push('both local sandboxed diagram renderers under project prefix');
+  await n(prefix+'/handbook/reference/charts/');
+  for(let i=0;i<3;i++){
+    await e(`document.querySelectorAll('[data-sidera-chart]')[${i}].scrollIntoView({block:'center',behavior:'instant'})`);
+    await wait(`document.querySelectorAll('[data-sidera-chart]')[${i}].dataset.state==='ready'`);
+  }
+  await e(`document.querySelector('.content-folding>summary').click()`);
+  for(let i=3;i<5;i++){
+    await e(`document.querySelectorAll('[data-sidera-chart]')[${i}].scrollIntoView({block:'center',behavior:'instant'})`);
+    await wait(`document.querySelectorAll('[data-sidera-chart]')[${i}].dataset.state==='ready'`);
+  }
+  assert(await e(`[...document.querySelectorAll('.chart-frame')].length===5&&[...document.querySelectorAll('.chart-frame')].every(f=>new URL(f.src).pathname.startsWith('${prefix}/charts/')&&f.getAttribute('sandbox')==='allow-scripts')`));
+  await e(`document.querySelector('[data-sidera-chart]').scrollIntoView({block:'center',behavior:'instant'})`);
+  await b.screenshot('charts-showcase');
+  results.push('all live chart specimen forms, datasets and nested charts under project prefix');
   const missing=await e(`fetch('${prefix}/missing-test-page/').then(async r=>({status:r.status,text:await r.text()}))`);
   assert.equal(missing.status,404);assert(missing.text.includes('class="not-found-home"'));
   await n(prefix+'/404.html');assert.equal(await e(`document.querySelector('.not-found-home').getAttribute('href')`),prefix+'/');
