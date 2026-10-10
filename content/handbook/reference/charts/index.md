@@ -83,3 +83,44 @@ viewport. Each resizes to its cell, including on narrow screens.
 {{< /cell >}}
 {{< /grid >}}
 {{% /folding %}}
+
+## Adaptive spacing playground
+
+Resize this page between desktop and phone widths. These examples keep the same
+360px chart height. The plot gives the native legend more room when it wraps, and
+reclaims that room when the page widens. The generated curves below are fictional
+layout-test data, not a measured sampling experiment.
+
+### No title, no reserved title gap
+
+This small chart omits `title` and `grid`. Its plot starts near the top without a
+fixed title-sized gap. There are no explicit colors or spacing options.
+
+```echarts {caption="A titleless chart with automatic spacing"}
+{
+  "tooltip": {"trigger": "axis"},
+  "legend": {},
+  "xAxis": {},
+  "yAxis": {},
+  "series": [
+    {"name": "UnbalancedCoin", "type": "line", "data": [[0.1,0.09989],[0.2,0.20059],[0.3,0.30313],[0.4,0.40019],[0.5,0.50013],[0.6,0.59973],[0.7,0.70198],[0.8,0.80152],[0.9,0.90012]]},
+    {"name": "MakeEqualProb", "type": "line", "data": [[0.1,0.49899],[0.2,0.49846],[0.3,0.50038],[0.4,0.49917],[0.5,0.50181],[0.6,0.50022],[0.7,0.49805],[0.8,0.49997],[0.9,0.49956]]}
+  ]
+}
+```
+
+### Ten series: adaptive spacing
+
+All ten legend entries stay visible. On a narrow screen the additional legend rows
+should remain below the x-axis labels. Try toggling series, changing the color mode,
+and widening the window again. The chart title stays at its native position.
+
+{{< echarts src="charts/adaptive.json" caption="Ten series with adaptive spacing" />}}
+
+### Comparison: explicit spacing
+
+The same data with explicit `grid.top: 65` and `grid.bottom: 80` keeps ECharts'
+fixed spacing. Sidera does not override it. This intentionally reproduces the
+crowded legend on narrow screens so you can compare the two behaviors.
+
+{{< echarts src="charts/fixed-spacing.json" caption="Ten series with fixed spacing" />}}

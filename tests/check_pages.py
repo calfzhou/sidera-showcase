@@ -135,7 +135,7 @@ def main():
     assert any(a.get('href') == PREFIX for _, a in doms[out / '404.html'].nodes)
 
     chart = doms[out / 'handbook/reference/charts/index.html']
-    assert sum('data-sidera-chart' in a for _, a in chart.nodes) == 5
+    assert sum('data-sidera-chart' in a for _, a in chart.nodes) == 8
     controller = next(a for _, a in chart.nodes if 'data-sidera-charts-script' in a)
     assert controller['data-frame'].startswith(PREFIX + 'charts/')
     assert 'data-sidera-charts-script' not in (out / 'sidera/authoring/charts/index.html').read_text()

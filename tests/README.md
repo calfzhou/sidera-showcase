@@ -78,6 +78,7 @@ Build the isolated theme fixture, then use its output with the owned browser har
 run="$PWD/.checks/charts-$(date +%Y%m%d_%H%M%S)"
 uv run --no-project --no-managed-python --python ">=3.11" --no-python-downloads python themes/sidera/tests/check_charts.py "$run"
 nvm use
+node themes/sidera/tests/check_chart_layout.cjs
 SIDERA_HTTP_PORT=14960 SIDERA_CDP_PORT=14961 node tests/check_charts_browser.mjs "$run"
 ```
 
@@ -86,6 +87,8 @@ separate/multiple datasets, nested components, conditional host Content/Summary,
 root/project-prefix/Chinese builds and rejected unsafe inputs. Browser checks keep
 all renderer requests local and verify live SVG, native legend interaction, keyboard-accessible source viewing,
 self-contained downloads, legend/zoom state, palette/motion/resize, lazy folds and
-no-JS/failure fallbacks.
+no-JS/failure fallbacks. Adaptive spacing checks include continuous width sweeps
+with normal animation enabled, checking per-frame axis/legend clearance and stable
+margins when returning to the same width.
 The live specimen is `content/handbook/reference/charts/`; private fixtures are not
 mounted into the production site. Test artifacts stay under the fresh `.checks` run.

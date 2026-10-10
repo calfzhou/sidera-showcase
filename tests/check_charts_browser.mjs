@@ -159,6 +159,75 @@ await runBrowser(async b => {
     assert(!await e(`document.querySelector('[data-sidera-charts-script],.chart-frame')`));
     assert(!b.requests.slice(before).some(url=>url.includes('/vendor/echarts-')));
   }
+  // Actual opaque-frame geometry at a fixed height: wrapped legends must not
+  // touch axis labels, and margins must shrink again when the window widens.
+  // Restore normal animation: the earlier reduced-motion test must not mask
+  // transient layout errors in the adaptive checks.
+  await call('Emulation.setEmulatedMedia',{features:[{name:'prefers-reduced-motion',value:'no-preference'}]});
+  await n('/sidera-showcase/adaptive/');
+  for (const id of ['adaptive', 'titleless', 'fixed']) await render(id);
+  const geometry = title => frame(title, `(()=>{
+    const bounds=type=>{const model=chart.getModel().getComponent(type),group=chart.getViewOfComponentModel(model).group;
+      const r=group.getBoundingRect().clone();r.applyTransform(group.getLocalTransform());return {top:r.y,bottom:r.y+r.height,height:r.height};};
+    const grid=chart.getModel().getComponent('grid');return {axis:bounds('xAxis'),legend:bounds('legend'),
+      top:grid.get('top'),bottom:grid.get('bottom'),height:chart.getHeight()};})()`);
+  const layouts=[];
+  for (const width of [1100,390,320,1100]) {
+    await viewport(width,850); await render('adaptive'); await delay(300);
+    const g=await geometry('adaptive'); layouts.push(g);
+    assert(g.axis.bottom<=g.legend.top-10,JSON.stringify({width,g}));
+    assert.equal(g.height,360);
+    const fixed=await geometry('fixed');assert.equal(fixed.top,65);assert.equal(fixed.bottom,80);
+    const titleless=await geometry('titleless');assert(titleless.top<35,JSON.stringify(titleless));
+    await e(`Sidera.setColorMode('${width===1100?'light':'dark'}')`);await delay(200);
+    const after=await geometry('adaptive');assert(after.axis.bottom<=after.legend.top-10);
+    if(width===390)await b.screenshot('adaptive-mobile');
+  }
+  assert(layouts[2].legend.height>layouts[0].legend.height);
+  assert(layouts[2].bottom>layouts[0].bottom);
+  assert.equal(layouts[3].bottom,layouts[0].bottom);
+  await frame('adaptive', `(chart.dispatchAction({type:'legendUnSelect',name:'m=1'}),true)`);
+  await viewport(390,850);await delay(250);
+  assert.equal(await frame('adaptive', `chart.getOption().legend[0].selected['m=1']`),false);
+  // Sample every painted frame during continuous width changes with normal
+  // animation enabled, including reversals around legend wrapping thresholds.
+  await viewport(1100,850); await render('adaptive'); await delay(200);
+  assert.equal(await frame('adaptive', `chart.getOption().animation`),true);
+  assert(await frame('adaptive', `chart.getOption().series.every(series=>series.animation!==false)`));
+  await frame('adaptive', `(()=>{
+    window.resizeSamples=[];
+    const sample=()=>{
+      const model=chart.getModel(),grid=model.getComponent('grid');
+      const bounds=type=>{const group=chart.getViewOfComponentModel(model.getComponent(type)).group;
+        const r=group.getBoundingRect().clone();r.applyTransform(group.getLocalTransform());return r;};
+      const axis=bounds('xAxis'),legend=bounds('legend');
+      if(Math.abs(chart.getWidth()-document.getElementById('chart').clientWidth)<1) {
+        window.resizeSamples.push({width:chart.getWidth(),top:grid.get('top'),bottom:grid.get('bottom'),
+          gap:legend.y-axis.y-axis.height,legendHeight:legend.height});
+      }
+      window.resizeSampleFrame=requestAnimationFrame(sample);
+    };sample();return true;})()`);
+  const sweep=Array.from({length:32},(_,i)=>1100-i*25);
+  for(const width of [...sweep,...sweep.toReversed(),640,639,640,641,640,390,320,390,1100]) {
+    await viewport(width,850);await delay(30);
+  }
+  await delay(200);
+  const samples=await frame('adaptive', `(cancelAnimationFrame(window.resizeSampleFrame),window.resizeSamples)`);
+  assert(samples.length>30,'Continuous resize must sample actual frames');
+  const byWidth=new Map();
+  for(const sample of samples) {
+    assert(sample.gap>=10&&sample.gap<=14,JSON.stringify({continuousResize:sample}));
+    const previous=byWidth.get(sample.width);
+    if(previous) {
+      assert.equal(sample.top,previous.top,JSON.stringify({previous,sample}));
+      assert.equal(sample.bottom,previous.bottom,JSON.stringify({previous,sample}));
+    }
+    byWidth.set(sample.width,sample);
+  }
+  assert(byWidth.size>15,'Resize must change the chart width, not only its container');
+  // Reader interactions keep animation configuration; only layout changes snap.
+  assert.equal(await frame('adaptive', `chart.getOption().animation`),true);
+  assert.equal(await frame('adaptive', `chart.getOption().legend[0].selected['m=1']`),false);
   await n('/security/');
   await wait(`document.querySelector('[data-sidera-chart]').dataset.state==='ready'`);
   assert(!await frame('Safe labels', `!!document.querySelector('img,[onerror]')`));
@@ -179,5 +248,5 @@ await runBrowser(async b => {
   await call('Emulation.setScriptExecutionDisabled',{value:false});
   assert.deepEqual(external,[]);
   assert.deepEqual(b.errors,[]);
-  console.log('PASS interactive charts: all authoring forms, EN/ZH, project prefix, lazy/fold/grid, SVG tooltips, native legends, keyboard source disclosure/downloads, palette/motion/state/resize, no-JS/failure, opaque frames and no external requests');
+  console.log('PASS interactive charts: all authoring forms, EN/ZH, project prefix, lazy/fold/grid, SVG tooltips, native legends, keyboard source disclosure/downloads, palette/motion/state/continuous resize, no-JS/failure, opaque frames and no external requests');
 },{'/sidera-showcase':'subpath-public','/_chinese':'chinese-public','/_icons':'icons-off-public'});
