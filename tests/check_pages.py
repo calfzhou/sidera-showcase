@@ -74,7 +74,7 @@ def main():
         text = file.read_text()
         assert 'fixture/comments' not in text and 'gocalf.com/discussions' not in text
         for tag, attrs in dom.nodes:
-            for key in ('href', 'src', 'poster', 'data-index', 'data-worker', 'data-mermaid', 'data-drawio', 'data-frame'):
+            for key in ('href', 'src', 'poster', 'data-index', 'data-worker', 'data-mermaid', 'data-drawio', 'data-frame', 'data-module', 'data-css'):
                 if attrs.get(key):
                     target(attrs[key], route, fragment=(tag == 'a' and key == 'href'))
             if 'srcset' in attrs:
@@ -98,8 +98,8 @@ def main():
     if search.get('data-worker'):
         target(search['data-worker'], BASE)
     docs = index['documents']
-    assert len(docs) == 61, len(docs)
-    assert sum(d['url'].startswith(PREFIX + 'sidera/') for d in docs) == 25
+    assert len(docs) == 64, len(docs)
+    assert sum(d['url'].startswith(PREFIX + 'sidera/') for d in docs) == 26
     for doc in docs:
         target(doc['url'], BASE)
         for section in doc['sections']:
@@ -109,7 +109,7 @@ def main():
 
     theme = ROOT / 'themes/sidera'
     manual_sources = list((theme / 'docs/content').rglob('*.md'))
-    assert len(manual_sources) == 25
+    assert len(manual_sources) == 26
     for source in manual_sources:
         rel = source.relative_to(theme / 'docs/content')
         route = rel.parent if source.stem in ('index', '_index') else rel.with_suffix('')
@@ -148,7 +148,7 @@ def main():
                   'handbook/reference/charts/data/monthly.json'):
         assert (out / route).read_bytes() == (ROOT / 'content' / route).read_bytes()
     print(f'PASS Pages artifact: {len(doms)} HTML files, {checked} local references, '
-          f'{fragments} fragments, {len(docs)} search documents, 25 manual nodes; '
+          f'{fragments} fragments, {len(docs)} search documents, {len(manual_sources)} manual nodes; '
           'native authors/series, comments isolation, licenses, resources and 404')
 
 

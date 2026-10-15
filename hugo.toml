@@ -20,6 +20,8 @@ journal = '/journal/:year/:month/:day/:slugorcontentbasename/'
 path = 'page'
 disableAliases = true
 [params]
+# Explicitly trust executable JSX islands authored in this site.
+jsx = true
 # Theme default is auto; this demo deliberately starts new visitors in dark mode.
 color_mode = 'dark'
 # All eligible article/docs pages; individual params.comments=false still opts out.

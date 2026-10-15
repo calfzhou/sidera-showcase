@@ -1,7 +1,7 @@
 ---
 title: "Reference desk"
 date: 2026-03-12
-lastmod: 2026-10-09T22:10:00+08:00
+lastmod: 2026-10-14T23:51:00+08:00
 params:
   children:
     order: [frontmatter, markdown]
@@ -28,3 +28,9 @@ drawio sources, with local viewing, container composition and explicit remote ba
 
 The [interactive chart specimen](charts/index.md) covers line, bar, donut and scatter
 charts, with local JSON files, native interaction and downloadable source.
+
+The [JSX playground](jsx/index.md) has a counter, Unicode Base64 encoder, page color
+controls, independent calculators and an optional isolated frame—all in ordinary Markdown.
+
+The [everyday tools](legacy-tools/index.md) page rebuilds an interactive paper weekday table,
+a legacy Kindle recovery helper and a string-based Chinese-number converter in JSX.

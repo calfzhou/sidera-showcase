@@ -66,6 +66,23 @@ update their own pins deliberately; this workflow does not synchronize their che
 - Giscus uses only the showcase's repository/category. Previewing may contact the
   provider; do not submit test comments or reactions. The manual never loads comments.
 
+## Interactive JSX playground
+
+Open `/handbook/reference/jsx/` beneath the deployment prefix for a counter,
+Unicode Base64 encoder, page color-mode buttons and independent reading-time
+calculators (including one isolated frame). This site explicitly enables
+`params.jsx = true`; author code is trusted page JavaScript by default.
+The demos compile with Hugo alone using the theme's pinned local React runtime.
+See the [theme manual](themes/sidera/docs/content/authoring/jsx.md) for authoring
+and the native bundle-root import convention.
+
+The [everyday tools specimen](content/handbook/reference/legacy-tools/index.md) at
+`/handbook/reference/legacy-tools/` ports Calf’s supplied paper calendar, legacy Kindle
+password formula and Chinese-number converter. Its local MD5 dependency retains
+its own MIT license and provenance; the original GoCalf files remain untouched.
+The calendar preserves one continuous paper sheet and its intersecting lookup
+paths, rather than replacing the layout with a date-picker.
+
 ## Checks and GitHub flow
 
 Checks use installed Python 3.11+ and uv; no packages are installed.

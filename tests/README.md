@@ -92,3 +92,36 @@ with normal animation enabled, checking per-frame axis/legend clearance and stab
 margins when returning to the same width.
 The live specimen is `content/handbook/reference/charts/`; private fixtures are not
 mounted into the production site. Test artifacts stay under the fresh `.checks` run.
+
+## JSX islands
+
+Run `uv run --no-project --no-managed-python python3 themes/sidera/tests/check_jsx.py <fresh-absolute-output>`
+for native compilation/resource/publication/locale validation. Run the theme
+`tests/check_jsx_preview.py <fresh-absolute-output>` with `SIDERA_HTTP_PORT=14984`
+for imported-helper, layout-shim and fence edits during a native Hugo preview. Build the real site
+into `<run>/public`, then run
+`SIDERA_HTTP_PORT=14980 SIDERA_CDP_PORT=14981 node tests/check_jsx_browser.mjs <run> <contract-run>`
+with the nvm-selected Node. The optional second path exercises private failure
+fixtures from the contract suite, plus no-custom-CSS form styling in page/sandbox
+modes, scoped author overrides, theme tokens, native controls and prose isolation.
+It also checks Stack/Row parity, gaps, native props/refs, wrapping, plain/card
+appearance, and top titles/bottom captions.
+Browser checks use the owned harness; screenshots
+remain under the run directory. No live provider actions or external React downloads.
+
+### Rebuilt everyday tools
+
+`node tests/check_legacy_tools.mjs` checks the Gregorian lookup arithmetic over a
+complete 400-year cycle (including the paper path), the table's leap-year gaps,
+partial selections, connected path coordinates, invalid dates, string-based
+Chinese numbers through 52 digits, and the legacy Kindle MD5 formula against
+Node's crypto implementation. It verifies the showcase-local MD5 vendor hashes.
+No GoCalf checkout, network or real device serial is used by the committed tests.
+
+After a fresh production build into `<run>/public`, use
+`SIDERA_HTTP_PORT=14986 SIDERA_CDP_PORT=14987 node tests/check_legacy_tools_browser.mjs <run>`
+with the same isolated harness to check the single-sheet column alignment, blank
+quadrants, connected highlights, selection/hover/focus, manual leap-month warnings,
+fit/actual-size scrolling, input validation, local-only calculation, no source
+disclosure, no-JS, and light/dark desktop/mobile.
+The fixtures are the live `content/handbook/reference/legacy-tools/` examples.

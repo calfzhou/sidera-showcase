@@ -1,0 +1,11 @@
+{
+  "name": "blueimp-md5",
+  "version": "2.19.0",
+  "integrity": "sha512-DRQrD6gJyy8FbiE4s+bDoXS9hiW3Vbx5uCdwvcCf3zLHL+Iv7LtGHLpr+GZV8rHG8tK766FGYBwRbu8pELTt+w==",
+  "shasum": "b53feea5498dcb53dc6ec4b823adb84b729c4af0",
+  "source": "https://github.com/blueimp/JavaScript-MD5",
+  "files": {
+    "md5.js": "5f14f0efb563db7b23efaf394339a78bced6fd5ba649f049961a65476d928af5",
+    "md5-LICENSE.txt": "ce2ef2581ac80c09ea7025ce0eca7995b1cdc631cd0daaffce3a1353bc2143f8"
+  }
+}
