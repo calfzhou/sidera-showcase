@@ -121,7 +121,8 @@ No GoCalf checkout, network or real device serial is used by the committed tests
 After a fresh production build into `<run>/public`, use
 `SIDERA_HTTP_PORT=14986 SIDERA_CDP_PORT=14987 node tests/check_legacy_tools_browser.mjs <run>`
 with the same isolated harness to check the single-sheet column alignment, blank
-quadrants, connected highlights, selection/hover/focus, manual leap-month warnings,
+quadrants, connected highlights, selection/hover/focus, real pointer movement across
+gaps/empty cells and area exits in fit/actual-size views, manual leap-month warnings,
 fit/actual-size scrolling, input validation, local-only calculation, no source
 disclosure, no-JS, and light/dark desktop/mobile.
 The fixtures are the live `content/handbook/reference/legacy-tools/` examples.

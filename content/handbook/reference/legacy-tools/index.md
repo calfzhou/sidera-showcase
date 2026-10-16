@@ -1,7 +1,7 @@
 ---
 title: "Everyday tools, rebuilt in JSX"
 date: 2026-10-14T23:51:00+08:00
-lastmod: 2026-10-15T22:23:40+08:00
+lastmod: 2026-10-16T19:28:04+08:00
 params:
   ai_label: generated
   comments: false
@@ -21,7 +21,9 @@ grid continues the same columns below, alongside the day numbers. The blank area
 are retained so the sheet still reads as one object.
 
 Click cells to pin a selection; hover or keyboard-focus another cell to preview
-its path. **Clear highlights** lets you work through the four selections yourself.
+its path. A mouse preview stays visible across gaps and empty cells until you
+leave that section of the sheet. **Clear highlights** lets you work through the
+four selections yourself.
 **Fit sheet** keeps the whole layout visible; **Actual size** makes the cells easier
 to read and lets you pan horizontally on a small screen. The upper-right area is
 intentionally blank: the instructions belong here in the article, not in the widget.

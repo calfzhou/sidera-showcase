@@ -66,7 +66,7 @@ await runBrowser(async b => {
   await e(`${cell('century','21')}.dispatchEvent(new MouseEvent('mouseover',{bubbles:true}))`);
   await wait(`${result}.textContent.includes('Preview: 21 / 96')`);
   assert.equal(await e(`${cell('century','20')}.getAttribute('aria-pressed')`),'true');
-  await e(`${cell('century','21')}.dispatchEvent(new MouseEvent('mouseout',{bubbles:true}))`);
+  await e(`document.querySelector('.paper-calendar').dispatchEvent(new MouseEvent('mouseout',{bubbles:true,relatedTarget:document.querySelector('.paper-toolbar')}))`);
   await wait(`${result}.textContent.includes('Selected: 20 / 96')`);
   // Paper choices do not auto-clamp or auto-switch the selected month.
   await e(`${cell('ending','0')}.click()`);await e(`${cell('month','2-prime')}.click()`);await e(`${cell('day','29')}.click()`);
@@ -81,6 +81,57 @@ await runBrowser(async b => {
   const today=await e(`(()=>{const d=new Date();return [Math.floor(d.getFullYear()/100),d.getFullYear()%100,d.getDate()].map(String)})()`);
   assert.deepEqual(await e(`['century','ending','day'].map(part=>document.querySelector('[data-part="'+part+'"][aria-pressed="true"]').dataset.value)`),today);
   await e(`${action('example')}.click()`);
+  // Real pointer movement: gaps/empty cells retain a preview until the pointer
+  // exits that logical sub-table, even with CSS zoom and horizontal scrolling.
+  const pointer = async point => {
+    await call('Input.dispatchMouseEvent',{type:'mouseMoved',...point});
+    await e(`new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)))`);
+  };
+  const center = async selector => await e(`(()=>{const r=document.querySelector(${JSON.stringify(selector)}).getBoundingClientRect();return {x:r.x+r.width/2,y:r.y+r.height/2}})()`);
+  const snapshot = async () => await e(`({text:${result}.textContent,path:[...document.querySelectorAll('.paper-path,.paper-junction')].map(el=>[el.dataset.paperCell,el.className])})`);
+  const areas = [
+    {part:'ending',first:'2',next:'4',left:'1:6',right:'1:7',empty:'1:8'},
+    {part:'century',first:'15',next:'17',left:'19:2',right:'19:3',empty:'21:2',outside:'19:4'},
+    {part:'month',first:'10',next:'5',left:'19:12',right:'19:13',empty:'20:12',outside:'20:10'},
+    {part:'day',first:'22',next:'25',left:'26:14',right:'26:15',empty:'29:15',outside:'26:10'},
+  ];
+  for(const width of [1280,390]) {
+    await viewport(width,960);
+    for(const actual of [false,true]) {
+      if(actual) await e(`${action('size')}.click()`);
+      for(const area of areas) {
+        await pointer({x:0,y:0});
+        await e(`${action('example')}.click()`);
+        const selected=await snapshot();
+        const first=`[data-part="${area.part}"][data-value="${area.first}"]`;
+        await e(`document.querySelector(${JSON.stringify(first)}).scrollIntoView({block:'center',inline:'center',behavior:'instant'})`);
+        await pointer(await center(first));
+        await wait(`${result}.textContent.startsWith('Preview:')`);
+        const preview=await snapshot();
+        const gap=await e(`(()=>{
+          const left=document.querySelector('[data-paper-cell="${area.left}"]').getBoundingClientRect();
+          const right=document.querySelector('[data-paper-cell="${area.right}"]').getBoundingClientRect();
+          return {x:(left.right+right.left)/2,y:left.y+left.height/2};
+        })()`);
+        assert(await e(`!document.elementFromPoint(${gap.x},${gap.y}).closest('button[data-part]')`));
+        await pointer(gap);assert.deepEqual(await snapshot(),preview,`${area.part}: cell gap`);
+        await pointer(await center(`[data-paper-cell="${area.empty}"]`));
+        assert.deepEqual(await snapshot(),preview,`${area.part}: empty cell`);
+        await pointer(await center(`[data-part="${area.part}"][data-value="${area.next}"]`));
+        assert.notDeepEqual(await snapshot(),preview,`${area.part}: next numbered cell`);
+        const outside=area.outside ? await center(`[data-paper-cell="${area.outside}"]`) : await e(`(()=>{
+          const header=document.querySelector('.paper-years').getBoundingClientRect();
+          const row=document.querySelector('[data-paper-cell="1:6"]').getBoundingClientRect();
+          return {x:header.left-4,y:row.y+row.height/2};
+        })()`);
+        await pointer(outside);assert.deepEqual(await snapshot(),selected,`${area.part}: leave area inside sheet`);
+        await pointer(await center(first));
+        await pointer({x:0,y:0});assert.deepEqual(await snapshot(),selected,`${area.part}: leave sheet`);
+      }
+      if(actual) await e(`${action('size')}.click()`);
+    }
+  }
+  await viewport(1280,960);
   await render(1);
   const serial='b012 34567890 1234';
   await fill('.kindle-tool input',serial);
@@ -149,5 +200,5 @@ await runBrowser(async b => {
   assert(await e(`[...document.querySelectorAll('.jsx-fallback')].every(el=>!el.hidden) && !document.querySelector('.jsx-source')`));
   assert.equal(b.errors.length,0,JSON.stringify(b.errors));
   assert(b.requests.filter(url=>url.startsWith('http')).every(url=>url.startsWith(b.origin+prefix+'/')),b.requests.join('\n'));
-  console.log('PASS legacy JSX browser: single-sheet spatial alignment and connected paths; calendar click/focus/hover/manual leap selections; local Kindle formula/privacy/reset; exact Chinese integers/limits/errors; light/dark/mobile tables; no source UI; no-JS; no external requests');
+  console.log('PASS legacy JSX browser: single-sheet spatial alignment and connected paths; calendar click/focus/hover/manual leap selections; stable pointer previews across all four areas in fit/actual-size desktop/mobile views; local Kindle formula/privacy/reset; exact Chinese integers/limits/errors; light/dark/mobile tables; no source UI; no-JS; no external requests');
 }, {[prefix]:'public'});

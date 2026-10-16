@@ -6,6 +6,14 @@ const example = { year: 2011, month: 8, day: 10 };
 const blank = { century: null, ending: null, month: null, day: null };
 const sheetWidth = 628;
 const letter = index => 'ABCDEFG'[index];
+// Opposite corners of each logical area in the single paper table. Include its
+// label and empty cells; DOM ancestry alone cannot identify border-spacing gaps.
+const previewAreas = {
+  ending: ['.paper-years', '[data-paper-cell="18:10"]'],
+  century: ['.paper-century', '[data-paper-cell="25:3"]'],
+  month: ['.paper-months', '.paper-months.paper-side-label'],
+  day: ['.paper-days', '.paper-days.paper-side-label'],
+};
 
 export default function Calendar() {
   const id = useId();
@@ -26,6 +34,14 @@ export default function Calendar() {
   const trace = paperPath(current);
   const scale = fit ? Math.min(1, width / sheetWidth) : 1;
   function reset(value) { setSelection(value); setHover(null); setFocus(null); }
+  function leavePreviewArea(event) {
+    // Entering another numbered cell already supplies the next preview.
+    if (!hover || event.target.closest('button[data-part]')) return;
+    const [start, end] = previewAreas[hover.part].map(selector =>
+      event.currentTarget.querySelector(selector).getBoundingClientRect());
+    const { clientX: x, clientY: y } = event;
+    if (x < start.left || x > end.right || y < start.top || y > end.bottom) setHover(null);
+  }
   function cellClass(region, row, col) {
     return `paper-${region}${trace.path.has(`${row}:${col}`) ? ' paper-path' : ''}${trace.junctions.has(`${row}:${col}`) ? ' paper-junction' : ''}`;
   }
@@ -36,7 +52,7 @@ export default function Calendar() {
       `${part === 'ending' ? 'Year ending' : part === 'century' ? 'Century' : 'Day'} ${label}`;
     return <button type="button" aria-label={description} title={description} aria-pressed={selected}
       data-part={part} data-value={key}
-      onMouseEnter={() => setHover({ part, value })} onMouseLeave={() => setHover(null)}
+      onMouseEnter={() => setHover({ part, value })}
       onFocus={() => setFocus({ part, value })} onBlur={() => setFocus(null)}
       onClick={() => reset({ ...selection, [part]: value })}>{label}</button>;
   }
@@ -48,7 +64,8 @@ export default function Calendar() {
       <button type="button" data-paper-action="size" aria-pressed={!fit} onClick={() => setFit(value => !value)}>{fit ? 'Actual size' : 'Fit sheet'}</button>
     </Row>
     <div ref={viewport} className="paper-viewport" tabIndex={0} role="region" aria-label="Perpetual weekday paper table, scroll horizontally at actual size">
-      <table className="paper-calendar" style={{ zoom: scale }} aria-describedby={`${id}-result`}>
+      <table className="paper-calendar" style={{ zoom: scale }} aria-describedby={`${id}-result`}
+        onMouseMove={leavePreviewArea} onMouseLeave={() => setHover(null)}>
         <caption>Perpetual weekday calendar</caption>
         {/* Omit original column 1 (4n+x); retain logical coordinates for the lookup paths. */}
         <colgroup>{Array.from({ length: 16 }, (_, col) => <col key={col} style={{ width: col === 0 || col === 15 ? 22 : 38 }} />)}</colgroup>
