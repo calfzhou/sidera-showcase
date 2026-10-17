@@ -15,7 +15,7 @@ git clone --recurse-submodules https://github.com/calfzhou/sidera-showcase.git
 cd sidera-showcase
 hugo server --bind 127.0.0.1 --port 1313 --disableFastRender
 # Stop with Ctrl-C. Choose another port if 1313 is occupied.
-hugo --environment production --panicOnWarning
+hugo --environment production --minify --panicOnWarning
 ```
 
 An existing clone needs `git submodule update --init --recursive`. This restores the
@@ -88,7 +88,7 @@ paths, rather than replacing the layout with a date-picker.
 Checks use installed Python 3.11+ and uv; no packages are installed.
 
 ```sh
-make check                 # fresh production build, prefix/artifact and workflow checks
+make check                 # fresh minified production build, artifact/workflow and minification checks
 # Focused feature suites (Python standard library, managed with uv):
 uv run --no-project --no-managed-python python3 tests/check_showcase.py
 uv run --no-project --no-managed-python python3 tests/check_source_links.py

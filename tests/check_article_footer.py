@@ -11,6 +11,9 @@ from check_docs import write
 def main():
     run=Path(os.environ['SIDERA_CHECK_DIR']).resolve();run.mkdir(parents=True,exist_ok=False)
     source=copy_showcase(run,'live')
+    # Footer browser fixtures must not lazy-load the showcase's live comment provider.
+    config=source/'hugo.toml'
+    config.write_text(config.read_text().replace('comments = true', 'comments = false'))
     def check(label,extra='',diagnostic=None):
         write(source,'footer.toml',extra)
         return build(source,run,label,diagnostic,('--config','hugo.toml,footer.toml','--printI18nWarnings'))
@@ -57,7 +60,7 @@ Ordinary test content.
     share=item(d,'share')[0];u='https://example.org'+route
     assert share.all(**{'data-share-url':u})
     assert d.all(href='https://github.com/example/repo/edit/main/content/notes/footer-probe.md')
-    assert any(n.tag=='img' and n.attrs.get('alt')=='' for n in item(d,'authors')[0].all())
+    assert any(n.tag=='img' and 'alt' in n.attrs and not n.attrs['alt'] for n in item(d,'authors')[0].all())
     for a in share.all():
         href=a.attrs.get('href','')
         if href.startswith(('mailto:','https://service.weibo.com/')):

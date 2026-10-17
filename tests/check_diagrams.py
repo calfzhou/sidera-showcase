@@ -140,7 +140,10 @@ A --> B
     for name in ['mermaid-11.17.2','drawio-31.5.2']:
         kind='mermaid' if name.startswith('mermaid') else 'drawio'
         url=next(n.attrs['data-'+kind] for n in dom.all() if 'data-sidera-diagrams-script' in n.attrs)
-        frame=(out/url.removeprefix('/preview/')).read_text()
+        frame_path=out/url.removeprefix('/preview/')
+        frame=frame_path.read_text()
+        if kind=='drawio':
+            assert DOM(frame_path).root.all(id='stencils')[0].words()==(THEME/'assets/vendor/drawio-31.5.2/basic.xml').read_text(), 'Minification must preserve stencil XML bytes'
         assert "connect-src 'none'" in frame and "frame-src 'none'" in frame and "'unsafe-eval'" not in frame
         manifest=json.loads((THEME/'assets/vendor'/name/'provenance.json').read_text())
         for file,sha in manifest['files'].items():assert hashlib.sha256((THEME/'assets/vendor'/name/file).read_bytes()).hexdigest()==sha

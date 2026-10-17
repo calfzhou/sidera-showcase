@@ -49,10 +49,11 @@ jobs:
         run: |
           set -euo pipefail
           hugo version
-          hugo --environment production --cacheDir "$RUNNER_TEMP/hugo-cache" \
+          hugo --environment production --minify --cacheDir "$RUNNER_TEMP/hugo-cache" \
             --noBuildLock --panicOnWarning --printPathWarnings --printI18nWarnings
           python3 tests/check_pages.py public
           python3 tests/check_workflow.py
+          python3 themes/sidera/tests/check_minify.py "$RUNNER_TEMP/minify-check" public
       - uses: actions/upload-pages-artifact@v3
         with:
           path: ./public

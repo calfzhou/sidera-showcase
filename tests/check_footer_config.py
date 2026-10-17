@@ -75,7 +75,7 @@ site_footer=['text','links']
 footer_text=''
 footer_menu='missing'
 """)
-    assert 'data-extra="article-footer"' in html(quiet,alpha).read_text()
+    assert nodes(quiet,alpha).all(**{'data-extra':'article-footer'})
     # With enabled regions an explicit hook can supply content; remove only our test overrides by overwriting empty.
     for region in ('article','site'):write(source,'layouts/_partials/sidera/'+region+'-footer-extra.html','')
     quiet=check('quiet-no-hook',"""[params]
@@ -105,7 +105,7 @@ article_text='Preset closing'
     assert 'Preset closing' in html(preset,'/closing/a/').read_text()
     assert 'Native closing' in html(preset,'/closing/b/').read_text()
     zh=check('chinese',"defaultContentLanguage='zh'\nlocale='zh-CN'\n",flags=(*flags,'--baseURL','https://example.org/_chinese/'))
-    assert 'aria-label="文章页脚"' in html(zh,alpha).read_text()
+    assert nodes(zh,alpha).all(**{'aria-label':'文章页脚'})
     assert '返回顶部' in html(zh,alpha).read_text()
     # Invalid types/defaults, missing/unsafe covers, duplicate items, menu safety, unused preset maps.
     for label,config,diagnostic in [

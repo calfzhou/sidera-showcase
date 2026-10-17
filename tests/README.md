@@ -16,6 +16,7 @@ caches, private all-states builds and failure fixtures must never be deployed.
 
 | Concern | Checks |
 |---|---|
+| HTML minification, deferred fragments, custom footer hooks and frame output | Theme `check_minify.py <fresh-absolute-output> [minified-site-output]`; fixtures and full artifact audited in `make check` and Pages CI |
 | Real production prefix, manual, assets, output boundary, comments IDs | `check_pages.py <public-directory>`; `make check` builds first |
 | Single live site's configuration variants | `check_showcase.py` |
 | Publication/model/scopes/taxonomies | `check_organization.py`, `check_tag_routes.py`, `check_ordering.py`, `check_model.py`, `check_taxonomies.py` |

@@ -14,6 +14,8 @@ assert "HUGO_VERSION: '0.166.0'" in text
 assert "HUGO_SHA256: '0e39b901e3f919f1daae05c8ff64f0c14c8a348ef46886d63f8e6d1bb2653885'" in text
 assert text.index('sha256sum --check --strict') < text.index('tar -xzf')
 assert 'python3 tests/check_pages.py public' in text
+assert 'hugo --environment production --minify' in text
+assert 'python3 themes/sidera/tests/check_minify.py "$RUNNER_TEMP/minify-check" public' in text
 assert 'actions/upload-pages-artifact@v3' in text
 assert re.search(r'permissions:\n  contents: read\n', text)
 build, deploy = text.split('\n  deploy:\n')
