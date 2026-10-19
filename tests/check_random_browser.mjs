@@ -18,6 +18,7 @@ await runBrowser(async b => {
   const results = [];
   await v(1440, 960);
   await n('/preview/docs/article/'); await ready();
+  assert.equal(await e(`document.querySelector('[data-instance="left-random-1"]').previousElementSibling.dataset.component`), 'menu');
   const index = await e(`document.querySelector('[data-sidera-random-script]').dataset.index`);
   const urls = JSON.parse(await readFile(resolve(b.run, 'baseline-public', index.replace('/preview/', '')), 'utf8'));
   assert.equal(b.requests.filter(url => url === b.origin + index).length, 1);
@@ -28,6 +29,7 @@ await runBrowser(async b => {
   assert.equal(await e(`getComputedStyle(document.activeElement).outlineStyle`), 'solid');
   await key('Enter', 'Enter', 13);
   await wait(`location.pathname === '${target}'`); await ready();
+  assert.equal(await e(`document.querySelector('[data-instance="left-random-1"]').previousElementSibling.dataset.component`), 'menu');
   assert.equal(await e(`document.querySelector('[data-sidera-random-script]').dataset.index`), index);
   results.push('keyboard activation crosses collections in the same tab; exact shared pool on destination');
 
