@@ -26,7 +26,7 @@ caches, private all-states builds and failure fixtures must never be deployed.
 | Markdown/math/code/components | `check_markdown.py`, `check_advanced_markdown.py`, `check_snippets.py`, `check_content_components.py`, `check_composition.py` |
 | Charts | Theme `tests/check_charts.py <fresh-absolute-output>`; `check_charts_browser.mjs <same-output>` |
 | Diagrams/video | `check_diagrams.py`, `check_videos.py`, their preview/browser peers |
-| Random article | Theme `check_random.py <fresh-output>`, `check_random.mjs`; showcase `check_random_browser.mjs <same-output>` |
+| Random article | Theme `check_random.py <fresh-output>`, `check_random.mjs`; showcase `check_random_browser.mjs <same-output>` and `check_random_reveal_browser.mjs <same-output>` (held-controller first-paint and held-index reveal checks) |
 | Search/references/comments | `check_discovery.py`, `check_search_core.mjs`, `check_comments.py` and browser peers |
 | Watcher/publication behavior | `check_preview_lifecycle.py`, focused `*_preview.py` suites |
 

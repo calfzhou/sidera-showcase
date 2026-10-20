@@ -14,7 +14,7 @@ await runBrowser(async b => {
     }
     assert.fail(expression);
   };
-  const ready = () => wait(`!!document.querySelector('${selector}:not([hidden])')`);
+  const ready = () => wait(`!!document.querySelector('${selector}:enabled:not([hidden])')`);
   const results = [];
   await v(1440, 960);
   await n('/preview/docs/article/'); await ready();
@@ -34,7 +34,7 @@ await runBrowser(async b => {
   results.push('keyboard activation crosses collections in the same tab; exact shared pool on destination');
 
   await n('/preview/repeats/'); await ready();
-  assert.equal(await e(`document.querySelectorAll('${selector}:not([hidden])').length`), 5);
+  assert.equal(await e(`document.querySelectorAll('${selector}:enabled:not([hidden])').length`), 5);
   assert.equal(await e(`document.querySelectorAll('[data-sidera-random-script]').length`), 1);
   assert.equal(await e(`document.querySelector('[data-instance="left-random-2"]').querySelectorAll('svg').length`), 0);
   assert(await e(`document.querySelector('[data-instance="left-random-2"]').textContent.includes('Random article')`));
@@ -69,12 +69,12 @@ await runBrowser(async b => {
 
   await call('Emulation.setScriptExecutionDisabled', {value: true});
   await n('/preview/docs/article/', false);
-  assert(await e(`document.querySelector('${selector}').hidden&&getComputedStyle(document.querySelector('${selector}').parentElement).display==='none'`));
+  assert(await e(`document.querySelector('${selector}').disabled&&getComputedStyle(document.querySelector('${selector}').parentElement).display==='none'`));
   await call('Emulation.setScriptExecutionDisabled', {value: false});
   await call('Network.setCacheDisabled', {cacheDisabled: true});
   await call('Network.setBlockedURLs', {urls: ['https://*', '*random/*.json']});
   await n('/preview/docs/article/');
-  assert(await e(`document.querySelector('${selector}').hidden&&getComputedStyle(document.querySelector('${selector}').parentElement).display==='none'`));
+  assert(await e(`document.querySelector('${selector}').disabled&&getComputedStyle(document.querySelector('${selector}').parentElement).display==='none'`));
   await call('Network.setBlockedURLs', {urls: ['https://*']});
   await n('/preview/docs/article/'); await ready();
   results.push('no-JS and failed index hide the entire component; next load recovers');
