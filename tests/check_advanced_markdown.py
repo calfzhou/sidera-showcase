@@ -100,7 +100,17 @@ ordinary text
     assert not any(a.all(**{'class':'md-figure'}) for a in tags(p,'a'))
     assert p.all(id='list-image')[0].tag=='img' and p.all(id='quoted-image')[0].tag=='img'
     assert p.all(id='heading-in-an-unstyled-group')
-    assert p.all(id='tight-list')[0].tag=='ol' and p.all(id='tight-list')[0].all(**{'class':'md-figure'})
+    # Native attributes belong to the tight list; automatic image figures are
+    # removed at the shared rendered-list boundary, not merely hidden by CSS.
+    tight=p.all(id='tight-list')[0]
+    assert tight.tag=='ol' and 'no-caption' in tight.attrs.get('class','').split()
+    assert len(tight.children)==1 and tight.children[0].tag=='li'
+    image=tight.children[0].children
+    assert len(image)==1 and image[0].tag=='img'
+    assert image[0].attrs['alt']=='Single cell'
+    assert image[0].attrs['src']=='/handbook/reference/markdown/sample.svg'
+    assert image[0].attrs['loading']=='lazy' and image[0].attrs['decoding']=='async'
+    assert not tags(tight,'figure') and not tags(tight,'figcaption')
     # Policy follows existing model tiers, no new resolver or scope firewall.
     probe='content/caption-probe/index.md'
     for label,params in [('local-off','params:\n  auto_caption: false\n'),('local-on','params:\n  auto_caption: true\n')]:

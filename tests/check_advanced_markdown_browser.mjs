@@ -4,6 +4,8 @@ await runBrowser(async b=>{
  const {evaluate:e,navigate:n,viewport,call,key}=b;const route='/handbook/reference/advanced-markdown/';
  for(const [width,palette,prefix] of [[1440,'dark',''],[390,'light',''],[320,'dark','/_chinese'],[1440,'light','/_chinese']]){
   await viewport(width,1000);await n(prefix+route);await e(`document.documentElement.dataset.colorScheme=${JSON.stringify(palette)}`);
+  // Resource/layout assertions explicitly load the below-fold images they inspect.
+  await e(`Promise.all([...document.querySelectorAll('.prose img')].map(image=>{image.loading='eager';return image.decode()}))`);
   const r=await e(`(()=>{const p=document.querySelector('.prose');const f=s=>getComputedStyle(p.querySelector(s)).filter;const box=p.querySelector('.fbox');const sep=p.querySelector('.vertical-separator');return {
    math:p.querySelectorAll('math').length,alerts:p.querySelectorAll('aside').length,figures:p.querySelectorAll('figcaption').length,
    overflow:document.documentElement.scrollWidth>innerWidth,sw:document.documentElement.scrollWidth,
@@ -32,7 +34,9 @@ await runBrowser(async b=>{
  await e(`document.querySelector('#adaptive-block a[href*="from=block"]').focus()`);await key('Enter','Enter',13);await b.delay(400);
  assert(await e(`location.pathname==='/journal/2026/04/14/connect-the-useful-parts/'&&location.hash==='#give-a-link-a-reason'`));
  await n('/_native/native-probe/',false);
- assert.equal(await e(`getComputedStyle(document.querySelector('#tight-list figcaption')).display`),'none');
+ assert(await e(`(()=>{const list=document.querySelector('#tight-list');return list.tagName==='OL'&&list.classList.contains('no-caption')&&!!list.querySelector(':scope > li > img[alt="Single cell"]')&&!list.querySelector('figure,figcaption')})()`));
+ // Load this below-fold resource explicitly; the no-JS DOM retains a real image.
+ assert(await e(`(async()=>{const image=document.querySelector('#tight-list img');image.loading='eager';image.scrollIntoView({block:'center',behavior:'instant'});await image.decode();return image.naturalWidth>0&&image.getBoundingClientRect().width>0})()`));
  // No-JS auto palette uses native CSS variables, not an appearance script.
  await n(route,false);await call('Emulation.setEmulatedMedia',{features:[{name:'prefers-color-scheme',value:'light'}]});
  await e(`document.documentElement.dataset.colorScheme='auto'`);assert.equal(await e(`getComputedStyle(document.getElementById('adaptive-image')).filter`),'none');
