@@ -134,3 +134,16 @@ gaps/empty cells and area exits in fit/actual-size views, manual leap-month warn
 fit/actual-size scrolling, input validation, local-only calculation, no source
 disclosure, no-JS, and light/dark desktop/mobile.
 The fixtures are the live `content/handbook/reference/legacy-tools/` examples.
+
+## Inline shortcodes and tabs
+
+Run `uv run --no-project --no-managed-python python3 themes/sidera/tests/check_shortcodes.py <fresh-absolute-output>`,
+then `SIDERA_HTTP_PORT=14988 SIDERA_CDP_PORT=14989 node tests/check_shortcodes_browser.mjs <same-output>`
+with the nvm-selected Node and the owned browser harness. Covers named icons/site
+registry overrides, optional-link hashtags, annotation and concealment controls,
+inherited sup/sub colors, single-line highlighting, exact bundle downloads, nested
+tabs, duplicate Content, search/deep links, locales, print, forced colors and no-JS.
+An optional third CLI argument points to a fresh production `public` directory for
+real showcase/manual browser checks. Live examples are at
+`content/handbook/reference/inline-components/`; theme docs
+also include an independently mounted live example. No GoCalf files are test inputs.

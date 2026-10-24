@@ -4,6 +4,7 @@ No reference modification, dependency installation, network or raw-Markdown inde
 from pathlib import Path
 import json, os, re, subprocess, sys, hashlib
 sys.dont_write_bytecode=True
+from check_shell import nodes
 ROOT=Path(__file__).resolve().parents[1]
 THEME=ROOT/'themes/sidera'
 RUN=Path(os.environ['SIDERA_CHECK_DIR']).resolve()
@@ -22,16 +23,16 @@ def build(name,extra=(),expect=None,workers=2):
     return dest
 
 def index(dest,lang='en'):
-    html=(dest/('index.html' if lang=='en' else 'zh/index.html')).read_text()
-    url=re.search(r'data-index="([^"]+)"',html)[1]
+    # Deferred HTML may omit optional attribute quotes; use the shared parser.
+    url=next(n.attrs["data-index"] for n in nodes(dest, "/" if lang=="en" else "/zh/").all() if "data-sidera-search" in n.attrs)
     file=dest/url.removeprefix('/preview/').lstrip('/')
     data=json.loads(file.read_text())
     return {d['url']:d for d in data['documents']},file
 
 def edges(dest,path,kind):
-    html=(dest/path/'index.html').read_text()
-    match=re.search(r'<ul[^>]*data-content-relations="'+kind+r'"[^>]*>(.*?)</ul>',html,re.S)
-    return re.findall(r'href="([^"]+)"',match[1]) if match else []
+    lists=nodes(dest,'/'+path.strip('/')+'/').all(**{'data-content-relations':kind})
+    return [node.attrs['href'] for node in lists[0].all() if node.tag=='a'] if lists else []
+
 
 def main():
     RUN.mkdir(parents=True,exist_ok=True);SOURCE.mkdir(exist_ok=True)
@@ -182,9 +183,9 @@ def fenced_needle():
     write('footer.toml',"[params]\narticle_footer=['outgoing','outgoing','backlinks']\n")
     footer=build('footer-public',['--config','hugo.toml,footer.toml'])
     rendered=(footer/'notes/a/index.html').read_text()
-    assert rendered.count('data-content-relations="outgoing"')==2
+    assert len(nodes(footer,'/notes/a/').all(**{'data-content-relations':'outgoing'}))==2
     assert 'article-footer-outgoing-1-heading' in rendered and 'article-footer-outgoing-2-heading' in rendered
-    assert '<footer class="article-footer"' not in (footer/'manual/index.html').read_text()
+    assert not nodes(footer,'/manual/').all(**{'class':'article-footer'})
     # Same logical path, different language settings must not share cached policy.
     note=(SOURCE/'content/notes/a/index.md').read_text()
     write('content/notes/a/index.md',note.replace('params:\n','params:\n  search_index: false\n  link_graph: false\n'))

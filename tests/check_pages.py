@@ -98,8 +98,9 @@ def main():
     if search.get('data-worker'):
         target(search['data-worker'], BASE)
     docs = index['documents']
-    assert len(docs) == 65, len(docs)
+    assert len(docs) == 66, len(docs)
     assert any(d['url'] == PREFIX + 'handbook/reference/colors/' for d in docs)
+    assert any(d['url'] == PREFIX + 'handbook/reference/inline-components/' for d in docs)
     assert sum(d['url'].startswith(PREFIX + 'sidera/') for d in docs) == 26
     for doc in docs:
         target(doc['url'], BASE)

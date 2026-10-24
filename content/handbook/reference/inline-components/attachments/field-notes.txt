@@ -1,0 +1,6 @@
+Fieldbook — a small example attachment
+
+Observation: a good note explains one useful idea.
+Next step: connect it to a meaningful source.
+
+This file is fictional demonstration content, not a private record.

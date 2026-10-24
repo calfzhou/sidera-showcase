@@ -1,7 +1,7 @@
 ---
 title: "Reference desk"
 date: 2026-03-12
-lastmod: 2026-10-22T22:48:34+08:00
+lastmod: 2026-10-24T20:06:00+08:00
 params:
   children:
     order: [frontmatter, markdown]
@@ -37,3 +37,6 @@ controls, independent calculators and an optional isolated frame—all in ordina
 
 The [everyday tools](legacy-tools/index.md) page rebuilds an interactive paper weekday table,
 a legacy Kindle recovery helper and a string-based Chinese-number converter in JSX.
+
+The [inline details and tabs](inline-components/index.md) page demonstrates palette
+icons, topic chips, annotations, seven text decorations and native attachments.
