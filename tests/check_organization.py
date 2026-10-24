@@ -79,7 +79,8 @@ class Page(HTMLParser):
             self.links[self.list_id] = []
         if tag == "nav":
             self.in_collection_nav = attrs.get("aria-label") == self.collection_label
-        if tag == "a":
+        # A without href is not a hyperlink (for example an inert viewer template).
+        if tag == "a" and "href" in attrs:
             if self.list_id and "data-result-owner" not in attrs and not ({"term-badge", "card-series"} & set(attrs.get("class", "").split())):
                 self.links[self.list_id].append(attrs["href"])
             # Docs consolidate their owner link into the real header breadcrumb.

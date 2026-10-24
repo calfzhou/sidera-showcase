@@ -55,7 +55,7 @@ def main():
  for route in ['/','/journal/','/notes/','/notes/page/2/','/journal/archives/','/journal/tags/','/tags/','/preset/docs/']:
   assert not host(out,route) and not nodes(out,route).all(href='#sidera-comments'),route
  # Comment chrome cannot contaminate generated content, reference edges or snippets.
- index=re.search(r'data-index="([^"]+)"',html(out,'/').read_text())[1]
+ index=next(n.attrs['data-index'] for n in nodes(out,'/').all() if 'data-sidera-search' in n.attrs)
  data=json.loads((out/index.lstrip('/')).read_text())
  assert not any('giscus.app/client.js' in json.dumps(d['sections']) or 'R_mock' in json.dumps(d) for d in data['documents'])
  out=check('chinese',"defaultContentLanguage='zh'\nlocale='zh-CN'\nbaseURL='https://example.org/_chinese/'\n"+MOCK)

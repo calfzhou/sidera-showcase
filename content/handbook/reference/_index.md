@@ -1,7 +1,7 @@
 ---
 title: "Reference desk"
 date: 2026-03-12
-lastmod: 2026-10-14T23:51:00+08:00
+lastmod: 2026-10-22T22:48:34+08:00
 params:
   children:
     order: [frontmatter, markdown]
@@ -19,6 +19,9 @@ The [ordinary Markdown specimen]({{< relref "markdown" >}}) keeps prose, lists, 
 The [advanced Markdown and math examples](advanced-markdown/index.md) demonstrate native callouts, figures, palette classes, block containers and build-time formulas, with inspectable authoring syntax.
 
 The [small content components](content-components/index.md) page combines keyboard tokens, marks and links with native folds, boxes and grids.
+
+The [content palette](colors/index.md) compares eight color families and neutral across
+highlights, boxes, folds and semantic alerts in light and dark mode.
 
 The [native MP4 specimen](video/index.md) demonstrates deliberate loading, browser
 controls and useful file links, including nested and disabled players.

@@ -152,7 +152,10 @@ await runBrowser(async b => {
     assert.equal(await e(`getComputedStyle(${widget(2)}.querySelector('.jsx-result')).borderInlineStartWidth`),'7px');
     assert.equal(await e(`getComputedStyle(${widget(0)}.querySelector('.jsx-result')).borderInlineStartWidth`),'3px');
     assert(await e(`parseFloat(getComputedStyle([...document.querySelectorAll('p')].find(p=>p.textContent==='Ordinary paragraph outside the widgets.')).marginBottom)>0`));
-    await e(`document.documentElement.style.setProperty('--pin','#c0392b')`);
+    const errorBeforePin=await e(`getComputedStyle(document.querySelector('.style-probe .jsx-error')).color`);
+    await e(`document.documentElement.style.setProperty('--pin','#663399')`);
+    assert.equal(await e(`getComputedStyle(document.querySelector('.style-probe .jsx-error')).color`),errorBeforePin,'Pinned-label overrides must not change error styling');
+    await e(`document.documentElement.style.setProperty('--danger','#c0392b');document.documentElement.style.setProperty('--accent-fill','#345678');document.documentElement.style.setProperty('--accent-on-fill','#ffffff');document.documentElement.style.setProperty('--accent-fill-hover','#234567')`);
     for(const tone of ['light','dark']) {
       await e(`Sidera.setColorMode('${tone}')`);await delay(150);
       native=await e(probeStyles);
@@ -160,6 +163,8 @@ await runBrowser(async b => {
       assert.equal(native.errorColor,'rgb(192, 57, 43)');
       assert.equal(native.invalidBorder,native.errorColor);
       assert.deepEqual(await frameEval(probeStyles),native,'Shared page/frame styles and custom theme tokens');
+      const fillTokens=`['--accent-fill','--accent-on-fill','--accent-fill-hover'].map(name=>getComputedStyle(document.documentElement).getPropertyValue(name).trim())`;
+      assert.deepEqual(await frameEval(fillTokens),await e(fillTokens),'Paired fill overrides reach sandbox controls');
       assert.notEqual(await e(`getComputedStyle(${widget(2)}.querySelector('.jsx-note')).color`),native.noteColor);
       await viewport(390,844);await render(0);
       assert(await e(`document.documentElement.scrollWidth<=innerWidth`));

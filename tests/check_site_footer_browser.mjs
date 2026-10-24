@@ -9,6 +9,7 @@ await runBrowser(async b=>{
   for(const route of ['/about/','/notes/package-management/']){
    await n(prefix+route);
    const state=await e(`(()=>{const f=document.querySelector('.site-footer'),a=f.querySelector('.native-menu a[aria-current]'),other=[...f.querySelectorAll('.native-menu a')].find(a=>!a.hasAttribute('aria-current'));return {icons:f.querySelectorAll('svg').length,current:getComputedStyle(a).color,other:getComputedStyle(other).color,bg:getComputedStyle(a).backgroundColor,shadow:getComputedStyle(a).boxShadow,border:getComputedStyle(f).borderTopWidth,weight:getComputedStyle(f.querySelector('.menu-group')).fontWeight,overflow:document.documentElement.scrollWidth>innerWidth}})()`);
+   if(route==='/about/')assert.equal(await e(`document.querySelector('.theme-credit').textContent.trim()`),prefix?'由 Hugo 和 Sidera 构建。':'Built with Hugo and Sidera.');
    assert.equal(state.icons,0);assert.equal(state.current,state.other);assert.equal(state.bg,'rgba(0, 0, 0, 0)');assert.equal(state.shadow,'none');assert.equal(state.border,'1px');assert.equal(state.weight,'500');assert(!state.overflow);
   }
  }

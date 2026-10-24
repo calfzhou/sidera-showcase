@@ -9,6 +9,8 @@ await runBrowser(async b=>{
  await call('Emulation.setEmulatedMedia',{features:[{name:'prefers-reduced-motion',value:'reduce'}]});
  for(const prefix of ['', '/_chinese'])for(const mode of ['dark','light'])for(const width of [1440,768,390,320]){
   await v(width,1000);await n(prefix+route);await e(`Sidera.setColorMode('${mode}')`);
+  // This is a resource/layout check, not a lazy-loading test: explicitly load its images.
+  await e(`Promise.all([...document.querySelectorAll('.prose img')].map(i=>{i.loading='eager';return i.decode()}))`);
   const state=await e(`(()=>{
    const p=document.querySelector('.prose'),r=p.getBoundingClientRect(),style=getComputedStyle(p);
    const boxes=[...p.querySelectorAll('pre,table,.highlight')].filter(x=>x.scrollWidth>x.clientWidth+1 && ['auto','scroll'].includes(getComputedStyle(x).overflowX));
@@ -24,7 +26,7 @@ await runBrowser(async b=>{
     highlight:getComputedStyle(p.querySelector('.hl')).backgroundColor};
   })()`);
   assert(!state.overflow,JSON.stringify(state));assert.equal(state.size,'18px');assert.equal(state.line,'30.6px');
-  assert(state.images.every(x=>x.loaded&&x.width<=state.bodyWidth-36));assert.equal(state.images[1].width,120);assert.equal(state.images[1].height,60);
+  assert(state.images.every(x=>x.loaded&&x.width<=state.bodyWidth-36),JSON.stringify({prefix,mode,width,bodyWidth:state.bodyWidth,images:state.images}));assert.equal(state.images[1].width,120);assert.equal(state.images[1].height,60);
   assert.equal(state.gutter,'none');assert(parseFloat(state.caption)<8);assert(state.nestedSizes.every(s=>parseFloat(s)>=16));
   assert.deepEqual(state.headerAlign,['left','left','center','right']);assert.notEqual(state.highlight,'rgba(0, 0, 0, 0)');
   assert(state.scrolls.length>=3,JSON.stringify(state));
@@ -38,7 +40,8 @@ await runBrowser(async b=>{
   assert(await e(`document.activeElement.matches('pre,table')`),'Native scroll target did not accept focus');
   assert.notEqual(await e(`getComputedStyle(document.activeElement.closest('.highlight') || document.activeElement).outlineStyle`),'none');
   for(let i=0;i<5;i++)await key('ArrowRight','ArrowRight',39);await delay(200);
-  assert(await e(`document.querySelector(${JSON.stringify(selector)}).scrollLeft>0`),selector);
+  for(let attempt=0;attempt<30;attempt++){if(await e(`document.querySelector(${JSON.stringify(selector)}).scrollLeft>0`))break;await delay(50);}
+  assert(await e(`document.querySelector(${JSON.stringify(selector)}).scrollLeft>0`),JSON.stringify({selector,state:await e(`(()=>{const el=document.querySelector(${JSON.stringify(selector)});return {width:el.clientWidth,scroll:el.scrollWidth,left:el.scrollLeft,active:document.activeElement.tagName}})()`)}));
  }
  // Native tab order reaches the wide table; no synthetic tabindex or JS scrolling.
  await e(`[...document.querySelectorAll('.prose .highlight')].at(-1).querySelector('pre').focus()`);
@@ -63,7 +66,7 @@ await runBrowser(async b=>{
   await v(320,1000);await n(path);assert(await e('document.documentElement.scrollWidth<=innerWidth'));
   assert.equal(await e(`getComputedStyle(document.querySelector('.prose')).fontSize`),'18px');
  }
- await n('/preview/markdown-check/');assert(await e(`document.querySelector('.prose img[src="wide.svg"]').width<=284`));
+ await n('/preview/markdown-check/');assert(await e(`document.querySelector('.prose img[src="/preview/markdown-check/wide.svg"]').width<=284`));
  assert(await e(`document.getElementById('中文标题') && document.getElementById('specimen-21')`));
  assert(await e(`(()=>{const input=document.querySelector('.prose li > p > input');return input && getComputedStyle(input.closest('li')).listStyleType==='none'})()`));
  // Touch emulation preserves native scrollports, rather than widening the document.

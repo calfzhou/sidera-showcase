@@ -11,6 +11,19 @@ def main():
     run=Path(os.environ.get('SIDERA_CHECK_DIR') or tempfile.mkdtemp(prefix='menu-',dir=ROOT/'.checks')).resolve()
     run.mkdir(parents=True,exist_ok=True)
     source=copy_showcase(run,'live')
+    # Private real-component fixture for left-rail surface/state checks.
+    write(source,'content/handbook/reference/sidebar-surfaces/index.md', '''---
+title: Sidebar surfaces
+date: 2026-01-01
+params:
+  comments: false
+  left: [menu, random, page-tree, handbook-updates, recent-published, profile]
+---
+## Reading context
+
+A local fixture for menus, widgets, page trees and pinned controls.
+
+'''+('A paragraph keeps the reading surface beside the sidebar for visual checks.\n\n'*24)+'## Closing section\n\nEnd of the local fixture.\n')
     cfg=source/'hugo.toml';original=cfg.read_text()
     def check(label,extra='',diagnostic=None):
         write(source,'probe.toml',extra)

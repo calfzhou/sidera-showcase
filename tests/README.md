@@ -24,6 +24,12 @@ caches, private all-states builds and failure fixtures must never be deployed.
 | Native theme packaging/overrides | `check_theme_packaging.py`, `check_theme_defaults.py` |
 | UI/localization/configuration | `check_shell.py`, `check_presentation.py`, `check_localization.py`, `check_instances.py` |
 | Markdown/math/code/components | `check_markdown.py`, `check_advanced_markdown.py`, `check_snippets.py`, `check_content_components.py`, `check_composition.py` |
+| Image/diagram inversion | Theme `check_inversion.py <fresh-output>` and showcase `check_inversion_browser.mjs <same-output>`; covers full/soft, both directions, nesting, viewers, auto/no-JS, mobile and locales |
+| Cross-component styling | Theme `check_style_consistency.py <fresh-output>` and showcase `check_style_consistency_browser.mjs <same-output>`; includes contrast, labels, controls, cards, pinned bar, sandbox tokens and mobile |
+| Left-sidebar surfaces | `check_menu.py` fixtures plus `check_sidebar_surfaces_browser.mjs <run> [fixture-directory] [before.css]`; menu/browser and random suites cover native navigation and action states |
+| Footer links and credits | `check_site_footer.py`, `check_site_footer_browser.mjs` and `check_footer_links_browser.mjs` (same output directory); `check_article_footer.py` / browser peer and `check_footer_config.py` cover component boundaries |
+| Content palette | Theme `tests/check_palette.py <fresh-output>`; showcase `check_palette_browser.mjs <same-output>` and `check_ui_palette_browser.mjs <same-output>` (e.g. free ports 14980/14981); includes contrast, nesting, auto, print and forced-colors checks |
+| Decorative rainbows | `check_rainbow_browser.mjs <run> [public-directory]`; defaults to `<run>/public` from `make check`; checks shared stops, light/dark/auto, hover/focus, motion, mobile and no-JS with the owned harness |
 | Charts | Theme `tests/check_charts.py <fresh-absolute-output>`; `check_charts_browser.mjs <same-output>` |
 | Diagrams/video | `check_diagrams.py`, `check_videos.py`, their preview/browser peers |
 | Random article | Theme `check_random.py <fresh-output>`, `check_random.mjs`; showcase `check_random_browser.mjs <same-output>` and `check_random_reveal_browser.mjs <same-output>` (held-controller first-paint and held-index reveal checks) |

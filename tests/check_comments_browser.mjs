@@ -17,7 +17,8 @@ await runBrowser(async b => {
   link.onload=()=>{
    for(const old of document.querySelectorAll('link[data-theme]'))old.remove();link.dataset.theme='true';
    const main=document.querySelector('main'),styles=getComputedStyle(main);
-   parent.postMessage({mockTheme:theme,mockStyles:{font:getComputedStyle(document.body).fontFamily,text:styles.color,canvas:styles.backgroundColor,link:getComputedStyle(document.querySelector('a')).color}},'*');
+   const role=name=>{const probe=document.createElement('span');probe.style.color='var('+name+')';main.append(probe);const color=getComputedStyle(probe).color;probe.remove();return color;};
+   parent.postMessage({mockTheme:theme,mockStyles:{font:getComputedStyle(document.body).fontFamily,text:styles.color,canvas:styles.backgroundColor,link:getComputedStyle(document.querySelector('a')).color,fill:role('--color-accent-emphasis'),onFill:role('--color-btn-primary-text'),hoverFill:role('--color-btn-primary-hover-bg'),soft:role('--color-accent-subtle'),secondary:role('--color-fg-subtle')}},'*');
   };
   document.head.append(link);
  }
@@ -87,7 +88,7 @@ await runBrowser(async b => {
  for(const palette of ['light','dark']){
   await e(`Sidera.setColorMode('${palette}')`);await wait(`mockThemes.at(-1)===${host}.dataset['theme'+${JSON.stringify(palette[0].toUpperCase()+palette.slice(1))}]`);
   assert(await e(`originalFrame===document.querySelector('iframe.giscus-frame')`));
-  const expected=await e(`(()=>{const root=getComputedStyle(document.documentElement);const a=document.createElement('a');a.href='#';document.body.append(a);const link=getComputedStyle(a).color;a.remove();return {font:root.fontFamily,text:root.color,canvas:root.backgroundColor,link};})()`);
+  const expected=await e(`(()=>{const root=getComputedStyle(document.documentElement);const a=document.createElement('a');a.href='#';document.body.append(a);const link=getComputedStyle(a).color;a.remove();const role=name=>{const p=document.createElement('span');p.style.color='var('+name+')';document.body.append(p);const color=getComputedStyle(p).color;p.remove();return color;};return {font:root.fontFamily,text:root.color,canvas:root.backgroundColor,link,fill:role('--accent-fill'),onFill:role('--accent-on-fill'),hoverFill:role('--accent-fill-hover'),soft:role('--accent-soft'),secondary:role('--secondary-text')};})()`);
   const actual=await e('mockStyles');
   // Font family identifiers are case-insensitive; Hugo's CSS minifier normalizes them.
   actual.font=actual.font.toLowerCase();expected.font=expected.font.toLowerCase();
