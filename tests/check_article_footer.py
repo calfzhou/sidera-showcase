@@ -1,4 +1,4 @@
-"""Native boxed footer: Markdown, authors, opt-in URLs, share encoding and local Hugo QR."""
+"""Native boxed footer: Markdown, edit/share actions, URL encoding and local Hugo QR."""
 from pathlib import Path
 from urllib.parse import urlsplit,parse_qs,unquote
 import json,os,sys
@@ -27,15 +27,14 @@ def main():
     assert item(f,'terms') and item(f,'terms')[0] not in box.all()
     assert 'All rights reserved unless otherwise stated.' in item(f,'license')[0].words()
     assert item(f,'references')[0].all(href='https://realpython.com/intro-to-pyenv/')
-    assert not item(f,'authors')
     assert nodes(baseline,'/notes/package-management/').all(id='header-assigned-authors')[0].all(href='/authors/rowan/')
     assert not any(n.tag=='img' for n in nodes(baseline,'/notes/package-management/').all(id='header-assigned-authors')[0].all())
     assert not item(footer(baseline,'/notes/color/'),'references')
     assert not footer(baseline).all(**{'class':'footer-meta'})
-    # Explicit site opt-in retains the optional footer-author/edit component.
+    # Exercise a predictable footer order without discovery sections.
     config=source/'hugo.toml'
-    config.write_text(config.read_text().replace('[params]\n',"[params]\narticle_footer=['terms','references','license','authors','share','series','text','links']\n",1))
-    # Source-local metadata, hostile title encoding, portrait and an explicit edit destination.
+    config.write_text(config.read_text().replace('[params]\n',"[params]\narticle_footer=['terms','references','license','share','series','text','links']\n",1))
+    # Source-local metadata, hostile title encoding and an explicit edit destination.
     title='Quoted "title" & question? #fragment 中文'
     fm='''---
 title: '''+json.dumps(title,ensure_ascii=False)+'''
@@ -48,19 +47,18 @@ params:
     - "An explanatory `code` note."
   license: "Custom **license** [details](https://example.net/license)."
   share: [wechat, link, email, weibo]
-  edit_url: https://github.com/example/repo/edit/main/content/notes/footer-probe.md
+  edit_url: https://github.com/example/repo/blob/main/content/notes/footer-probe.md
 ---
 ## A footer example
 
 Ordinary test content.
 '''
     write(source,'content/notes/footer-probe.md',fm)
-    write(source,'content/authors/rowan/_index.md','---\ntitle: Rowan\nparams:\n  avatar: images/sidera-parallax-circle.svg\n---\n')
     full=check('full');local_links(full);route='/notes/footer-probe/';d=footer(full,route)
     share=item(d,'share')[0];u='https://example.org'+route
     assert share.all(**{'data-share-url':u})
-    assert d.all(href='https://github.com/example/repo/edit/main/content/notes/footer-probe.md')
-    assert any(n.tag=='img' and 'alt' in n.attrs and not n.attrs['alt'] for n in item(d,'authors')[0].all())
+    assert nodes(full,route).all(href='https://github.com/example/repo/blob/main/content/notes/footer-probe.md')
+    assert not d.all(**{'class':'toc-edit'})
     for a in share.all():
         href=a.attrs.get('href','')
         if href.startswith(('mailto:','https://service.weibo.com/')):
@@ -71,7 +69,7 @@ Ordinary test content.
     assert qr.attrs['src'].startswith('/images/qr/') and (full/qr.attrs['src'].lstrip('/')).is_file()
     assert qr.attrs['width']==qr.attrs['height'] and 'height' in qr.attrs
     (run/'qr-check.json').write_text(json.dumps({'file':str(full/qr.attrs['src'].lstrip('/')),'url':u}))
-    repeated=check('repeated',"[cascade.params]\narticle_footer=['references','license','authors','share','share','authors','terms','share']\n")
+    repeated=check('repeated',"[cascade.params]\narticle_footer=['references','license','share','share','terms','share']\n")
     d=footer(repeated,route);ids=[n.attrs['id'] for n in nodes(repeated,route).all() if 'id' in n.attrs]
     assert len(ids)==len(set(ids));assert len(item(d,'share'))==3
     assert len(d.all(**{'class':'article-footer-box'}))==2 # Preserve configured order around terms.
@@ -84,12 +82,12 @@ Ordinary test content.
     out=check('collection-off');assert not item(footer(out),'license') and not item(footer(out),'share')
     assert item(footer(out,route),'license') and item(footer(out,route),'share')
     notes.write_text(original)
-    out=check('no-box',"[cascade.params]\narticle_footer=['references','authors']\nshow_authors=false\nreferences=[]\n")
+    out=check('no-box',"[cascade.params]\narticle_footer=['references']\nshow_authors=false\nreferences=[]\n")
     assert not nodes(out,'/about/').all(**{'class':'article-footer'})
     probe=source/'content/notes/footer-probe.md'
-    probe.write_text(fm.replace('  license: "Custom **license** [details](https://example.net/license)."','  license: false').replace('  share: [wechat, link, email, weibo]','  share: false').replace('  edit_url: https://github.com/example/repo/edit/main/content/notes/footer-probe.md','  show_authors: false'))
+    probe.write_text(fm.replace('  license: "Custom **license** [details](https://example.net/license)."','  license: false').replace('  share: [wechat, link, email, weibo]','  share: false').replace('  edit_url: https://github.com/example/repo/blob/main/content/notes/footer-probe.md','  show_authors: false'))
     out=check('page-off');d=footer(out,route)
-    assert not item(d,'license') and not item(d,'share') and not item(d,'authors')
+    assert not item(d,'license') and not item(d,'share')
     assert item(d,'references')
     probe.write_text(fm)
     # Safe inherited disable for pages with no explicit share override: no QR assets at all.
@@ -102,7 +100,7 @@ Ordinary test content.
     out=check('subpath',"baseURL='https://example.org/preview/'\n");local_links(out,'/preview')
     assert footer(out,route).all(**{'data-share-url':'https://example.org/preview'+route})
     # Inline instances and named widgets use the same validated shallow options.
-    out=check('widgets',"[params.widgets.footer-note]\ncomponent='license'\n[params.widgets.footer-note.config]\ntext='**Widget license**'\n[cascade.params]\narticle_footer=['footer-note',{component='share',config={targets=['email'],icons=false}},{component='references',config={entries=['Inline reference']}},{component='authors',config={edit_url='/about/'}}]\n")
+    out=check('widgets',"[params.widgets.footer-note]\ncomponent='license'\n[params.widgets.footer-note.config]\ntext='**Widget license**'\n[cascade.params]\narticle_footer=['footer-note',{component='share',config={targets=['email'],icons=false}},{component='references',config={entries=['Inline reference']}}]\nright=[{component='toc',config={edit_url='/about/'}}]\n")
     d=footer(out,route);assert 'Widget license' in d.words() and 'Inline reference' in d.words()
     assert not any(n.tag=='img' for n in item(d,'share')[0].all())
     for label,extra,diagnostic in [
@@ -113,7 +111,7 @@ Ordinary test content.
       ('share-unknown',"[params]\nshare=['unknown']",'invalid/duplicate share'),
       ('share-duplicate',"[params]\nshare=['link','link']",'invalid/duplicate share'),
       ('edit-unsafe',"[params]\nedit_url='javascript:alert(1)'",'unsafe URL'),
-      ('instance-unsafe',"[cascade.params]\narticle_footer=[{component='authors',config={edit_url='javascript:alert(1)'}}]",'unsafe URL'),
+      ('instance-unsafe',"[cascade.params]\nright=[{component='toc',config={edit_url='javascript:alert(1)'}}]",'unsafe URL'),
       ('bad-region',"[params]\nleft=['share']",'invalid left'),
       ('bad-widget',"[params.widgets.bad]\ncomponent='share'\n[params.widgets.bad.config]\ntargets=['bad']",'invalid/duplicate share'),
       ('raw-reference',"[cascade.params]\nreferences=['<script>alert(1)</script>']",'Raw HTML omitted'),
@@ -125,5 +123,5 @@ Ordinary test content.
     write(source,'content/notes/footer-bad.md','---\ntitle: Draft\ndraft: true\n---\n')
     write(source,'content/preset/footer-unused/_index.md','---\ntitle: Unused\nparams:\n  defaults:\n    params:\n      share: [bad]\n---\n')
     check('bad-unused',diagnostic='invalid/duplicate share')
-    print('PASS article footer: Markdown/defaults/native authors/edit, compact header authors/explicit footer authors, local QR, URL encoding, overrides/empty/repeats/widgets, EN/ZH/subpath and strict validation; retained',run)
+    print('PASS article footer: Markdown/defaults/native authors/edit, header-only authors and sidebar edit links, local QR, URL encoding, overrides/empty/repeats/widgets, EN/ZH/subpath and strict validation; retained',run)
 if __name__=='__main__':main()

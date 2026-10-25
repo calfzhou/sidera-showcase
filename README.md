@@ -63,6 +63,9 @@ update their own pins deliberately; this workflow does not synchronize their che
 - **Handbook** is Fieldbook's fictional example tree and rendering gallery, not theme documentation.
 - `examples/*.toml` are configuration overlays on the same site. For Chinese controls:
   `hugo server --config hugo.toml,examples/chinese.toml --port 1313`.
+- Source-file links are enabled by default in the TOC sidebar. `params.edit_url`
+  in `hugo.toml` maps demo content and the mounted manual to their respective
+  GitHub `/blob/` pages. No preview overlay is required.
 - Giscus uses only the showcase's repository/category. Previewing may contact the
   provider; do not submit test comments or reactions. The manual never loads comments.
 

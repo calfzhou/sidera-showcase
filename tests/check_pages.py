@@ -49,6 +49,11 @@ def main():
     doms = {p: DOM(p.read_text()) for p in out.rglob('*.html')}
     checked = 0
     fragments = 0
+    source_roots = {
+        'https://github.com/calfzhou/sidera-showcase/blob/main/content/': ROOT / 'content',
+        'https://github.com/calfzhou/hugo-theme-sidera/blob/main/docs/content/': ROOT / 'themes/sidera/docs/content',
+    }
+    edit_counts = dict.fromkeys(source_roots, 0)
 
     def target(url, page_url, fragment=False):
         nonlocal checked, fragments
@@ -74,12 +79,22 @@ def main():
         text = file.read_text()
         assert 'fixture/comments' not in text and 'gocalf.com/discussions' not in text
         for tag, attrs in dom.nodes:
+            if tag == 'a' and attrs.get('class') == 'toc-edit':
+                href = attrs['href']
+                prefix = next((prefix for prefix in source_roots if href.startswith(prefix)), None)
+                assert prefix, (file, href, 'edit link must open a configured GitHub blob page')
+                source = source_roots[prefix] / unquote(href.removeprefix(prefix))
+                assert source.is_file() and source.suffix == '.md', (file, href, 'missing authored source')
+                edit_counts[prefix] += 1
             for key in ('href', 'src', 'poster', 'data-index', 'data-worker', 'data-mermaid', 'data-drawio', 'data-frame', 'data-module', 'data-css'):
                 if attrs.get(key):
                     target(attrs[key], route, fragment=(tag == 'a' and key == 'href'))
             if 'srcset' in attrs:
                 for candidate in attrs['srcset'].split(','):
                     target(candidate.strip().split()[0], route)
+    assert all(edit_counts.values()), ('Demo and manual source links must be enabled by default', edit_counts)
+    for generated in ('journal/archives', 'journal/series', 'notes/tags', 'tags'):
+        assert not any(a.get('class') == 'toc-edit' for _, a in doms[out / generated / 'index.html'].nodes), generated
     # CSS font/image references are relative to each fingerprinted stylesheet.
     for file in out.rglob('*.css'):
         for url in re.findall(r'url\(\s*[\'"]?([^\s\)\'"]+)', file.read_text()):
@@ -152,7 +167,7 @@ def main():
         assert (out / route).read_bytes() == (ROOT / 'content' / route).read_bytes()
     print(f'PASS Pages artifact: {len(doms)} HTML files, {checked} local references, '
           f'{fragments} fragments, {len(docs)} search documents, {len(manual_sources)} manual nodes; '
-          'native authors/series, comments isolation, licenses, resources and 404')
+          f'{sum(edit_counts.values())} GitHub blob source links, native authors/series, comments isolation, licenses, resources and 404')
 
 
 if __name__ == '__main__':

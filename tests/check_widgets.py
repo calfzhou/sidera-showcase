@@ -7,7 +7,10 @@ from check_tag_routes import copy_showcase, build, html, local_links
 from check_shell import nodes
 from check_docs import write, replace
 
-CONFIG='''[params.widgets.notice]
+CONFIG='''# Keep the repeated-widget fixture independent of the site's recent-count default.
+[params.widgets.recent-published.config]
+count=5
+[params.widgets.notice]
 component='text'
 [params.widgets.notice.config]
 title='Reusable notice'
@@ -32,9 +35,9 @@ title='Named profile'
 text='Shared profile text'
 image='images/sidera-parallax-circle.svg'
 [params.widgets.closing]
-component='authors'
+component='share'
 [params.widgets.closing.config]
-show=true
+targets=['email']
 [cascade.params]
 right=['recent-updates','recent-published',{widget='recent-published',config={count=1}},'notice',{widget='notice',config={title='',text='Local body'}},'notice','navigation',{widget='navigation',config={menu='footer',icons=true}},'outline','outline','topics',{widget='topics',config={tag_icons={},icons=true}},'author-card',{widget='author-card',config={image='',menu='',text='Local profile text'}}]
 article_footer=['closing','closing','notice',{widget='notice',config={text='Local closing body'}},'navigation']
@@ -60,7 +63,7 @@ def main():
     ids=[n.attrs['id'] for n in d.all() if 'id' in n.attrs];assert len(ids)==len(set(ids))
     assert d.all(id='TableOfContents-right') and d.all(id='TableOfContents-right-2')
     assert d.all(id='tags-tree-right') and d.all(id='tags-tree-right-2')
-    assert d.all(id='footer-assigned-authors') and d.all(id='footer-authors-2-assigned-authors')
+    assert d.all(id='article-footer-share-1-heading') and d.all(id='article-footer-share-2-heading')
     assert len(instance(d,'right-recent-3').all(**{'data-recent':'publication'})[0].children)==1
     assert len(instance(d,'right-recent-2').all(**{'data-recent':'publication'})[0].children)==5
     assert 'Reusable notice' in instance(d,'right-text-1').words()
@@ -92,6 +95,9 @@ def main():
     zh=check('chinese',"defaultContentLanguage='zh'\nlocale='zh-CN'\n[params.widgets.welcome.config]\ntitle='Welcome in another locale'\n")
     assert '最近发布' in html(zh,'/notes/').read_text()
     write(source,'content/about.zh.md','---\ntitle: Chinese About\n---\nA translated page.\n')
+    # Native menus require destinations in each language; this fixture tests widgets, not missing translations.
+    for section in ('notes','journal','handbook'):
+        write(source,'content/'+section+'/_index.zh.md','---\ntitle: '+section+'\n---\n')
     multi=check('bilingual',"defaultContentLanguageInSubdir=true\n[languages.en]\nlocale='en-US'\n[languages.zh]\nlocale='zh-CN'\n[languages.zh.params.widgets.welcome.config]\ntitle='Locale-specific welcome'\n")
     assert 'Locale-specific welcome' in instance(nodes(multi,'/zh/about/'),'left-text-1').words()
     assert 'Locale-specific welcome' not in instance(nodes(multi,'/en/about/'),'left-text-1').words()

@@ -1,4 +1,4 @@
-"""Compact native author names before dates, without default footer attribution."""
+"""Compact native author names before dates, without footer attribution."""
 from pathlib import Path
 import os,sys
 sys.dont_write_bytecode=True
@@ -9,6 +9,8 @@ from check_docs import write
 def main():
  run=Path(os.environ['SIDERA_CHECK_DIR']).resolve();run.mkdir(parents=True,exist_ok=False)
  source=copy_showcase(run,'live')
+ # Header-only browser checks must not attempt the showcase's live comment provider.
+ config=source/'hugo.toml';config.write_text(config.read_text().replace('comments = true','comments = false'))
  write(source,'content/authors/second/_index.md','---\ntitle: Second Writer\nslug: second\nparams:\n  avatar: images/sidera-parallax-circle.svg\n---\n')
  for name,authors,dates,extra in [('single','[rowan]',True,''),('multiple','[second, second, rowan]',True,''),('none','[]',True,''),('only-authors','[rowan]',False,''),('empty','[]',False,''),('hidden','[rowan]',True,'params:\n  show_authors: false\n')]:
   write(source,f'content/notes/author-{name}.md','---\ntitle: Author '+name+'\nauthors: '+authors+'\n'+('publishDate: 2025-01-01\nlastmod: 2025-04-01\n' if dates else '')+extra+'---\nA small attribution example.\n')
@@ -28,9 +30,7 @@ def main():
    if name=='empty':assert not d.all(**{'class':'article-dates'})
   for path in ['/journal/2026/04/10/beginning/','/notes/package-management/']:
    d=nodes(out,path);assert d.all(id='header-assigned-authors') and not d.all(**{'data-footer-item':'authors'})
- out=check('explicit-footer',"[cascade.params]\narticle_footer=['authors']\n")
- assert nodes(out,'/notes/author-single/').all(id='footer-assigned-authors') # Optional explicit configuration still works.
  out=check('scoped-links',"[params.taxonomy_links]\nauthors='section'\n")
  assert nodes(out,'/notes/author-single/').all(id='header-assigned-authors')[0].all(href='/notes/authors/rowan/')
- print('PASS header authors: native single/multiple/dedup/order links, no avatar/default footer, separator only with dates, hidden/no-author/no-date, explicit footer compatibility, EN/ZH/subpath/scoped URLs; retained',run)
+ print('PASS header authors: native single/multiple/dedup/order links, no avatar/footer, separator only with dates, hidden/no-author/no-date, EN/ZH/subpath/scoped URLs; retained',run)
 if __name__=='__main__':main()

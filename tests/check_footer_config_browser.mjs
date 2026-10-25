@@ -81,6 +81,6 @@ await runBrowser(async ({run,version,navigate,viewport,evaluate,call,key,screens
   await mode('light');assert.equal(await evaluate(`document.documentElement.dataset.colorScheme`),'light');
   await call('Page.removeScriptToEvaluateOnNewDocument',{identifier:injection.identifier});
   assert.equal(errors.length,0,JSON.stringify(errors));assert(requests.every(u=>u.startsWith(origin+'/')),JSON.stringify(requests));
-  await writeFile(resolve(run,'browser-results.json'),JSON.stringify({cases,browser:version.Browser,node:process.version,checks:['card hover/focus','parent link/disclosure keyboard','native TOC anchor/scroll current','sticky rails','footer columns/series/authors','Chinese mobile disclosures','reduced motion','System storage','no-JS/denied storage'],limits:'Installed Chromium only; visual review not pixel parity or complete accessibility certification.'},null,2));
+  await writeFile(resolve(run,'browser-results.json'),JSON.stringify({cases,browser:version.Browser,node:process.version,checks:['card hover/focus','parent link/disclosure keyboard','native TOC anchor/scroll current','sticky rails','footer columns/series','Chinese mobile disclosures','reduced motion','System storage','no-JS/denied storage'],limits:'Installed Chromium only; visual review not pixel parity or complete accessibility certification.'},null,2));
   console.log(`PASS G browser: ${cases} representative views and focused dynamic states`);
 },{'/_chinese':'chinese-public','':'components-public'});

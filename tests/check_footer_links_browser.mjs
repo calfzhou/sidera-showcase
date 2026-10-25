@@ -34,7 +34,7 @@ await runBrowser(async b=>{
    }
    // Component-specific feedback must not be overridden by a catch-all footer rule.
    const accent=await e(`(()=>{const span=document.createElement('span');span.style.color='var(--accent)';document.body.append(span);const c=getComputedStyle(span).color;span.remove();return c})()`);
-   for(const selector of ['.article-footer .native-menu a','.site-footer .native-menu a','.footer-authors .author-list a','.article-edit','.share-action[href^="mailto:"]']){
+   for(const selector of ['.article-footer .native-menu a','.site-footer .native-menu a','.share-action[href^="mailto:"]']){
     await hover(selector);const control=await style(selector);assert.equal(control.line,'none',selector);assert.equal(control.color,accent,selector);
    }
    assert(await e(`!document.querySelector('.article-footer').classList.contains('prose')&&!document.querySelector('.site-footer').classList.contains('prose')`));

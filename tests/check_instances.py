@@ -41,7 +41,7 @@ left=[
  'links', {component='links',config={menu='secondary',icons=false}}
 ]
 right=['toc','toc','taxonomies','taxonomies']
-article_footer=['terms','terms','authors',{component='authors',config={show=false}},'authors','series','series','meta',{component='meta',config={show=false}},'text',{component='text',config={text='Instance closing'}},'links',{component='links',config={menu='secondary',icons=false}}]
+article_footer=['terms','terms','share',{component='share',config={targets=[]}},'share','series','series','meta',{component='meta',config={show=false}},'text',{component='text',config={text='Instance closing'}},'links',{component='links',config={menu='secondary',icons=false}}]
 site_footer=['links',{component='links',config={menu='secondary',icons=false}},'text',{component='text',config={text='Instance footer'}},{component='text',config={text=''}},'credit','credit']
 '''
 
@@ -81,8 +81,8 @@ def main():
     assert not any(x.tag=='svg' for x in instance(d,'left-toc-2').all())
     assert len([x for x in d.all() if 'data-toc' in x.attrs])==4
     assert d.all(id='assigned-tags') and d.all(id='terms-2-assigned-tags') and d.all(id='header-assigned-tags')
-    assert not d.all(**{'data-instance':'article-footer-authors-2'})
-    assert d.all(id='footer-assigned-authors') and d.all(id='footer-authors-3-assigned-authors')
+    assert not d.all(**{'data-instance':'article-footer-share-2'})
+    assert d.all(id='article-footer-share-1-heading') and d.all(id='article-footer-share-3-heading')
     assert 'Base article text' in instance(d,'article-footer-text-1').words()
     assert 'Instance closing' in instance(d,'article-footer-text-2').words()
     assert not d.all(**{'data-instance':'article-footer-meta-2'})

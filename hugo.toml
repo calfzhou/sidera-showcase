@@ -27,6 +27,11 @@ color_mode = 'dark'
 # All eligible article/docs pages; individual params.comments=false still opts out.
 comments = true
 left = ['menu', 'welcome']
+# Source-file links in the TOC sidebar; the mounted manual belongs to the theme repo.
+edit_url = [
+  { path = '', url = 'https://github.com/calfzhou/sidera-showcase/blob/main/content/' },
+  { path = 'sidera/', url = 'https://github.com/calfzhou/hugo-theme-sidera/blob/main/docs/content/' },
+]
 footer_menu = 'footer'
 footer_text = '**{site.title}** — a small, independent notebook. [Back to overview]({url:showcase.home}).'
 # Owner-enabled Discussions/App access; preserve these showcase-owned identifiers.

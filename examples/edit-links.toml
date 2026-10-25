@@ -1,0 +1,7 @@
+# The showcase enables these mappings in hugo.toml by default.
+# This standalone example shows how to configure source links in another site.
+[params]
+edit_url = [
+  { path = '', url = 'https://github.com/calfzhou/sidera-showcase/blob/main/content/' },
+  { path = 'sidera/', url = 'https://github.com/calfzhou/hugo-theme-sidera/blob/main/docs/content/' },
+]

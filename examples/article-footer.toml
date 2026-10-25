@@ -8,7 +8,7 @@ share = ['link', 'wechat', 'email'] # Also supports weibo; [] or false hides sha
 # (and params for the collection page itself). Individual page params win.
 # references = ['[A reference title](https://example.org/reference/)']
 # license = false
-# edit_url = 'https://github.com/owner/repository/edit/main/content/example.md'
+# edit_url = 'https://github.com/owner/repository/blob/main/content/example.md'
 
-# Add authors to article_footer explicitly if footer portraits/edit_url are desired.
-# By default linked author names appear in the header before the dates.
+# Edit links appear in the toc sidebar actions, independently of this footer.
+# Linked author names appear only in the header before the dates.

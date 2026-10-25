@@ -49,15 +49,14 @@ def main():
     for region in ('article','site'):
         write(source,'layouts/_partials/sidera/'+region+'-footer-extra.html','<p data-extra="{{ .Region }}">{{ .Page.Title }} · {{ with .Owner }}{{ .Title }}{{ end }}</p>')
     reordered=check('reordered',"""[cascade.params]
-article_footer=['links','authors','terms','text','meta','series']
+article_footer=['links','terms','text','meta','series']
 site_footer=['text','credit','links']
 terms_in_header=true
 """,flags=flags)
-    assert items(reordered,alpha,'article-footer')==['links','authors','terms','text','meta','series']
+    assert items(reordered,alpha,'article-footer')==['links','terms','text','meta','series']
     assert items(reordered,alpha,'site-footer')==['text','credit','links']
     d=nodes(reordered,alpha);ids=[n.attrs['id'] for n in d.all() if 'id' in n.attrs];assert len(ids)==len(set(ids))
     assert len(d.all(**{'data-extra':'article-footer'}))==1
-    assert [n.attrs['href'] for n in d.all(id='footer-assigned-authors')[0].all() if n.tag=='a']==['/authors/demo-researcher/']
     empty=check('empty',"""[cascade.params]
 left=false
 right=[]
@@ -112,6 +111,7 @@ article_text='Preset closing'
       ('footer-raw-html','[params]\narticle_text="<script>alert(1)</script>"','Raw HTML omitted'),
       ('footer-type','[params]\nsite_footer=true','accepts false or an array'),
       ('footer-config','[params]\narticle_footer=[{component="terms",config={unknown=true}}]','unknown terms config option'),
+      ('retired-authors','[params]\narticle_footer=["authors"]','invalid article-footer'),
       ('footer-item','[params]\nsite_footer=["share"]','invalid site-footer'),
       ('footer-text-type','[params]\narticle_text=9','article_text must be a string'),
       ('header-type','[params]\nterms_in_header="yes"','terms_in_header must be boolean'),

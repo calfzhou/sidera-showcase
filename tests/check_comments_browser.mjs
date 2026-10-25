@@ -60,7 +60,7 @@ await runBrowser(async b => {
  await viewport(1440,900);await n(route+'?kw=marginalia&utm_source=fixture#give-a-link-a-reason');
  assert.equal(clients,0);assert.equal(frames,0);
  assert(await e(`${host}.dataset.state==='idle' && !${host}.querySelector('button')`));
- assert(await e(`document.querySelector('.toc-comments').previousElementSibling.classList.contains('toc-top')`));
+ assert.deepEqual(await e(`[...document.querySelector('.toc-footer').children].map(a=>a.className)`),['toc-top','toc-edit','toc-comments']);
  assert(!await e(`document.querySelector('.article-end') || ${host}.querySelector('a') || document.querySelector('.article-comments h2')`));
  // Keyboard jump is a native anchor; entering the viewport triggers exactly one load.
  await e(`document.querySelector('.toc-comments').focus()`);await b.key('Enter','Enter',13);

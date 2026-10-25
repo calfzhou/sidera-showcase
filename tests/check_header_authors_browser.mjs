@@ -23,5 +23,5 @@ await runBrowser(async b=>{
  await v(320,960);await n('/notes/author-multiple/');await e(`document.querySelector('.header-authors a').textContent='A very long author display name that must wrap without expanding the article'`);assert(await e('document.documentElement.scrollWidth<=innerWidth'));
  await call('Emulation.setScriptExecutionDisabled',{value:true});await n('/notes/author-multiple/',false);assert.equal(await e(`document.querySelector('.header-authors').textContent`),'Second Writer, Rowan');await e(`document.querySelector('.header-authors a:last-child').focus()`);await key('Enter','Enter',13);await delay(140);assert.equal(await e('location.pathname'),'/authors/rowan/');
  await call('Emulation.setScriptExecutionDisabled',{value:false});assert.equal(b.errors.length,0,JSON.stringify(b.errors));assert(b.requests.every(u=>u.startsWith(b.origin+'/')));
- console.log('PASS compact header names/comma/separator alignment, no portraits/default footer card, absent/hidden/no-date states, native author links and retained date reveal, EN/ZH/palettes/mobile/no-JS');
+ console.log('PASS compact header names/comma/separator alignment, no portraits/footer card, absent/hidden/no-date states, native author links and retained date reveal, EN/ZH/palettes/mobile/no-JS');
 },{'/_chinese':'chinese-public'});

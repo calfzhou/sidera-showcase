@@ -18,7 +18,7 @@ title: Footer link styles
 authors: [rowan]
 tags: [footer-links]
 params:
-  article_footer: [terms, references, license, authors, share, text, links]
+  article_footer: [terms, references, license, share, text, links]
   article_links_menu: primary
   site_footer: [links, text, credit]
   footer_menu: primary
