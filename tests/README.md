@@ -25,6 +25,7 @@ caches, private all-states builds and failure fixtures must never be deployed.
 | UI/localization/configuration | `check_shell.py`, `check_presentation.py`, `check_localization.py`, `check_instances.py` |
 | Markdown/math/code/components | `check_markdown.py`, `check_advanced_markdown.py`, `check_snippets.py`, `check_content_components.py`, `check_composition.py` |
 | Image/diagram inversion | Theme `check_inversion.py <fresh-output>` and showcase `check_inversion_browser.mjs <same-output>`; covers full/soft, both directions, nesting, viewers, auto/no-JS, mobile and locales |
+| Folding corners | `check_folding_corners_browser.mjs <run> [public-directory]`; uses a production build to check closed/open hover, focus, inner radii, unclipped content and no-JS |
 | Cross-component styling | Theme `check_style_consistency.py <fresh-output>` and showcase `check_style_consistency_browser.mjs <same-output>`; includes contrast, labels, controls, cards, pinned bar, sandbox tokens and mobile |
 | Left-sidebar surfaces | `check_menu.py` fixtures plus `check_sidebar_surfaces_browser.mjs <run> [fixture-directory] [before.css]`; menu/browser and random suites cover native navigation and action states |
 | Footer links and credits | `check_site_footer.py`, `check_site_footer_browser.mjs` and `check_footer_links_browser.mjs` (same output directory); `check_article_footer.py` / browser peer and `check_footer_config.py` cover component boundaries |
