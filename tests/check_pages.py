@@ -98,10 +98,11 @@ def main():
     if search.get('data-worker'):
         target(search['data-worker'], BASE)
     docs = index['documents']
-    assert len(docs) == 66, len(docs)
+    assert len(docs) == 68, len(docs)
     assert any(d['url'] == PREFIX + 'handbook/reference/colors/' for d in docs)
     assert any(d['url'] == PREFIX + 'handbook/reference/inline-components/' for d in docs)
-    assert sum(d['url'].startswith(PREFIX + 'sidera/') for d in docs) == 26
+    assert any(d['url'] == PREFIX + 'handbook/reference/rich-tables/' for d in docs)
+    assert sum(d['url'].startswith(PREFIX + 'sidera/') for d in docs) == 27
     for doc in docs:
         target(doc['url'], BASE)
         for section in doc['sections']:
@@ -111,7 +112,7 @@ def main():
 
     theme = ROOT / 'themes/sidera'
     manual_sources = list((theme / 'docs/content').rglob('*.md'))
-    assert len(manual_sources) == 26
+    assert len(manual_sources) == 27
     for source in manual_sources:
         rel = source.relative_to(theme / 'docs/content')
         route = rel.parent if source.stem in ('index', '_index') else rel.with_suffix('')

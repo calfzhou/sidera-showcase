@@ -147,3 +147,21 @@ An optional third CLI argument points to a fresh production `public` directory f
 real showcase/manual browser checks. Live examples are at
 `content/handbook/reference/inline-components/`; theme docs
 also include an independently mounted live example. No GoCalf files are test inputs.
+
+## Structured rich tables
+
+Run `uv run --no-project --no-managed-python python3 themes/sidera/tests/check_rich_tables.py <fresh-absolute-output>`,
+then `SIDERA_HTTP_PORT=14994 SIDERA_CDP_PORT=14995 node tests/check_rich_tables_browser.mjs <same-output>`
+with nvm-selected Node and the owned browser harness. The suite covers header/body
+span topology, schema/path rejection, Markdown including native Chroma tables,
+explicit header associations, repeated output, source files, nesting, localization,
+palettes, no-JS, keyboard scrolling, sticky geometry and print/forced colors.
+An optional third CLI argument names a fresh production `public` directory for
+real showcase/manual checks. The live specimen is
+`content/handbook/reference/rich-tables/`; fixtures never use
+or mutate a GoCalf checkout. Generated output stays under the fresh `.checks` run.
+
+Rich-table browser checks also cover author-selected `borders="rows"` / `"grid"`,
+ordinary Markdown `.table-grid` attributes, carried rowspans, RTL separators,
+print/forced-colors/no-JS and isolation from nested Chroma tables. Default cell and
+caption styling still compares directly with ordinary Markdown/figure fixtures.

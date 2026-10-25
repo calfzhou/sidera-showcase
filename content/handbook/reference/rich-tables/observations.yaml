@@ -1,0 +1,31 @@
+columns:
+  - {min_width: 120}
+  - {align: center, min_width: 150}
+  - {align: end, min_width: 150}
+  - {min_width: 220}
+headers:
+  - - {text: Sample, rowspan: 2}
+    - {text: Measurements, colspan: 2}
+    - {text: Note, rowspan: 2}
+  - [Length (mm), Width (mm)]
+rows:
+  - [{text: "Sample 01", header: row}, "103", "72", "Illustrative reading 1"]
+  - [{text: "Sample 02", header: row}, "106", "74", "Illustrative reading 2"]
+  - [{text: "Sample 03", header: row}, "109", "76", "Illustrative reading 3"]
+  - [{text: "Sample 04", header: row}, "112", "78", "Illustrative reading 4"]
+  - [{text: "Sample 05", header: row}, "115", "80", "Illustrative reading 5"]
+  - [{text: "Sample 06", header: row}, "118", "82", "Illustrative reading 6"]
+  - [{text: "Sample 07", header: row}, "121", "84", "Illustrative reading 7"]
+  - [{text: "Sample 08", header: row}, "124", "86", "Illustrative reading 8"]
+  - [{text: "Sample 09", header: row}, "127", "88", "Illustrative reading 9"]
+  - [{text: "Sample 10", header: row}, "130", "90", "Illustrative reading 10"]
+  - [{text: "Sample 11", header: row}, "133", "92", "Illustrative reading 11"]
+  - [{text: "Sample 12", header: row}, "136", "94", "Illustrative reading 12"]
+  - [{text: "Sample 13", header: row}, "139", "96", "Illustrative reading 13"]
+  - [{text: "Sample 14", header: row}, "142", "98", "Illustrative reading 14"]
+  - [{text: "Sample 15", header: row}, "145", "100", "Illustrative reading 15"]
+  - [{text: "Sample 16", header: row}, "148", "102", "Illustrative reading 16"]
+  - [{text: "Sample 17", header: row}, "151", "104", "Illustrative reading 17"]
+  - [{text: "Sample 18", header: row}, "154", "106", "Illustrative reading 18"]
+  - [{text: "Sample 19", header: row}, "157", "108", "Illustrative reading 19"]
+  - [{text: "Sample 20", header: row}, "160", "110", "Illustrative reading 20"]

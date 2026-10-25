@@ -1,7 +1,7 @@
 ---
 title: "Reference desk"
 date: 2026-03-12
-lastmod: 2026-10-24T20:06:00+08:00
+lastmod: 2026-10-25T00:12:00+08:00
 params:
   children:
     order: [frontmatter, markdown]
@@ -40,3 +40,6 @@ a legacy Kindle recovery helper and a string-based Chinese-number converter in J
 
 The [inline details and tabs](inline-components/index.md) page demonstrates palette
 icons, topic chips, annotations, seven text decorations and native attachments.
+
+The [structured tables](rich-tables/index.md) page covers grouped headers, merged
+body cells, rich Markdown and optional sticky reading windows.
