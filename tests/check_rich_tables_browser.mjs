@@ -98,6 +98,8 @@ await runBrowser(async b => {
   assert.notEqual(await e(`getComputedStyle(document.activeElement).outlineStyle`),'none');
   await b.key('ArrowRight','ArrowRight',39);await b.delay(200);
   assert(await e(`document.querySelector('#legacy .rich-table-scroll').scrollLeft>0`));
+  assert(await e(`!!document.querySelector('#legacy .visually-hidden')`), 'Exercise external-link accessible labels inside the scrollport');
+  assert.equal(await e(`document.documentElement.scrollWidth>innerWidth`),false, 'Offscreen accessible labels must not expand the document');
   results.push('Narrow layout without page overflow; keyboard scrolling; multirow sticky header/first-column geometry');
   await e(`document.querySelector('.content-folding').open=true`);
   assert(await e(`document.querySelector('.content-folding .rich-table').getBoundingClientRect().height>0`));
